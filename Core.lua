@@ -14,6 +14,10 @@ local defaults = {
 		exportType = "csv";
 		removeRealmFromName = true,
 		adjustRankIndex = true,
+		maxLetters = 2000000,
+		tabSize = 4,
+		xmlRootElementName = "GuildRoster",
+		xmlRecordElementName = "Character",
 		columns = {
 			[1] = {enabled = true, name = "name"},
 			[2] = {enabled = true, name = "rankName"},
@@ -82,12 +86,65 @@ addon.options = {
 					order = 1,
 					type = "multiselect",
 					name = L["Export type"],
-					values = {["csv"] = "CSV", ["json"] = "JSON"},
+					values = {["csv"] = "CSV", ["json"] = "JSON", ["xml"] = "XML", ["yaml"] = "YAML"},
 					get = function(info, value) if value == addon.db.profile.exportType then return true end end,
 					set = function(info, value) addon.db.profile.exportType = value end,
 				},
-				csv = {
+				misc = {
 					order = 2,
+					type = "group",
+					name = L["General export settings"],
+					guiInline = true,
+					args = {
+						removeRealmName = {
+							order = 1,
+							type = "toggle",
+							name = L["Remove realm name"],
+							width = "full",
+							desc = L["With this setting enabled, the realm name will be removed from character names in column #1."],
+							get = function() return addon.db.profile.removeRealmFromName end,
+							set = function(info, value) addon.db.profile.removeRealmFromName = value end,
+						},
+						adjustRankIndex = {
+							order = 2,
+							type = "toggle",
+							width = "full",
+							name = string.format(L["Adjust %s"], "rankIndex"),
+							desc = string.format(L["%s normally starts at 0, but this setting adjust that to 1."], "rankIndex"),
+							get = function() return addon.db.profile.adjustRankIndex end,
+							set = function(info, value) addon.db.profile.adjustRankIndex = value end,
+						},
+						maxLetters = {
+							order = 3,
+							type = "input",
+							width = "normal",
+							name = L["Maximum letters"],
+							desc = L["Set the maximum number of letters that the export window can show."],
+							get = function() return tostring(addon.db.profile.maxLetters) end,
+							set = function(info, value) value = tonumber(value) if value ~= "" then addon.db.profile.maxLetters = value; exportFrame.scroll.text:SetMaxLetters(value) end end,
+						},
+						spacer1 = {
+							order = 4,
+							width = "full",
+							type = "description",
+							name = "",
+						},
+						tabSize = {
+							order = 5,
+							type = "range",
+							min = 0,
+							max = 4,
+							step = 1,
+							width = "normal",
+							name = L["Tab size"],
+							desc = L["Set the tab size in number of spaces. Used when exporting JSON, XML and YAML. Shorter tab size shortens the time before the data is displayed. Note: YAML-exports ignores a value of 0, and will default to 1."],
+							get = function() return addon.db.profile.tabSize end,
+							set = function(info, value) addon.db.profile.tabSize = value; end,
+						},
+					},
+				},
+				csv = {
+					order = 3,
 					type = "group",
 					name = L["CSV export settings"],
 					guiInline = true,
@@ -116,43 +173,47 @@ addon.options = {
 						},
 					},
 				},
+				xml = {
+					order = 4,
+					type = "group",
+					name = L["XML export settings"],
+					guiInline = true,
+					args = {
+						delimiter = {
+							order = 1,
+							type = "input",
+							width = "normal",
+							name = L["Root element name"],
+							get = function() return addon.db.profile.xmlRootElementName end,
+							set = function(info, value) if value ~= "" then addon.db.profile.xmlRootElementName = value end end,
+						},
+						spacer1 = {
+							order = 2,
+							width = "full",
+							type = "description",
+							name = "",
+						},
+						enclosure = {
+							order = 3,
+							type = "input",
+							width = "normal",
+							name = L["Each record's element name"],
+							get = function() return addon.db.profile.xmlRecordElementName end,
+							set = function(info, value) if value ~= "" then addon.db.profile.xmlRecordElementName = value end end,
+						},
+					},
+				},
 				columns = {
-					order = 3,
+					order = 5,
 					type = "group",
 					name = L["Columns"],
 					guiInline = true,
 					args = {},
 				},
-				misc = {
-					order = 4,
-					type = "group",
-					name = L["Miscellaneous"],
-					guiInline = true,
-					args = {
-						removeRealmName = {
-							order = 1,
-							type = "toggle",
-							name = L["Remove realm name from player names (column #1)"],
-							width = "full",
-							-- desc = L[""],
-							get = function() return addon.db.profile.removeRealmFromName end,
-							set = function(info, value) addon.db.profile.removeRealmFromName = value end,
-						},
-						adjustRankIndex = {
-							order = 2,
-							type = "toggle",
-							name = string.format(L["Adjust %s"], "rankIndex"),
-							desc = string.format(L["%s normally starts at 0, but this setting adjust that to 1."], "rankIndex"),
-							get = function() return addon.db.profile.adjustRankIndex end,
-							set = function(info, value) addon.db.profile.adjustRankIndex = value end,
-						},
-					},
-				},
 			},
 		},
 	},
 }
-
 
 for k, v in ipairs(defaults.profile.columns) do
 	addon.options.args.settings.args.columns.args[v.name] = {
@@ -166,7 +227,7 @@ for k, v in ipairs(defaults.profile.columns) do
 				order = 1,
 				type = "input",
 				name = tostring(k),
-				desc = string.format(L["%s Default column name: \"%s\"."], columnDescriptions[k], v.name ),
+				desc = string.format(L["%1$s Default column name: \"%2$s\"."], columnDescriptions[k], v.name ),
 				get = function() return addon.db.profile.columns[k].name end,
 				set = function(info, value) addon.db.profile.columns[k].name = value end,
 			},
@@ -189,6 +250,7 @@ function addon:OnInitialize()
 		
 	self:SetupOptions()
 	
+	exportFrame.scroll.text:SetMaxLetters(self.db.profile.maxLetters)
 	exportFrame.button:SetText(L["Close"])
 	
 	if LDB then
@@ -208,13 +270,17 @@ function addon:OnInitialize()
 					end
 				elseif msg == "LeftButton" then
 					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+					
+					if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
+						PlaySound(624) -- "GAMEGENERICBUTTONPRESS"
+						LibStub("AceConfigDialog-3.0"):Close(addonName)
+					end
+					
 					if exportFrame:IsShown() then
 						exportFrame:Hide()
+					elseif IsShiftKeyDown() then
+						exportFrame:Show()
 					else
-						if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
-							PlaySound(624) -- "GAMEGENERICBUTTONPRESS"
-							LibStub("AceConfigDialog-3.0"):Close(addonName)
-						end
 						self:ExportData()
 					end
 				end
@@ -223,8 +289,9 @@ function addon:OnInitialize()
 			OnTooltipShow = function(tooltip)
 				if not tooltip or not tooltip.AddLine then return end
 				tooltip:AddLine(addonName)
-				tooltip:AddLine(L["|cffffff00Right-click|r to open the options menu"])
+				tooltip:AddLine(L["|cffffff00Right-click|r to toggle the options menu"])
 				tooltip:AddLine(L["|cffffff00Left-click|r to export data based upon your settings"])
+				tooltip:AddLine(L["|cffffff00Shift-Left-click|r to only open the export window"])
 			end,
 		})
 
@@ -240,6 +307,7 @@ function addon:UpdateConfigs()
 		LDBIcon:Refresh(addonName, addon.db.profile.minimapIcon)
 	end
 	LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
+	exportFrame.scroll.text:SetMaxLetters(addon.db.profile.maxLetters)
 end
 
 function addon:SetupOptions()
@@ -249,65 +317,143 @@ function addon:SetupOptions()
 	-- LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, addonName)
 end
 
-function addon:ExportData()
-	local exportType = self.db.profile.exportType
-	local enclosure = self.db.profile.enclosure
-	local delimiter = self.db.profile.delimiter
-	local output = ''
+local function export_csv(data)
+	local header = {}
+	for k, v in pairs(addon.db.profile.columns) do
+		if v.enabled then
+			table.insert(header, v.name)
+		end
+	end
+
+	data[0] = header
+
+	local enclosure = addon.db.profile.enclosure
+	local delimiter = addon.db.profile.delimiter
+	local output = ""
+
+	for i=0, #data do
+		local line = ""
+		for _, c in pairs(data[i]) do
+		
+			if type(c) == "boolean" then
+				c = tostring(c)
+			end
+			
+			line = string.format("%1$s%2$s%4$s%2$s%3$s", line, enclosure, delimiter, c)
+		end
+		output = string.format("%1$s%2$s\n", output, line:sub(1,-2))
+	end
+
+	return output:sub(1,-2)
+end
+
+local function export_json(data)
+	local output = ""
+
+	for _, v in pairs(data) do
+		local line = ''
+		for k, c in pairs(v) do
+			if (type(c) == "string") then 
+				c = string.format('"%s"', c)
+			end
+			
+			if type(c) == "boolean" then
+				c = tostring(c)
+			end
+			
+			line = string.format("%1$s\n\t\t\"%2$s\": %3$s,", line, addon.db.profile.columns[k].name, c)
+		end
+		output = string.format("%1$s\n\t{%2$s\n\t},",output, line:sub(1,-2))
+	end
+	output = string.format("[%1$s\n]", output:sub(1,-2))
+	return output:gsub("\t", addon.tab)
+end
+
+local function export_xml(data)
+	local xmlRootElementName = addon.db.profile.xmlRootElementName
+	local xmlRecordElementName = addon.db.profile.xmlRecordElementName
+	local output = string.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%s>", xmlRootElementName)
 	
-	if exportType == "json" then
-		output = "["
+	for _, v in pairs(data) do
+		local line = string.format("\n\t<%s>\n", xmlRecordElementName)
+		for k, c in pairs(v) do
+			local elementName = addon.db.profile.columns[k].name
+			local startTag = string.format("<%s>", elementName)
+			local endTag = string.format("</%s>", elementName)
+			
+			if type(c) == "boolean" then
+				c = tostring(c)
+			end
+			
+			line = string.format("%1$s\t\t%2$s%3$s%4$s\n", line, startTag, c, endTag)
+		end
+		output = string.format("%1$s%2$s\t</%3$s>", output, line, xmlRecordElementName)
+	end
+	output = string.format("%1$s\n</%2$s>", output, xmlRootElementName)
+	
+	return output:gsub("\t", addon.tab)
+end
+
+local function export_yaml(data)
+	local output = ""
+	
+	for _, v in pairs(data) do
+		local block = "-\n"
+		for k, c in pairs(v) do
+			if (type(c) == "string") then 
+				c = string.format('"%s"', c)
+			end
+			
+			if type(c) == "boolean" then
+				c = tostring(c)
+			end
+			
+			block = string.format("%1$s\t%2$s: %3$s\n", block, addon.db.profile.columns[k].name, c)
+		end
+		output = string.format("%1$s%2$s\n", output, block:sub(1,-2))
+	end
+
+	return output:sub(1,-2):gsub("\t", addon.tab:len() > 0 and addon.tab or " ")
+end
+
+local export_functions ={
+	["csv"] = export_csv,
+	["json"] = export_json,
+	["xml"] = export_xml,
+	["yaml"] = export_yaml,
+}
+
+function addon:ExportData()
+
+	self.tab = ""
+
+	for i=1, self.db.profile.tabSize do
+		self.tab = self.tab .. " "
 	end
 	
+	local roster = {}
+
 	for i=1, GetNumGuildMembers() do
 		local row = { GetGuildRosterInfo(i) }
-		local line = ''
-		for k, v in ipairs(row) do
+		for k, v in pairs(row) do
+			if not self.db.profile.columns[k].enabled then
+				row[k] = nil
+			end
+
 			if self.db.profile.columns[k].enabled then
 				if self.db.profile.removeRealmFromName and k == 1 then
-					v = v:gsub("-.+","")
+					row[k] = row[k]:gsub("-.+","")
 				end
 				
 				if self.db.profile.adjustRankIndex and k == 3 then
-					v = v + 1
-				end
-				
-				if exportType == "csv" then
-					line = line .. enclosure .. v .. enclosure .. delimiter
-				elseif exportType == "json" then
-					line = line .. string.format("\"%s\": ", self.db.profile.columns[k].name)
-					if (type(v) == "string") then 
-						line = line .. string.format('"%s",', v)
-					else
-						line = line .. string.format('%s,', v)
-					end
+					row[k] = row[k]+1
 				end
 			end
 		end
-		
-		if exportType == "csv" then
-			output = output .. "\n" .. line:sub(1,-2)
-		elseif exportType == "json" then
-			output = output .. "\n{" .. line:sub(1,-2) .. "},"
-		end
-		
+		table.insert(roster, row)		
 	end
-	
-	if exportType == "csv" then
-		local header = ''
-		for k, v in ipairs(self.db.profile.columns) do
-			if v.enabled then
-				header = header .. enclosure .. v.name .. enclosure .. delimiter
-			end
-		end
-		output = header:sub(1,-2) .. output
-	elseif exportType == "json" then
-		output = output:sub(1,-2) .. "\n]"
-	end
-	
-	
-	
-	exportFrame.scroll.text:SetText(output);
+
+	exportFrame.scroll.text:SetText(export_functions[self.db.profile.exportType](roster));
 	exportFrame.scroll.text:HighlightText()
 	exportFrame:Show()
 end

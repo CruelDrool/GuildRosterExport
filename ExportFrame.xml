@@ -53,7 +53,7 @@
           </Anchor>
         </Anchors>
         <ScrollChild>
-          <EditBox parentKey="text" letters="999999" multiLine="true" autoFocus="true" enableMouse="true">
+          <EditBox parentKey="text" multiLine="true" autoFocus="true" enableMouse="true">
             <Size>
               <AbsDimension x="630" y="380"/>
             </Size>

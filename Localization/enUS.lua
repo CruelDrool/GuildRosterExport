@@ -10,21 +10,30 @@ L["Close"] = true
 -- MINIMAP ICON --
 L["Minimap Icon"] = true
 L["Show a Icon to open the config at the Minimap"] = true
-L["|cffffff00Right-click|r to open the options menu"] = true
+L["|cffffff00Right-click|r to toggle the options menu"] = true
 L["|cffffff00Left-click|r to export data based upon your settings"] = true
+L["|cffffff00Shift-Left-click|r to only open the export window"] = true
 
 -- CONFIGURATION --
+L["General export settings"] = true
+L["Remove realm name"] = true
+L["With this setting enabled, the realm name will be removed from character names in column #1."] = true
+L["Adjust %s"] = true -- rankIndex
+L["%s normally starts at 0, but this setting adjust that to 1."] = true -- rankIndex
+L["Maximum letters"] = true
+L["Set the maximum number of letters that the export window can show."] = true
+L["Tab size"] = true
+L["Set the tab size in number of spaces. Used when exporting JSON, XML and YAML. Shorter tab size shortens the time before the data is displayed. Note: YAML-exports ignores a value of 0, and will default to 1."] = true
 L["Settings"] = true
 L["Export type"] = true
 L["CSV export settings"] = true
 L["Delimiter"] = true
 L["Enclosure"] = true
+L["XML export settings"] = true
+L["Root element name"] = true
+L["Each record's element name"] = true
 L["Columns"] = true
-L["%s Default column name: \"%s\"."] = true
-L["Miscellaneous"] = true
-L["Remove realm name from player names (column #1)"] = true
-L["Adjust %s"] = true -- rankIndex
-L["%s normally starts at 0, but this setting adjust that to 1."] = true -- rankIndex
+L["%1$s Default column name: \"%2$s\"."] = true
 
 -- COLUMN DESCRIPTIONS --
 L["String - Name of character with realm (e.g. \"Arthas-Silvermoon\"). This addon defaults to removing the realm name."] = true
