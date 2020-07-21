@@ -1,5 +1,5 @@
 local addonName = ...
-local addon = LibStub("AceAddon-3.0"):NewAddon(addonName)
+local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName, false)
 -- _G[addonName] = addon -- uncomment for debugging purposes
 
@@ -37,6 +37,18 @@ local defaults = {
 			[16] = {enabled = false, name = "repStandingID"},
 			[17] = {enabled = false, name = "GUID"},
 		},
+		ranks = {
+			[1] = true,
+			[2] = true,
+			[3] = true,
+			[4] = true,
+			[5] = true,
+			[6] = true,
+			[7] = true,
+			[8] = true,
+			[9] = true,
+			[10] = true,
+		},
 	}
 }
 
@@ -61,6 +73,8 @@ local columnDescriptions = {
 }
 
 local exportFrame = _G[addonName..'Frame']
+local openOptionsSound = 88 -- "GAMEDIALOGOPEN"
+local closeOptionsSound = 624 -- "GAMEGENERICBUTTONPRESS"
 
 addon.options = {
 	childGroups = "tree",
@@ -74,8 +88,16 @@ addon.options = {
 			desc = L["Show a Icon to open the config at the Minimap"],
 			get = function() return not addon.db.profile.minimapIcon.hide end,
 			set = function(info, value) addon.db.profile.minimapIcon.hide = not value; LDBIcon[value and "Show" or "Hide"](LDBIcon, addonName) end,
-			-- disabled = function() return not LDBIcon end,
-			disabled = function() return not LDBTitan end,
+			disabled = function() return not LDBIcon end,
+			-- disabled = function() return not LDBTitan end,
+		},
+		test = {
+			order = 2,
+			type = "execute",
+			desc = L["WARNING! Large exports may freeze your game for several seconds!"],
+			name = L["Export"],
+			width = "half",
+			func = function() LibStub("AceConfigDialog-3.0"):Close(addonName); addon:ExportData() end,
 		},
 		settings = {
 			order = 2,
@@ -84,17 +106,32 @@ addon.options = {
 			args = {
 				exportType = {
 					order = 1,
-					type = "multiselect",
+					type = "select",
+					style = "radio",
 					name = L["Export type"],
 					values = {["csv"] = "CSV", ["json"] = "JSON", ["xml"] = "XML", ["yaml"] = "YAML"},
-					get = function(info, value) if value == addon.db.profile.exportType then return true end end,
+					get = function() return addon.db.profile.exportType end,
 					set = function(info, value) addon.db.profile.exportType = value end,
 				},
-				misc = {
+				columns = {
 					order = 2,
 					type = "group",
-					name = L["General export settings"],
+					name = L["Columns"],
 					guiInline = true,
+					args = {},
+				},
+				ranks = {
+					order = 3,
+					type = "group",
+					name = L["Ranks"],
+					guiInline = true,
+					args = {},
+				},
+				global = {
+					order = 4,
+					type = "group",
+					name = L["Global"],
+					-- guiInline = true,
 					args = {
 						removeRealmName = {
 							order = 1,
@@ -144,10 +181,10 @@ addon.options = {
 					},
 				},
 				csv = {
-					order = 3,
+					order = 5,
 					type = "group",
-					name = L["CSV export settings"],
-					guiInline = true,
+					name = L["CSV"],
+					-- guiInline = true,
 					args = {
 						delimiter = {
 							order = 1,
@@ -174,10 +211,10 @@ addon.options = {
 					},
 				},
 				xml = {
-					order = 4,
+					order = 6,
 					type = "group",
-					name = L["XML export settings"],
-					guiInline = true,
+					name = L["XML"],
+					-- guiInline = true,
 					args = {
 						delimiter = {
 							order = 1,
@@ -202,13 +239,6 @@ addon.options = {
 							set = function(info, value) if value ~= "" then addon.db.profile.xmlRecordElementName = value end end,
 						},
 					},
-				},
-				columns = {
-					order = 5,
-					type = "group",
-					name = L["Columns"],
-					guiInline = true,
-					args = {},
 				},
 			},
 		},
@@ -242,56 +272,64 @@ for k, v in ipairs(defaults.profile.columns) do
 	}
 end
 
+local function getGuildRanksInfo()
+	for k, v in ipairs(defaults.profile.ranks) do
+		local rankName = GuildControlGetRankName(k)
+		
+		if rankName == "" then
+			rankName = L["Unknown"]
+		end
+		
+		rankName = string.format("%1$s - %2$s", k, rankName)
+		
+		addon.options.args.settings.args.ranks.args["rank"..tostring(k)] = {
+			order = k,
+			type = "toggle",
+			name = rankName,
+			get = function() return addon.db.profile.ranks[k] end,
+			set = function(info, value) addon.db.profile.ranks[k] = value end,
+		}
+	end
+end
+
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New(addonName.."DB", defaults)
 	self.db.RegisterCallback(self, "OnProfileChanged", "UpdateConfigs")
 	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateConfigs")
 	self.db.RegisterCallback(self, "OnProfileReset", "UpdateConfigs")
-		
+	
 	self:SetupOptions()
 	
 	exportFrame.scroll.text:SetMaxLetters(self.db.profile.maxLetters)
-	exportFrame.button:SetText(L["Close"])
+	exportFrame.closeButton:SetText(L["Close"])
+	exportFrame.closeAndReturnButton:SetText(L["Close & Return"])
+	exportFrame.closeAndReturnButton:SetScript("OnClick", function() exportFrame:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
+	
+	self:RegisterChatCommand(string.lower(addonName), function() exportFrame:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
 	
 	if LDB then
 		self.LDBObj = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
 			type = "launcher",
 			OnClick = function(_, msg)
 				if msg == "RightButton" then
-					if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
-						PlaySound(624) -- "GAMEGENERICBUTTONPRESS"
-						LibStub("AceConfigDialog-3.0"):Close(addonName)
-					else
-						if exportFrame:IsShown() then
-							exportFrame:Hide()
-						end
-						PlaySound(88) -- "GAMEDIALOGOPEN"
-						LibStub("AceConfigDialog-3.0"):Open(addonName)
-					end
-				elseif msg == "LeftButton" then
-					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-					
-					if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
-						PlaySound(624) -- "GAMEGENERICBUTTONPRESS"
-						LibStub("AceConfigDialog-3.0"):Close(addonName)
-					end
-					
 					if exportFrame:IsShown() then
 						exportFrame:Hide()
-					elseif IsShiftKeyDown() then
-						exportFrame:Show()
+					end
+					if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
+						PlaySound(closeOptionsSound)
+						LibStub("AceConfigDialog-3.0"):Close(addonName)
 					else
-						self:ExportData()
+						getGuildRanksInfo()
+						PlaySound(openOptionsSound)
+						LibStub("AceConfigDialog-3.0"):Open(addonName)
 					end
 				end
 			end,
-			icon = "Interface\\MINIMAP\\Minimap_skull_elite",
+			icon = "Interface\\AddOns\\"..addonName.."\\icon",
 			OnTooltipShow = function(tooltip)
 				if not tooltip or not tooltip.AddLine then return end
 				tooltip:AddLine(addonName)
-				tooltip:AddLine(L["|cffffff00Right-click|r to toggle the options menu"])
-				tooltip:AddLine(L["|cffffff00Left-click|r to export data based upon your settings"])
-				tooltip:AddLine(L["|cffffff00Shift-Left-click|r to only open the export window"])
+				tooltip:AddLine(string.format(L["|cffffff00Right-click|r to open the export interface.\nOr use /%s"], string.lower(addonName)))
 			end,
 		})
 
@@ -435,22 +473,24 @@ function addon:ExportData()
 
 	for i=1, GetNumGuildMembers() do
 		local row = { GetGuildRosterInfo(i) }
-		for k, v in pairs(row) do
-			if not self.db.profile.columns[k].enabled then
-				row[k] = nil
-			end
+		if self.db.profile.ranks[row[3]+1] then
+			for k, v in pairs(row) do
+				if not self.db.profile.columns[k].enabled then
+					row[k] = nil
+				end
 
-			if self.db.profile.columns[k].enabled then
-				if self.db.profile.removeRealmFromName and k == 1 then
-					row[k] = row[k]:gsub("-.+","")
-				end
-				
-				if self.db.profile.adjustRankIndex and k == 3 then
-					row[k] = row[k]+1
+				if self.db.profile.columns[k].enabled then
+					if self.db.profile.removeRealmFromName and k == 1 then
+						row[k] = row[k]:gsub("-.+","")
+					end
+					
+					if self.db.profile.adjustRankIndex and k == 3 then
+						row[k] = row[k]+1
+					end
 				end
 			end
+			table.insert(roster, row)
 		end
-		table.insert(roster, row)		
 	end
 
 	exportFrame.scroll.text:SetText(export_functions[self.db.profile.exportType](roster));

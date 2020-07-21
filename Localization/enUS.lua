@@ -6,16 +6,17 @@ if not L then return end
 
 -- EXPORT FRAME --
 L["Close"] = true
+L["Close & Return"] = true
 
 -- MINIMAP ICON --
 L["Minimap Icon"] = true
 L["Show a Icon to open the config at the Minimap"] = true
-L["|cffffff00Right-click|r to toggle the options menu"] = true
-L["|cffffff00Left-click|r to export data based upon your settings"] = true
-L["|cffffff00Shift-Left-click|r to only open the export window"] = true
+L["|cffffff00Right-click|r to open the export interface.\nOr use /%s"] = true
 
 -- CONFIGURATION --
-L["General export settings"] = true
+L["Export"] = true
+L["WARNING! Large exports may freeze your game for several seconds!"] = true
+L["Global"] = true
 L["Remove realm name"] = true
 L["With this setting enabled, the realm name will be removed from character names in column #1."] = true
 L["Adjust %s"] = true -- rankIndex
@@ -26,13 +27,16 @@ L["Tab size"] = true
 L["Set the tab size in number of spaces. Used when exporting JSON, XML and YAML. Shorter tab size shortens the time before the data is displayed. Note: YAML-exports ignores a value of 0, and will default to 1."] = true
 L["Settings"] = true
 L["Export type"] = true
-L["CSV export settings"] = true
+L["CSV"] = true
 L["Delimiter"] = true
 L["Enclosure"] = true
-L["XML export settings"] = true
+L["XML"] = true
 L["Root element name"] = true
 L["Each record's element name"] = true
 L["Columns"] = true
+L["Ranks"] = true
+L["|cffff0000Unable to extract rank name information. You are currently not in a guild.|r"] = true
+L["Unknown"] = true
 L["%1$s Default column name: \"%2$s\"."] = true
 
 -- COLUMN DESCRIPTIONS --

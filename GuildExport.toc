@@ -4,6 +4,7 @@
 ## Notes: Export the guild roster to CSV, JSON, XML or YAML.
 ## Author: CruelDrool
 ## SavedVariables: GuildExportDB
+## X-Category: Data Export
 #@no-lib-strip@
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
@@ -13,6 +14,7 @@ Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
 Libs\AceLocale-3.0\AceLocale-3.0.xml
 Libs\AceGUI-3.0\AceGUI-3.0.xml
 Libs\AceConfig-3.0\AceConfig-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
 Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 #@end-no-lib-strip@

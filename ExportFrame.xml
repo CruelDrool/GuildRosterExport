@@ -20,19 +20,28 @@
 			</EdgeSize>
 		</Backdrop>
 		<Frames>
-			<Button parentKey="button" inherits="GameMenuButtonTemplate">
+			<Button parentKey="closeButton" inherits="GameMenuButtonTemplate">
 				<Anchors>
 					<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="BOTTOM">
 						<Offset>
-							<AbsDimension x="0" y="10" />
+							<AbsDimension x="-75" y="10" />
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						self:GetParent():Hide()
+						self:GetParent():Hide(); PlaySound(SOUNDKIT.GS_TITLE_OPTION_EXIT)
 					</OnClick>
 				</Scripts>
+			</Button>
+			<Button parentKey="closeAndReturnButton" inherits="GameMenuButtonTemplate">
+				<Anchors>
+					<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension x="75" y="10" />
+						</Offset>
+					</Anchor>
+				</Anchors>
 			</Button>
 			<ScrollFrame parentKey="scroll" inherits="UIPanelScrollFrameTemplate" toplevel="true">
 				<Anchors>
