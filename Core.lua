@@ -188,7 +188,7 @@ addon.options = {
 						indentationInfoText = {
 							order = 7,
 							type = "description",
-							name = L["Spaces are default the indentation style because tabs are displayed as question marks in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."],
+							name = L["Spaces are the default indentation style because tabs are displayed as question marks in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."],
 						},
 						spacesIndentationDepth = {
 							order = 8,
