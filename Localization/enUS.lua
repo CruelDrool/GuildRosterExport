@@ -15,7 +15,7 @@ L["|cffffff00Right-click|r to open the export interface.\nOr use /%s"] = true
 
 -- CONFIGURATION --
 L["Export"] = true
-L["WARNING! Large exports may freeze your game for several seconds!"] = true
+L["WARNING! Large exports may freeze your game for several seconds!\n\nNote: all exports are in UTF-8."] = true
 L["Global"] = true
 L["Remove realm name"] = true
 L["With this setting enabled, the realm name will be removed from character names in column #1."] = true
@@ -23,8 +23,13 @@ L["Adjust %s"] = true -- rankIndex
 L["%s normally starts at 0, but this setting adjust that to 1."] = true -- rankIndex
 L["Maximum letters"] = true
 L["Set the maximum number of letters that the export window can show."] = true
-L["Tab size"] = true
-L["Set the tab size in number of spaces. Used when exporting JSON, XML and YAML. Shorter tab size shortens the time before the data is displayed. Note: YAML-exports ignores a value of 0, and will default to 1."] = true
+L["Indentation style"] = true
+L["Set indentation style. Used when exporting JSON and XML."] = true
+L["Spaces"] = true
+L["Tabs"] = true
+L["Indentation depth (spaces)"] = true
+L["Set the depth used when spaces are set as indentation style. Smaller depth shortens the time before the data is displayed."] = true
+L["Spaces are the default indentation style because tabs are displayed as question marks in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."] = true
 L["Settings"] = true
 L["Export type"] = true
 L["CSV"] = true

@@ -9,13 +9,14 @@ local LDBIcon = LibStub("LibDBIcon-1.0", true)
 local defaults = {
 	profile = {
 		minimapIcon = {},
-		delimiter = ',',
-		enclosure = '"',
 		exportType = "csv";
 		removeRealmFromName = true,
 		adjustRankIndex = true,
 		maxLetters = 2000000,
-		tabSize = 4,
+		indentationStyle = "spaces",
+		spacesIndentationDepth = 4,
+		csvDelimiter = ',',
+		csvEnclosure = '"',
 		xmlRootElementName = "GuildRoster",
 		xmlRecordElementName = "Character",
 		columns = {
@@ -91,10 +92,20 @@ addon.options = {
 			disabled = function() return not LDBIcon end,
 			-- disabled = function() return not LDBTitan end,
 		},
-		test = {
+		exportType = {
 			order = 2,
+			type = "select",
+			style = "dropdown",
+			width = "half",
+			name = "",
+			values = {["csv"] = "CSV", ["json"] = "JSON", ["xml"] = "XML", ["yaml"] = "YAML"},
+			get = function() return addon.db.profile.exportType end,
+			set = function(info, value) addon.db.profile.exportType = value end,
+		},
+		exportButton = {
+			order = 3,
 			type = "execute",
-			desc = L["WARNING! Large exports may freeze your game for several seconds!"],
+			desc = L["WARNING! Large exports may freeze your game for several seconds!\n\nNote: all exports are in UTF-8."],
 			name = L["Export"],
 			width = "half",
 			func = function() LibStub("AceConfigDialog-3.0"):Close(addonName); addon:ExportData() end,
@@ -104,15 +115,7 @@ addon.options = {
 			type = "group",
 			name = L["Settings"],
 			args = {
-				exportType = {
-					order = 1,
-					type = "select",
-					style = "radio",
-					name = L["Export type"],
-					values = {["csv"] = "CSV", ["json"] = "JSON", ["xml"] = "XML", ["yaml"] = "YAML"},
-					get = function() return addon.db.profile.exportType end,
-					set = function(info, value) addon.db.profile.exportType = value end,
-				},
+
 				columns = {
 					order = 2,
 					type = "group",
@@ -166,17 +169,38 @@ addon.options = {
 							type = "description",
 							name = "",
 						},
-						tabSize = {
+						indentationStyle = {
 							order = 5,
+							type = "select",
+							style = "dropdown",
+							name = L["Indentation style"],
+							desc = L["Set indentation style. Used when exporting JSON and XML."],
+							values = {["tabs"] = L["Tabs"], ["spaces"] = L["Spaces"]},
+							get = function() return addon.db.profile.indentationStyle end,
+							set = function(info, value) addon.db.profile.indentationStyle = value end,
+						},
+						spacer2 = {
+							order = 6,
+							width = "full",
+							type = "description",
+							name = "",
+						},
+						indentationInfoText = {
+							order = 7,
+							type = "description",
+							name = L["Spaces are default the indentation style because tabs are displayed as question marks in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."],
+						},
+						spacesIndentationDepth = {
+							order = 8,
 							type = "range",
 							min = 0,
-							max = 4,
+							max = 8,
 							step = 1,
 							width = "normal",
-							name = L["Tab size"],
-							desc = L["Set the tab size in number of spaces. Used when exporting JSON, XML and YAML. Shorter tab size shortens the time before the data is displayed. Note: YAML-exports ignores a value of 0, and will default to 1."],
-							get = function() return addon.db.profile.tabSize end,
-							set = function(info, value) addon.db.profile.tabSize = value; end,
+							name = L["Indentation depth (spaces)"],
+							desc = L["Set the depth used when spaces are set as indentation style. Smaller depth shortens the time before the data is displayed."],
+							get = function() return addon.db.profile.spacesIndentationDepth end,
+							set = function(info, value) addon.db.profile.spacesIndentationDepth = value; end,
 						},
 					},
 				},
@@ -272,7 +296,7 @@ for k, v in ipairs(defaults.profile.columns) do
 	}
 end
 
-local function getGuildRanksInfo()
+local function insertGuildRanksIntoOptions()
 	for k, v in ipairs(defaults.profile.ranks) do
 		local rankName = GuildControlGetRankName(k)
 		
@@ -319,7 +343,7 @@ function addon:OnInitialize()
 						PlaySound(closeOptionsSound)
 						LibStub("AceConfigDialog-3.0"):Close(addonName)
 					else
-						getGuildRanksInfo()
+						insertGuildRanksIntoOptions()
 						PlaySound(openOptionsSound)
 						LibStub("AceConfigDialog-3.0"):Open(addonName)
 					end
@@ -342,10 +366,10 @@ end
 
 function addon:UpdateConfigs()
 	if LDB and LDBIcon then
-		LDBIcon:Refresh(addonName, addon.db.profile.minimapIcon)
+		LDBIcon:Refresh(addonName, self.db.profile.minimapIcon)
 	end
 	LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
-	exportFrame.scroll.text:SetMaxLetters(addon.db.profile.maxLetters)
+	exportFrame.scroll.text:SetMaxLetters(self.db.profile.maxLetters)
 end
 
 function addon:SetupOptions()
@@ -355,137 +379,28 @@ function addon:SetupOptions()
 	-- LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, addonName)
 end
 
-local function export_csv(data)
-	local header = {}
-	for k, v in pairs(addon.db.profile.columns) do
-		if v.enabled then
-			table.insert(header, v.name)
-		end
-	end
-
-	data[0] = header
-
-	local enclosure = addon.db.profile.enclosure
-	local delimiter = addon.db.profile.delimiter
-	local output = ""
-
-	for i=0, #data do
-		local line = ""
-		for _, c in pairs(data[i]) do
-		
-			if type(c) == "boolean" then
-				c = tostring(c)
-			end
-			
-			line = string.format("%1$s%2$s%4$s%2$s%3$s", line, enclosure, delimiter, c)
-		end
-		output = string.format("%1$s%2$s\n", output, line:sub(1,-2))
-	end
-
-	return output:sub(1,-2)
-end
-
-local function export_json(data)
-	local output = ""
-
-	for _, v in pairs(data) do
-		local line = ''
-		for k, c in pairs(v) do
-			if (type(c) == "string") then 
-				c = string.format('"%s"', c)
-			end
-			
-			if type(c) == "boolean" then
-				c = tostring(c)
-			end
-			
-			line = string.format("%1$s\n\t\t\"%2$s\": %3$s,", line, addon.db.profile.columns[k].name, c)
-		end
-		output = string.format("%1$s\n\t{%2$s\n\t},",output, line:sub(1,-2))
-	end
-	output = string.format("[%1$s\n]", output:sub(1,-2))
-	return output:gsub("\t", addon.tab)
-end
-
-local function export_xml(data)
-	local xmlRootElementName = addon.db.profile.xmlRootElementName
-	local xmlRecordElementName = addon.db.profile.xmlRecordElementName
-	local output = string.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%s>", xmlRootElementName)
-	
-	for _, v in pairs(data) do
-		local line = string.format("\n\t<%s>\n", xmlRecordElementName)
-		for k, c in pairs(v) do
-			local elementName = addon.db.profile.columns[k].name
-			local startTag = string.format("<%s>", elementName)
-			local endTag = string.format("</%s>", elementName)
-			
-			if type(c) == "boolean" then
-				c = tostring(c)
-			end
-			
-			line = string.format("%1$s\t\t%2$s%3$s%4$s\n", line, startTag, c, endTag)
-		end
-		output = string.format("%1$s%2$s\t</%3$s>", output, line, xmlRecordElementName)
-	end
-	output = string.format("%1$s\n</%2$s>", output, xmlRootElementName)
-	
-	return output:gsub("\t", addon.tab)
-end
-
-local function export_yaml(data)
-	local output = ""
-	
-	for _, v in pairs(data) do
-		local block = "-\n"
-		for k, c in pairs(v) do
-			if (type(c) == "string") then 
-				c = string.format('"%s"', c)
-			end
-			
-			if type(c) == "boolean" then
-				c = tostring(c)
-			end
-			
-			block = string.format("%1$s\t%2$s: %3$s\n", block, addon.db.profile.columns[k].name, c)
-		end
-		output = string.format("%1$s%2$s\n", output, block:sub(1,-2))
-	end
-
-	return output:sub(1,-2):gsub("\t", addon.tab:len() > 0 and addon.tab or " ")
-end
-
-local export_functions ={
-	["csv"] = export_csv,
-	["json"] = export_json,
-	["xml"] = export_xml,
-	["yaml"] = export_yaml,
-}
-
 function addon:ExportData()
-
-	self.tab = ""
-
-	for i=1, self.db.profile.tabSize do
-		self.tab = self.tab .. " "
-	end
-	
+	local exportType = self.db.profile.exportType
+	local ranks = self.db.profile.ranks
+	local columns = self.db.profile.columns
+	local removeRealmFromName = self.db.profile.removeRealmFromName
+	local adjustRankIndex = self.db.profile.adjustRankIndex
 	local roster = {}
 
 	for i=1, GetNumGuildMembers() do
 		local row = { GetGuildRosterInfo(i) }
-		if self.db.profile.ranks[row[3]+1] then
+		local rankIndex = row[3] + 1
+		if ranks[rankIndex] then
 			for k, v in pairs(row) do
-				if not self.db.profile.columns[k].enabled then
+				if not columns[k].enabled then
 					row[k] = nil
-				end
-
-				if self.db.profile.columns[k].enabled then
-					if self.db.profile.removeRealmFromName and k == 1 then
+				else
+					if removeRealmFromName and k == 1 then
 						row[k] = row[k]:gsub("-.+","")
 					end
 					
-					if self.db.profile.adjustRankIndex and k == 3 then
-						row[k] = row[k]+1
+					if adjustRankIndex and k == 3 then
+						row[k] = rankIndex
 					end
 				end
 			end
@@ -493,7 +408,139 @@ function addon:ExportData()
 		end
 	end
 
-	exportFrame.scroll.text:SetText(export_functions[self.db.profile.exportType](roster));
+	exportFrame.scroll.text:SetText(self[exportType](self, roster));
 	exportFrame.scroll.text:HighlightText()
 	exportFrame:Show()
+end
+
+local function getTabReplacement(n)
+	local str = ""
+	for i=1, n do
+		str = str .. " "
+	end
+	
+	return str
+end
+
+function addon:csv(data)
+	local enclosure = self.db.profile.csvEnclosure
+	local delimiter = self.db.profile.csvDelimiter
+	local columns = self.db.profile.columns
+	local output = ""
+	local header = {}
+	
+	for k, v in pairs(columns) do
+		if v.enabled then
+			table.insert(header, v.name)
+		end
+	end
+
+	data[0] = header
+
+	for i=0, #data do
+		local line = ""
+		for _, c in pairs(data[i]) do
+			if type(c) == "boolean" then
+				c = tostring(c)
+			end
+			
+			line = string.format("%1$s%2$s%4$s%2$s%3$s", line, enclosure, delimiter, c)
+		end
+		
+		-- Add the line to the output. The last delimiter character is removed.
+		output = string.format("%1$s%2$s\n", output, line:sub(1,-2))
+	end
+
+	return output:sub(1,-2)
+end
+
+function addon:json(data)
+	local columns = self.db.profile.columns
+	local indentationStyle = self.db.profile.indentationStyle
+	local output = ""
+
+	for _, v in pairs(data) do
+		local lines = ""
+		for k, c in pairs(v) do
+			if (type(c) == "string") then 
+				c = string.format('"%s"', c)
+			end
+			
+			if type(c) == "boolean" then
+				c = tostring(c)
+			end
+			
+			lines = string.format("%1$s\n\t\t\"%2$s\": %3$s,", lines, columns[k].name, c)
+		end
+		
+		-- Add the block of lines to the output. Trailing is comma removed.
+		output = string.format("%1$s\n\t{%2$s\n\t},",output, lines:sub(1,-2))
+	end
+	
+	-- Format the ouput. Trailing \n (newline) is removed.
+	output = string.format("[%1$s\n]", output:sub(1,-2))
+	
+	if indentationStyle == "spaces" then
+		local tabReplacement = getTabReplacement(self.db.profile.spacesIndentationDepth)
+		output = output:gsub("\t", tabReplacement)
+	end
+	
+	return output
+end
+
+function addon:xml(data)
+	local xmlRootElementName = self.db.profile.xmlRootElementName
+	local xmlRecordElementName = self.db.profile.xmlRecordElementName
+	local columns = self.db.profile.columns
+	local indentationStyle = self.db.profile.indentationStyle
+	local output = ""
+	
+	for _, v in pairs(data) do
+		local lines = ""
+		for k, c in pairs(v) do			
+			if type(c) == "boolean" then
+				c = tostring(c)
+			end
+			
+			lines = string.format("%1$s\t\t<%2$s>%3$s</%2$s>\n", lines, columns[k].name, c)
+		end
+		
+		-- Add the block of lines to the output.
+		output = string.format("%1$s\n\t<%2$s>\n%3$s\t</%2$s>", output, xmlRecordElementName, lines)
+	end
+	
+	output = string.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%1$s>%2$s\n</%1$s>", xmlRootElementName, output)
+	
+	if indentationStyle == "spaces" then
+		local tabReplacement = getTabReplacement(self.db.profile.spacesIndentationDepth)
+		output = output:gsub("\t", tab)
+	end
+	
+	return output
+end
+
+function addon:yaml(data)
+	local columns = self.db.profile.columns
+	local output = ""
+		
+	for _, v in pairs(data) do
+		local lines = ""
+		for k, c in pairs(v) do
+			if (type(c) == "string") then 
+				c = string.format('"%s"', c)
+			end
+			
+			if type(c) == "boolean" then
+				c = tostring(c)
+			end
+			
+			lines = string.format("%1$s %2$s: %3$s\n", lines, columns[k].name, c)
+		end
+		
+		-- Add the block of lines to the output.
+		output = string.format("%1$s-\n%2$s", output, lines)
+	end
+	
+	-- Return output. The trailing \n (newline) is removed.
+	return output:sub(1,-2)
 end
