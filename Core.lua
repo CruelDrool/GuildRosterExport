@@ -9,7 +9,7 @@ local LDBIcon = LibStub("LibDBIcon-1.0", true)
 local defaults = {
 	profile = {
 		minimapIcon = {},
-		exportType = "csv";
+		fileFormat = "csv";
 		removeRealmFromName = true,
 		adjustRankIndex = true,
 		maxLetters = 2000000,
@@ -72,6 +72,18 @@ local columnDescriptions = {
 	[16] = L["Number - Standing ID for character's guild reputation"],
 	[17] = L["String - Character's Globally Unique Identifier."],
 }
+--[[
+Supported file formats.
+Used in options table. 
+The lower case name is used for setting the value in addon.db.profile.fileFormat
+The upper case name is displayed in the options menu.
+--]]
+local supportedFileFormats = {
+	["csv"] = "CSV",
+	["json"] = "JSON",
+	["xml"] = "XML",
+	["yaml"] = "YAML",
+}
 
 local exportFrame = _G[addonName..'Frame']
 local openOptionsSound = 88 -- "GAMEDIALOGOPEN"
@@ -92,15 +104,15 @@ addon.options = {
 			disabled = function() return not LDBIcon end,
 			-- disabled = function() return not LDBTitan end,
 		},
-		exportType = {
+		fileFormat = {
 			order = 2,
 			type = "select",
 			style = "dropdown",
 			width = "half",
 			name = "",
-			values = {["csv"] = "CSV", ["json"] = "JSON", ["xml"] = "XML", ["yaml"] = "YAML"},
-			get = function() return addon.db.profile.exportType end,
-			set = function(info, value) addon.db.profile.exportType = value end,
+			values = supportedFileFormats,
+			get = function() return addon.db.profile.fileFormat end,
+			set = function(info, value) addon.db.profile.fileFormat = value end,
 		},
 		exportButton = {
 			order = 3,
@@ -215,8 +227,8 @@ addon.options = {
 							type = "input",
 							width = "half",
 							name = L["Delimiter"],
-							get = function() return addon.db.profile.delimiter end,
-							set = function(info, value) if value ~= "" then addon.db.profile.delimiter = value end end,
+							get = function() return addon.db.profile.csvDelimiter end,
+							set = function(info, value) if value ~= "" then addon.db.profile.csvDelimiter = value end end,
 						},
 						spacer1 = {
 							order = 2,
@@ -229,8 +241,8 @@ addon.options = {
 							type = "input",
 							width = "half",
 							name = L["Enclosure"],
-							get = function() return addon.db.profile.enclosure end,
-							set = function(info, value) if value ~= "" then addon.db.profile.enclosure = value end end,
+							get = function() return addon.db.profile.csvEnclosure end,
+							set = function(info, value) if value ~= "" then addon.db.profile.csvEnclosure = value end end,
 						},
 					},
 				},
@@ -352,7 +364,7 @@ function addon:OnInitialize()
 			icon = "Interface\\AddOns\\"..addonName.."\\icon",
 			OnTooltipShow = function(tooltip)
 				if not tooltip or not tooltip.AddLine then return end
-				tooltip:AddLine(addonName)
+				tooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
 				tooltip:AddLine(string.format(L["|cffffff00Right-click|r to open the export interface.\nOr use /%s"], string.lower(addonName)))
 			end,
 		})
@@ -380,7 +392,7 @@ function addon:SetupOptions()
 end
 
 function addon:ExportData()
-	local exportType = self.db.profile.exportType
+	local fileFormat = self.db.profile.fileFormat
 	local ranks = self.db.profile.ranks
 	local columns = self.db.profile.columns
 	local removeRealmFromName = self.db.profile.removeRealmFromName
@@ -408,13 +420,19 @@ function addon:ExportData()
 		end
 	end
 
-	exportFrame.scroll.text:SetText(self[exportType](self, roster));
+	--[[
+	Set the text in the export window's EditBox and display it.
+	Doing the function call to the export function via a table key, so we can use the value of "fileFormat" to determine which function to use.
+	This lets us easily add more export functions. All that is needed is to add the file format to "supportedFileFormats".
+	]]--
+	exportFrame.scroll.text:SetText(self[fileFormat](self, roster));
 	exportFrame.scroll.text:HighlightText()
 	exportFrame:Show()
 end
 
-local function getTabReplacement(n)
+local function getTabSub(n)
 	local str = ""
+	
 	for i=1, n do
 		str = str .. " "
 	end
@@ -481,8 +499,8 @@ function addon:json(data)
 	output = string.format("[%1$s\n]", output:sub(1,-2))
 	
 	if indentationStyle == "spaces" then
-		local tabReplacement = getTabReplacement(self.db.profile.spacesIndentationDepth)
-		output = output:gsub("\t", tabReplacement)
+		local tabSub = getTabSub(self.db.profile.spacesIndentationDepth)
+		output = output:gsub("\t", tabSub)
 	end
 	
 	return output
@@ -512,8 +530,8 @@ function addon:xml(data)
 	output = string.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%1$s>%2$s\n</%1$s>", xmlRootElementName, output)
 	
 	if indentationStyle == "spaces" then
-		local tabReplacement = getTabReplacement(self.db.profile.spacesIndentationDepth)
-		output = output:gsub("\t", tab)
+		local tabSub = getTabSub(self.db.profile.spacesIndentationDepth)
+		output = output:gsub("\t", tabSub)
 	end
 	
 	return output

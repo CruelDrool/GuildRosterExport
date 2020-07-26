@@ -31,7 +31,7 @@ L["Indentation depth (spaces)"] = true
 L["Set the depth used when spaces are set as indentation style. Smaller depth shortens the time before the data is displayed."] = true
 L["Spaces are the default indentation style because tabs are displayed as question marks in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."] = true
 L["Settings"] = true
-L["Export type"] = true
+L["File format"] = true
 L["CSV"] = true
 L["Delimiter"] = true
 L["Enclosure"] = true
@@ -40,7 +40,6 @@ L["Root element name"] = true
 L["Each record's element name"] = true
 L["Columns"] = true
 L["Ranks"] = true
-L["|cffff0000Unable to extract rank name information. You are currently not in a guild.|r"] = true
 L["Unknown"] = true
 L["%1$s Default column name: \"%2$s\"."] = true
 
