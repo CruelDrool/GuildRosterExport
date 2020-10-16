@@ -347,7 +347,7 @@ function addon:OnInitialize()
 		self.LDBObj = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
 			type = "launcher",
 			OnClick = function(_, msg)
-				if msg == "RightButton" then
+				if msg == "LeftButton" or msg == "RightButton" then
 					if exportFrame:IsShown() then
 						exportFrame:Hide()
 					end
@@ -365,7 +365,7 @@ function addon:OnInitialize()
 			OnTooltipShow = function(tooltip)
 				if not tooltip or not tooltip.AddLine then return end
 				tooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
-				tooltip:AddLine(string.format(L["|cffffff00Right-click|r to open the export interface.\nOr use /%s"], string.lower(addonName)))
+				tooltip:AddLine(string.format(L["|cffffff00Click|r to toggle the export interface.\nOr use /%s"], string.lower(addonName)))
 			end,
 		})
 

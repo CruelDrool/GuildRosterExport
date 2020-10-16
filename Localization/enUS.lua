@@ -11,7 +11,7 @@ L["Close & Return"] = true
 -- MINIMAP ICON --
 L["Minimap Icon"] = true
 L["Show a Icon to open the config at the Minimap"] = true
-L["|cffffff00Right-click|r to open the export interface.\nOr use /%s"] = true
+L["|cffffff00Click|r to toggle the export interface.\nOr use /%s"] = true
 
 -- CONFIGURATION --
 L["Export"] = true
