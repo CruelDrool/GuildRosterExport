@@ -117,7 +117,7 @@ addon.options = {
 		exportButton = {
 			order = 3,
 			type = "execute",
-			desc = L["WARNING! Large exports may freeze your game for several seconds!\n\nNote: all exports are in UTF-8."],
+			desc = L["WARNING! Large exports may freeze your game for several seconds!"],
 			name = L["Export"],
 			width = "half",
 			func = function() LibStub("AceConfigDialog-3.0"):Close(addonName); addon:ExportData() end,
@@ -200,7 +200,7 @@ addon.options = {
 						indentationInfoText = {
 							order = 7,
 							type = "description",
-							name = L["Spaces are the default indentation style because tabs are displayed as question marks in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."],
+							name = L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."],
 						},
 						spacesIndentationDepth = {
 							order = 8,

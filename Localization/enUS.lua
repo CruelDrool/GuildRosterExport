@@ -15,7 +15,7 @@ L["|cffffff00Click|r to toggle the export interface.\nOr use /%s"] = true
 
 -- CONFIGURATION --
 L["Export"] = true
-L["WARNING! Large exports may freeze your game for several seconds!\n\nNote: all exports are in UTF-8."] = true
+L["WARNING! Large exports may freeze your game for several seconds!"] = true
 L["Global"] = true
 L["Remove realm name"] = true
 L["With this setting enabled, the realm name will be removed from character names in column #1."] = true
@@ -29,7 +29,7 @@ L["Spaces"] = true
 L["Tabs"] = true
 L["Indentation depth (spaces)"] = true
 L["Set the depth used when spaces are set as indentation style. Smaller depth shortens the time before the data is displayed."] = true
-L["Spaces are the default indentation style because tabs are displayed as question marks in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."] = true
+L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."] = true
 L["Settings"] = true
 L["File format"] = true
 L["CSV"] = true
