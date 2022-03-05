@@ -19,6 +19,9 @@ local defaults = {
 		csvEnclosure = '"',
 		xmlRootElementName = "GuildRoster",
 		xmlRecordElementName = "Character",
+		xmlMinify = false,
+		jsonMinify = false,
+		yamlMinify = false,
 		columns = {
 			[1] = {enabled = true, name = "name"},
 			[2] = {enabled = true, name = "rankName"},
@@ -79,10 +82,10 @@ The lower case name is used for setting the value in addon.db.profile.fileFormat
 The upper case name is displayed in the options menu.
 --]]
 local supportedFileFormats = {
-	["csv"] = "CSV",
-	["json"] = "JSON",
-	["xml"] = "XML",
-	["yaml"] = "YAML",
+	["csv"] = L["CSV"],
+	["json"] = L["JSON"],
+	["xml"] = L["XML"],
+	["yaml"] = L["YAML"],
 }
 
 local exportFrame = _G[addonName..'Frame']
@@ -219,7 +222,7 @@ addon.options = {
 				csv = {
 					order = 5,
 					type = "group",
-					name = L["CSV"],
+					name = supportedFileFormats["csv"],
 					-- guiInline = true,
 					args = {
 						delimiter = {
@@ -246,10 +249,27 @@ addon.options = {
 						},
 					},
 				},
-				xml = {
+				json = {
 					order = 6,
 					type = "group",
-					name = L["XML"],
+					name = supportedFileFormats["json"],
+					-- guiInline = true,
+					args = {
+						minify = {
+							order = 1,
+							type = "toggle",
+							width = "full",
+							name = L["Minify"],
+							desc = "",
+							get = function() return addon.db.profile.jsonMinify end,
+							set = function(info, value) addon.db.profile.jsonMinify = value end,
+						}
+					},
+				},
+				xml = {
+					order = 7,
+					type = "group",
+					name = supportedFileFormats["xml"],
 					-- guiInline = true,
 					args = {
 						delimiter = {
@@ -274,6 +294,32 @@ addon.options = {
 							get = function() return addon.db.profile.xmlRecordElementName end,
 							set = function(info, value) if value ~= "" then addon.db.profile.xmlRecordElementName = value end end,
 						},
+						minify = {
+							order = 4,
+							type = "toggle",
+							width = "full",
+							name = L["Minify"],
+							desc = "",
+							get = function() return addon.db.profile.xmlMinify end,
+							set = function(info, value) addon.db.profile.xmlMinify = value end,
+						}
+					},
+				},
+				yaml = {
+					order = 8,
+					type = "group",
+					name = supportedFileFormats["yaml"],
+					-- guiInline = true,
+					args = {
+						minify = {
+							order = 1,
+							type = "toggle",
+							width = "full",
+							name = L["Minify"],
+							desc = "",
+							get = function() return addon.db.profile.yamlMinify end,
+							set = function(info, value) addon.db.profile.yamlMinify = value end,
+						}
 					},
 				},
 			},
@@ -311,13 +357,13 @@ end
 local function insertGuildRanksIntoOptions()
 	for k, v in ipairs(defaults.profile.ranks) do
 		local rankName = GuildControlGetRankName(k)
-		
+
 		if rankName == "" then
 			rankName = L["Unknown"]
 		end
-		
+
 		rankName = string.format("%1$s - %2$s", k, rankName)
-		
+
 		addon.options.args.settings.args.ranks.args["rank"..tostring(k)] = {
 			order = k,
 			type = "toggle",
@@ -333,16 +379,16 @@ function addon:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileChanged", "UpdateConfigs")
 	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateConfigs")
 	self.db.RegisterCallback(self, "OnProfileReset", "UpdateConfigs")
-	
+
 	self:SetupOptions()
-	
+
 	exportFrame.scroll.text:SetMaxLetters(self.db.profile.maxLetters)
 	exportFrame.closeButton:SetText(L["Close"])
 	exportFrame.closeAndReturnButton:SetText(L["Close & Return"])
 	exportFrame.closeAndReturnButton:SetScript("OnClick", function() exportFrame:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
-	
+
 	self:RegisterChatCommand(string.lower(addonName), function() exportFrame:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
-	
+
 	if LDB then
 		self.LDBObj = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
 			type = "launcher",
@@ -372,7 +418,7 @@ function addon:OnInitialize()
 		if LDBIcon then
 			LDBIcon:Register(addonName, self.LDBObj, self.db.profile.minimapIcon)
 		end
-			
+
 	end
 end
 
@@ -410,7 +456,7 @@ function addon:ExportData()
 					if removeRealmFromName and k == 1 then
 						row[k] = row[k]:gsub("-.+","")
 					end
-					
+
 					if adjustRankIndex and k == 3 then
 						row[k] = rankIndex
 					end
@@ -432,11 +478,11 @@ end
 
 local function getTabSub(n)
 	local str = ""
-	
+
 	for i=1, n do
 		str = str .. " "
 	end
-	
+
 	return str
 end
 
@@ -446,7 +492,7 @@ function addon:csv(data)
 	local columns = self.db.profile.columns
 	local output = ""
 	local header = {}
-	
+
 	for k, v in pairs(columns) do
 		if v.enabled then
 			table.insert(header, v.name)
@@ -458,13 +504,16 @@ function addon:csv(data)
 	for i=0, #data do
 		local line = ""
 		for _, c in pairs(data[i]) do
+			if (type(c) == "string") then
+				c =  c:gsub(enclosure, enclosure..enclosure)
+			end
 			if type(c) == "boolean" then
 				c = tostring(c)
 			end
-			
+
 			line = string.format("%1$s%2$s%4$s%2$s%3$s", line, enclosure, delimiter, c)
 		end
-		
+
 		-- Add the line to the output. The last delimiter character is removed.
 		output = string.format("%1$s%2$s\n", output, line:sub(1,-2))
 	end
@@ -480,25 +529,34 @@ function addon:json(data)
 	for _, v in pairs(data) do
 		local lines = ""
 		for k, c in pairs(v) do
-			if (type(c) == "string") then 
-				c = string.format('"%s"', c)
+			if (type(c) == "string") then
+				c =  c:gsub('\\', '\\\\')
+				c =  c:gsub('"', '\\"')
+				c = string.format('"%s"',c)
 			end
-			
+
 			if type(c) == "boolean" then
 				c = tostring(c)
 			end
-			
-			lines = string.format("%1$s\n\t\t\"%2$s\": %3$s,", lines, columns[k].name, c)
+
+			if addon.db.profile.jsonMinify then
+				lines = string.format("%1$s\"%2$s\":%3$s,", lines, columns[k].name, c)
+			else
+				lines = string.format("%1$s\n\t\t\"%2$s\": %3$s,", lines, columns[k].name, c)
+			end
 		end
-		
+
 		-- Add the block of lines to the output. Trailing is comma removed.
 		output = string.format("%1$s\n\t{%2$s\n\t},",output, lines:sub(1,-2))
 	end
-	
+
 	-- Format the ouput. Trailing \n (newline) is removed.
 	output = string.format("[%1$s\n]", output:sub(1,-2))
-	
-	if indentationStyle == "spaces" then
+
+	if addon.db.profile.jsonMinify then
+		output = output:gsub("\t", "")
+		output = output:gsub("\n", "")
+	elseif indentationStyle == "spaces" then
 		local tabSub = getTabSub(self.db.profile.spacesIndentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
@@ -512,53 +570,106 @@ function addon:xml(data)
 	local columns = self.db.profile.columns
 	local indentationStyle = self.db.profile.indentationStyle
 	local output = ""
-	
+
 	for _, v in pairs(data) do
 		local lines = ""
 		for k, c in pairs(v) do			
 			if type(c) == "boolean" then
 				c = tostring(c)
 			end
-			
+
 			lines = string.format("%1$s\t\t<%2$s>%3$s</%2$s>\n", lines, columns[k].name, c)
 		end
-		
+
 		-- Add the block of lines to the output.
 		output = string.format("%1$s\n\t<%2$s>\n%3$s\t</%2$s>", output, xmlRecordElementName, lines)
 	end
-	
+
 	output = string.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%1$s>%2$s\n</%1$s>", xmlRootElementName, output)
-	
-	if indentationStyle == "spaces" then
+
+	if addon.db.profile.xmlMinify then
+		output = output:gsub("\t", "")
+		output = output:gsub("\n", "")
+	elseif indentationStyle == "spaces" then
 		local tabSub = getTabSub(self.db.profile.spacesIndentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
-	
+
 	return output
+end
+
+local function findYamlSpecialCharacters(str)
+	local characters = {
+		["{"] = addon.db.profile.yamlMinify and "any" or "first",
+		["}"] = addon.db.profile.yamlMinify and "any" or "first",
+		["%["] = addon.db.profile.yamlMinify and "any" or "first",
+		["%]"] = addon.db.profile.yamlMinify and "any" or "first",
+		["&"] = "first",
+		["*"] = "first",
+		["?"] = addon.db.profile.yamlMinify and "any" or "first",
+		["|"] = "first",
+		["<"] = "any",
+		[">"] = "any",
+		["!"] = "first",
+		["%%"] = "first",
+		["@"] = "first",
+		["%w:"] = addon.db.profile.yamlMinify and nil or "any",
+		[":"] = addon.db.profile.yamlMinify and "any" or nil,
+		["`"] = "first",
+		[","] =  addon.db.profile.yamlMinify and "any" or "first",
+		["'"] = "first",
+		["#"] = "first",
+		['"'] = "first",
+	}
+	local found = false
+	for k,v in pairs(characters) do
+		local pos = str:find(k)
+		if pos and ((pos == 1 and v == "first") or (pos >= 1 and v == "any")) then
+			found = true;
+			break
+		end
+	end
+	return found
 end
 
 function addon:yaml(data)
 	local columns = self.db.profile.columns
 	local output = ""
-		
+
 	for _, v in pairs(data) do
 		local lines = ""
 		for k, c in pairs(v) do
-			if (type(c) == "string") then 
+			if type(c) == "string" and (c == "" or findYamlSpecialCharacters(c)) then
+				c =  c:gsub('\\', '\\\\')
+				c =  c:gsub('"', '\\"')
 				c = string.format('"%s"', c)
 			end
-			
+
 			if type(c) == "boolean" then
 				c = tostring(c)
 			end
-			
-			lines = string.format("%1$s %2$s: %3$s\n", lines, columns[k].name, c)
+			if addon.db.profile.yamlMinify then
+				lines = string.format("%1$s%2$s: %3$s,", lines, columns[k].name, c)
+			else
+				lines = string.format("%1$s %2$s: %3$s\n", lines, columns[k].name, c)
+			end
+
 		end
-		
+
 		-- Add the block of lines to the output.
-		output = string.format("%1$s-\n%2$s", output, lines)
+		if addon.db.profile.yamlMinify then
+			output = string.format("%1$s{%2$s},", output, lines:sub(1,-2))
+		else
+			output = string.format("%1$s-\n%2$s", output, lines)
+		end
 	end
-	
-	-- Return output. The trailing \n (newline) is removed.
-	return output:sub(1,-2)
+
+	-- The trailing \n (newline) or comma is removed.
+	output = output:sub(1,-2)
+
+	if addon.db.profile.yamlMinify then
+		return string.format("[%s]", output)
+	else
+		return output
+	end
 end
