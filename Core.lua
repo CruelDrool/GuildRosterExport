@@ -176,7 +176,7 @@ addon.options = {
 							name = L["Maximum letters"],
 							desc = L["Set the maximum number of letters that the export window can show."],
 							get = function() return tostring(addon.db.profile.maxLetters) end,
-							set = function(info, value) value = tonumber(value) if value ~= "" then addon.db.profile.maxLetters = value; exportFrame.scroll.text:SetMaxLetters(value) end end,
+							set = function(info, value) value = tonumber(value) or addon.db.profile.maxLetters; if value > 0 then addon.db.profile.maxLetters = value; exportFrame.scroll.text:SetMaxLetters(value) end end,
 						},
 						spacer1 = {
 							order = 4,
