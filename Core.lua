@@ -53,6 +53,19 @@ local defaults = {
 			[9] = true,
 			[10] = true,
 		},
+		exportFrame = {
+			position = {
+				"CENTER", -- point
+				nil, -- relativeTo
+				"CENTER", -- relativePoint
+				0, -- xOfs
+				0, -- yOfs
+			},
+			size = {
+				700, -- Width
+				450, -- Height
+			},
+		},
 	}
 }
 
@@ -88,9 +101,9 @@ local supportedFileFormats = {
 	["yaml"] = L["YAML"],
 }
 
-local exportFrame = _G[addonName..'Frame']
 local openOptionsSound = 88 -- "GAMEDIALOGOPEN"
 local closeOptionsSound = 624 -- "GAMEGENERICBUTTONPRESS"
+local closeExportFrame = SOUNDKIT.GS_TITLE_OPTION_EXIT
 
 addon.options = {
 	childGroups = "tree",
@@ -176,7 +189,7 @@ addon.options = {
 							name = L["Maximum letters"],
 							desc = L["Set the maximum number of letters that the export window can show."],
 							get = function() return tostring(addon.db.profile.maxLetters) end,
-							set = function(info, value) value = tonumber(value) or addon.db.profile.maxLetters; if value > 0 then addon.db.profile.maxLetters = value; exportFrame.scroll.text:SetMaxLetters(value) end end,
+							set = function(info, value) value = tonumber(value) or addon.db.profile.maxLetters; if value > 0 then addon.db.profile.maxLetters = value; addon.exportFrame.text:SetMaxLetters(value) end end,
 						},
 						spacer1 = {
 							order = 4,
@@ -374,6 +387,90 @@ local function insertGuildRanksIntoOptions()
 	end
 end
 
+function addon:CreateExportFrame()
+	-- Main Frame
+	local f = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)
+	f:Hide()
+	f:ClearAllPoints()
+	f:SetPoint(unpack(self.db.profile.exportFrame.position))
+	f:SetSize(unpack(self.db.profile.exportFrame.size))
+	f:SetBackdrop({
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+		tile = true,
+		tileEdge = true,
+		tileSize = 16,
+		edgeSize = 16,
+		insets = { left = 5, right = 5, top = 5, bottom = 5 },
+	})
+	f:SetBackdropColor(0,0,0,0.75)
+	f:SetMovable(true)
+	f:SetScript("OnMouseDown", function(frame, button)
+		if button == "LeftButton" then
+			frame:StartMoving()
+		end
+	end)
+	f:SetScript("OnMouseUp", function(frame, button)
+		frame:StopMovingOrSizing()
+		addon.db.profile.exportFrame.position = {frame:GetPoint()}
+	end)
+
+	-- Buttons
+	local closeButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
+	closeButton:SetPoint("BOTTOM", f, "BOTTOM", -75, 7.5)
+	closeButton:SetScript("OnClick", function(frame, button) f:Hide(); PlaySound(closeExportFrame) end)
+	closeButton:SetText(L["Close"])
+
+	local closeAndReturnButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
+	closeAndReturnButton:SetPoint("BOTTOM", f, "BOTTOM", 75, 7.5)
+	closeAndReturnButton:SetScript("OnClick", function(frame, button) f:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
+	closeAndReturnButton:SetText(L["Close & Return"])
+
+	-- Scrollframe
+	local scroll = CreateFrame("ScrollFrame", nil, f, "UIPanelScrollFrameTemplate")
+	scroll:SetPoint("TOP", 0, -19.5)
+	scroll:SetPoint("LEFT", 18.5, 0)
+	scroll:SetPoint("RIGHT", -42, 0)
+	scroll:SetPoint("BOTTOM", closeButton, "TOP", 0, 2.5)
+
+	-- Edit box
+	f.text = CreateFrame("EditBox", nil, scroll)
+	f.text:SetMaxLetters(self.db.profile.maxLetters)
+	f.text:SetSize(scroll:GetSize())
+	f.text:SetMultiLine(true)
+	f.text:SetAutoFocus(true)
+	f.text:SetFontObject("ChatFontNormal")
+	f.text:SetScript("OnEscapePressed", function() f:Hide() end)
+	scroll:SetScrollChild(f.text)
+
+	-- Resizing
+	f:SetResizable(true)
+	f:SetMinResize(340, 110)
+	local rb = CreateFrame("Button", nil, f)
+	rb:SetPoint("BOTTOMRIGHT", -4, 4)
+	rb:SetSize(16, 16)
+
+	rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+	rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+	rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+
+	rb:SetScript("OnMouseDown", function(frame, button)
+		if button == "LeftButton" then
+			f:StartSizing("BOTTOMRIGHT")
+			frame:GetHighlightTexture():Hide() -- more noticeable
+		end
+	end)
+
+	rb:SetScript("OnMouseUp", function(frame, button)
+		f:StopMovingOrSizing()
+			frame:GetHighlightTexture():Show()
+			f.text:SetWidth(scroll:GetWidth())
+		addon.db.profile.exportFrame.size = {f:GetSize()}
+	end)
+
+	return f
+end
+
 function addon:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New(addonName.."DB", defaults)
 	self.db.RegisterCallback(self, "OnProfileChanged", "UpdateConfigs")
@@ -382,20 +479,17 @@ function addon:OnInitialize()
 
 	self:SetupOptions()
 
-	exportFrame.scroll.text:SetMaxLetters(self.db.profile.maxLetters)
-	exportFrame.closeButton:SetText(L["Close"])
-	exportFrame.closeAndReturnButton:SetText(L["Close & Return"])
-	exportFrame.closeAndReturnButton:SetScript("OnClick", function() exportFrame:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
+	self.exportFrame = self:CreateExportFrame()
 
-	self:RegisterChatCommand(string.lower(addonName), function() exportFrame:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
+	self:RegisterChatCommand(string.lower(addonName), function() self.exportFrame:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
 
 	if LDB then
 		self.LDBObj = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
 			type = "launcher",
 			OnClick = function(_, msg)
 				if msg == "LeftButton" or msg == "RightButton" then
-					if exportFrame:IsShown() then
-						exportFrame:Hide()
+					if self.exportFrame:IsShown() then
+						self.exportFrame:Hide()
 					end
 					if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
 						PlaySound(closeOptionsSound)
@@ -427,7 +521,10 @@ function addon:UpdateConfigs()
 		LDBIcon:Refresh(addonName, self.db.profile.minimapIcon)
 	end
 	LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
-	exportFrame.scroll.text:SetMaxLetters(self.db.profile.maxLetters)
+	self.exportFrame:ClearAllPoints()
+	self.exportFrame:SetPoint(unpack(self.db.profile.exportFrame.position))
+	self.exportFrame:SetSize(unpack(self.db.profile.exportFrame.size))
+	self.exportFrame.text:SetMaxLetters(self.db.profile.maxLetters)
 end
 
 function addon:SetupOptions()
@@ -471,9 +568,9 @@ function addon:ExportData()
 	Doing the function call to the export function via a table key, so we can use the value of "fileFormat" to determine which function to use.
 	This lets us easily add more export functions. All that is needed is to add the file format to "supportedFileFormats".
 	]]--
-	exportFrame.scroll.text:SetText(self[fileFormat](self, roster));
-	exportFrame.scroll.text:HighlightText()
-	exportFrame:Show()
+	self.exportFrame.text:SetText(self[fileFormat](self, roster));
+	self.exportFrame.text:HighlightText()
+	self.exportFrame:Show()
 end
 
 local function getTabSub(n)
