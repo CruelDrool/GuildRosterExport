@@ -387,13 +387,13 @@ local function insertGuildRanksIntoOptions()
 	end
 end
 
-function addon:CreateExportFrame()
+local function CreateExportFrame()
 	-- Main Frame
 	local f = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)
 	f:Hide()
 	f:ClearAllPoints()
-	f:SetPoint(unpack(self.db.profile.exportFrame.position))
-	f:SetSize(unpack(self.db.profile.exportFrame.size))
+	f:SetPoint(unpack(addon.db.profile.exportFrame.position))
+	f:SetSize(unpack(addon.db.profile.exportFrame.size))
 	f:SetBackdrop({
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -405,25 +405,25 @@ function addon:CreateExportFrame()
 	})
 	f:SetBackdropColor(0,0,0,0.75)
 	f:SetMovable(true)
-	f:SetScript("OnMouseDown", function(frame, button)
+	f:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then
-			frame:StartMoving()
+			self:StartMoving()
 		end
 	end)
-	f:SetScript("OnMouseUp", function(frame, button)
-		frame:StopMovingOrSizing()
-		addon.db.profile.exportFrame.position = {frame:GetPoint()}
+	f:SetScript("OnMouseUp", function(self, button)
+		self:StopMovingOrSizing()
+		addon.db.profile.exportFrame.position = {self:GetPoint()}
 	end)
 
 	-- Buttons
 	local closeButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
 	closeButton:SetPoint("BOTTOM", f, "BOTTOM", -75, 7.5)
-	closeButton:SetScript("OnClick", function(frame, button) f:Hide(); PlaySound(closeExportFrame) end)
+	closeButton:SetScript("OnClick", function(self, button) f:Hide(); PlaySound(closeExportFrame) end)
 	closeButton:SetText(L["Close"])
 
 	local closeAndReturnButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
 	closeAndReturnButton:SetPoint("BOTTOM", f, "BOTTOM", 75, 7.5)
-	closeAndReturnButton:SetScript("OnClick", function(frame, button) f:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
+	closeAndReturnButton:SetScript("OnClick", function(self, button) f:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
 	closeAndReturnButton:SetText(L["Close & Return"])
 
 	-- Scrollframe
@@ -435,7 +435,7 @@ function addon:CreateExportFrame()
 
 	-- Edit box
 	f.text = CreateFrame("EditBox", nil, scroll)
-	f.text:SetMaxLetters(self.db.profile.maxLetters)
+	f.text:SetMaxLetters(addon.db.profile.maxLetters)
 	f.text:SetSize(scroll:GetSize())
 	f.text:SetMultiLine(true)
 	f.text:SetAutoFocus(true)
@@ -454,16 +454,16 @@ function addon:CreateExportFrame()
 	rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
 	rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
 
-	rb:SetScript("OnMouseDown", function(frame, button)
+	rb:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then
 			f:StartSizing("BOTTOMRIGHT")
-			frame:GetHighlightTexture():Hide() -- more noticeable
+			self:GetHighlightTexture():Hide() -- more noticeable
 		end
 	end)
 
-	rb:SetScript("OnMouseUp", function(frame, button)
+	rb:SetScript("OnMouseUp", function(self, button)
 		f:StopMovingOrSizing()
-			frame:GetHighlightTexture():Show()
+			self:GetHighlightTexture():Show()
 			f.text:SetWidth(scroll:GetWidth())
 		addon.db.profile.exportFrame.size = {f:GetSize()}
 	end)
@@ -479,7 +479,7 @@ function addon:OnInitialize()
 
 	self:SetupOptions()
 
-	self.exportFrame = self:CreateExportFrame()
+	self.exportFrame = CreateExportFrame()
 
 	self:RegisterChatCommand(string.lower(addonName), function() self.exportFrame:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
 
