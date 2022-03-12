@@ -22,7 +22,7 @@ L["With this setting enabled, the realm name will be removed from character name
 L["Adjust %s"] = true -- rankIndex
 L["%s normally starts at 0, but this setting adjust that to 1."] = true -- rankIndex
 L["Maximum letters"] = true
-L["Set the maximum number of letters that the export window can show."] = true
+L["Set the maximum number of letters that the export window can show. Set to empty or 0 to use Blizzard's default."] = true
 L["Indentation style"] = true
 L["Set indentation style. Used when exporting JSON and XML."] = true
 L["Spaces"] = true

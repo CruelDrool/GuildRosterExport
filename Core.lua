@@ -187,9 +187,9 @@ addon.options = {
 							type = "input",
 							width = "normal",
 							name = L["Maximum letters"],
-							desc = L["Set the maximum number of letters that the export window can show."],
-							get = function() return tostring(addon.db.profile.maxLetters) end,
-							set = function(info, value) value = tonumber(value) or addon.db.profile.maxLetters; if value > 0 then addon.db.profile.maxLetters = value; addon.exportFrame.text:SetMaxLetters(value) end end,
+							desc = L["Set the maximum number of letters that the export window can show. Set to empty or 0 to use Blizzard's default."],
+							get = function() return addon.db.profile.maxLetters > 0 and tostring(addon.db.profile.maxLetters) or "" end,
+							set = function(info, value) value = value == "" and 0 or tonumber(value) or addon.db.profile.maxLetters if value >= 0 then addon.db.profile.maxLetters = value end end,
 						},
 						spacer1 = {
 							order = 4,
@@ -435,7 +435,6 @@ local function CreateExportFrame()
 
 	-- Edit box
 	f.text = CreateFrame("EditBox", nil, scroll)
-	f.text:SetMaxLetters(addon.db.profile.maxLetters)
 	f.text:SetSize(scroll:GetSize())
 	f.text:SetMultiLine(true)
 	f.text:SetAutoFocus(true)
@@ -524,7 +523,6 @@ function addon:UpdateConfigs()
 	self.exportFrame:ClearAllPoints()
 	self.exportFrame:SetPoint(unpack(self.db.profile.exportFrame.position))
 	self.exportFrame:SetSize(unpack(self.db.profile.exportFrame.size))
-	self.exportFrame.text:SetMaxLetters(self.db.profile.maxLetters)
 end
 
 function addon:SetupOptions()
@@ -563,12 +561,14 @@ function addon:ExportData()
 		end
 	end
 
+	self.exportFrame.text:SetMaxLetters(self.db.profile.maxLetters)
+	self.exportFrame.text:SetText("") -- Clear the edit box else SetMaxLetters is ignored if the edit box has been filled once before
 	--[[
 	Set the text in the export window's EditBox and display it.
 	Doing the function call to the export function via a table key, so we can use the value of "fileFormat" to determine which function to use.
 	This lets us easily add more export functions. All that is needed is to add the file format to "supportedFileFormats".
 	]]--
-	self.exportFrame.text:SetText(self[fileFormat](self, roster));
+	self.exportFrame.text:SetText(self[fileFormat](self, roster))
 	self.exportFrame.text:HighlightText()
 	self.exportFrame:Show()
 end
