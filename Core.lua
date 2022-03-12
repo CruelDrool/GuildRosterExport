@@ -426,21 +426,22 @@ local function CreateExportFrame()
 	closeAndReturnButton:SetScript("OnClick", function(self, button) f:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
 	closeAndReturnButton:SetText(L["Close & Return"])
 
-	-- Scrollframe
-	local scroll = CreateFrame("ScrollFrame", nil, f, "UIPanelScrollFrameTemplate")
-	scroll:SetPoint("TOP", 0, -19.5)
-	scroll:SetPoint("LEFT", 18.5, 0)
-	scroll:SetPoint("RIGHT", -42, 0)
-	scroll:SetPoint("BOTTOM", closeButton, "TOP", 0, 2.5)
+	-- Scroll frame
+	local sf = CreateFrame("ScrollFrame", nil, f, "UIPanelScrollFrameTemplate")
+	sf:SetPoint("TOP", 0, -19.5)
+	sf:SetPoint("LEFT", 18.5, 0)
+	sf:SetPoint("RIGHT", -42, 0)
+	sf:SetPoint("BOTTOM", closeButton, "TOP", 0, 2.5)
 
 	-- Edit box
-	f.text = CreateFrame("EditBox", nil, scroll)
-	f.text:SetSize(scroll:GetSize())
-	f.text:SetMultiLine(true)
-	f.text:SetAutoFocus(true)
-	f.text:SetFontObject("ChatFontNormal")
-	f.text:SetScript("OnEscapePressed", function() f:Hide() end)
-	scroll:SetScrollChild(f.text)
+	local eb = CreateFrame("EditBox", nil, sf)
+	eb:SetSize(sf:GetSize())
+	eb:SetMultiLine(true)
+	eb:SetAutoFocus(true)
+	eb:SetFontObject("ChatFontNormal")
+	eb:SetScript("OnEscapePressed", function() f:Hide() end)
+	sf:SetScrollChild(eb)
+	f.text = eb
 
 	-- Resizing
 	f:SetResizable(true)
@@ -462,8 +463,8 @@ local function CreateExportFrame()
 
 	rb:SetScript("OnMouseUp", function(self, button)
 		f:StopMovingOrSizing()
-			self:GetHighlightTexture():Show()
-			f.text:SetWidth(scroll:GetWidth())
+		self:GetHighlightTexture():Show()
+		eb:SetWidth(sf:GetWidth())
 		addon.db.profile.exportFrame.size = {f:GetSize()}
 	end)
 
