@@ -6,8 +6,4 @@
 ## SavedVariables: GuildRosterExportDB
 ## X-Date: @file-date-iso@
 ## X-Category: Data Export
-Libs\Libs.xml
-
-Localization\Localizations.xml
-
-Core.lua
+Init.xml
