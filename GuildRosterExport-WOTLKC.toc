@@ -1,0 +1,9 @@
+## Interface: 30400
+## Version: @project-version@
+## Title: GuildRosterExport
+## Notes: Export the guild roster to CSV, JSON, XML or YAML.
+## Author: CruelDrool
+## SavedVariables: GuildRosterExportDB
+## X-Date: @file-date-iso@
+## X-Category: Data Export
+Init.xml
