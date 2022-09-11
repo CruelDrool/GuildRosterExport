@@ -45,6 +45,10 @@ L["%1$s Default column name: \"%2$s\"."] = true
 L["JSON"] = true
 L["YAML"] = true
 L["Minify"] = true
+L["Quotation mark"] = true
+L["What type of quotation mark to use when strings need to be put in quotes."] = true
+L["Double"] = true
+L["Single"] = true
 
 -- COLUMN DESCRIPTIONS --
 L["String - Name of character with realm (e.g. \"Arthas-Silvermoon\"). This addon defaults to removing the realm name."] = true
