@@ -683,7 +683,12 @@ function addon:xml(data)
 
 	for _, v in pairs(data) do
 		local lines = ""
-		for k, c in pairs(v) do			
+		for k, c in pairs(v) do
+			if type(c) == "string" then
+				c =  c:gsub("&", '&amp;')
+				c =  c:gsub("<", '&lt;')
+				c =  c:gsub(">", '&gt;')
+			end
 			if type(c) == "boolean" then
 				c = tostring(c)
 			end
