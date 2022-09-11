@@ -603,7 +603,7 @@ function addon:csv(data)
 	local output = ""
 	local header = {}
 
-	for k, v in pairs(columns) do
+	for _, v in pairs(columns) do
 		if v.enabled then
 			table.insert(header, v.name)
 		end
@@ -634,6 +634,8 @@ end
 function addon:json(data)
 	local columns = self.db.profile.columns
 	local indentationStyle = self.db.profile.indentationStyle
+	local indentationDepth = self.db.profile.spacesIndentationDepth
+	local minify = self.db.profile.jsonMinify
 	local output = ""
 
 	for _, v in pairs(data) do
@@ -649,25 +651,25 @@ function addon:json(data)
 				c = tostring(c)
 			end
 
-			if addon.db.profile.jsonMinify then
+			if minify then
 				lines = string.format("%1$s\"%2$s\":%3$s,", lines, columns[k].name, c)
 			else
 				lines = string.format("%1$s\n\t\t\"%2$s\": %3$s,", lines, columns[k].name, c)
 			end
 		end
 
-		-- Add the block of lines to the output. Trailing is comma removed.
+		-- Add the block of lines to the output. Trailing comma is removed.
 		output = string.format("%1$s\n\t{%2$s\n\t},",output, lines:sub(1,-2))
 	end
 
 	-- Format the ouput. Trailing \n (newline) is removed.
 	output = string.format("[%1$s\n]", output:sub(1,-2))
 
-	if addon.db.profile.jsonMinify then
+	if minify then
 		output = output:gsub("\t", "")
 		output = output:gsub("\n", "")
 	elseif indentationStyle == "spaces" then
-		local tabSub = getTabSub(self.db.profile.spacesIndentationDepth)
+		local tabSub = getTabSub(indentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
 	
@@ -679,6 +681,8 @@ function addon:xml(data)
 	local xmlRecordElementName = self.db.profile.xmlRecordElementName
 	local columns = self.db.profile.columns
 	local indentationStyle = self.db.profile.indentationStyle
+	local indentationDepth = self.db.profile.spacesIndentationDepth
+	local minify = self.db.profile.xmlMinify
 	local output = ""
 
 	for _, v in pairs(data) do
@@ -702,11 +706,11 @@ function addon:xml(data)
 
 	output = string.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%1$s>%2$s\n</%1$s>", xmlRootElementName, output)
 
-	if addon.db.profile.xmlMinify then
+	if minify then
 		output = output:gsub("\t", "")
 		output = output:gsub("\n", "")
 	elseif indentationStyle == "spaces" then
-		local tabSub = getTabSub(self.db.profile.spacesIndentationDepth)
+		local tabSub = getTabSub(indentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
 
