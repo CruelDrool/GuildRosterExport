@@ -201,23 +201,24 @@ addon.options = {
 						indentationStyle = {
 							order = 5,
 							type = "select",
-							style = "dropdown",
+							style = "radio",
+							width = "half",
 							name = L["Indentation style"],
-							desc = L["Set indentation style. Used when exporting JSON and XML."],
+							desc = L["Select what style to use when exporting JSON and XML."],
 							values = {["tabs"] = L["Tabs"], ["spaces"] = L["Spaces"]},
 							get = function() return addon.db.profile.indentationStyle end,
 							set = function(info, value) addon.db.profile.indentationStyle = value end,
 						},
-						spacer2 = {
+						indentationInfoText = {
 							order = 6,
+							type = "description",
+							name = L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."],
+						},
+						spacer2 = {
+							order = 7,
 							width = "full",
 							type = "description",
 							name = "",
-						},
-						indentationInfoText = {
-							order = 7,
-							type = "description",
-							name = L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."],
 						},
 						spacesIndentationDepth = {
 							order = 8,
