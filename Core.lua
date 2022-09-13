@@ -494,24 +494,14 @@ function addon:OnInitialize()
 
 	self.exportFrame = CreateExportFrame()
 
-	self:RegisterChatCommand(string.lower(addonName), function() self.exportFrame:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
+	self:RegisterChatCommand(string.lower(addonName), "ToggleOptions")
 
 	if LDB then
 		self.LDBObj = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
 			type = "launcher",
 			OnClick = function(_, msg)
 				if msg == "LeftButton" or msg == "RightButton" then
-					if self.exportFrame:IsShown() then
-						self.exportFrame:Hide()
-					end
-					if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
-						PlaySound(closeOptionsSound)
-						LibStub("AceConfigDialog-3.0"):Close(addonName)
-					else
-						insertGuildRanksIntoOptions()
-						PlaySound(openOptionsSound)
-						LibStub("AceConfigDialog-3.0"):Open(addonName)
-					end
+					self:ToggleOptions()
 				end
 			end,
 			icon = "Interface\\AddOns\\"..addonName.."\\icon",
@@ -544,6 +534,20 @@ function addon:SetupOptions()
 	self.options.name = addonName
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName, self.options)
 	-- LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, addonName)
+end
+
+function addon:ToggleOptions()
+	if self.exportFrame:IsShown() then
+		self.exportFrame:Hide()
+	end
+	if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
+		PlaySound(closeOptionsSound)
+		LibStub("AceConfigDialog-3.0"):Close(addonName)
+	else
+		insertGuildRanksIntoOptions()
+		PlaySound(openOptionsSound)
+		LibStub("AceConfigDialog-3.0"):Open(addonName)
+	end
 end
 
 function addon:ExportData()
