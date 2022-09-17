@@ -436,7 +436,7 @@ local function CreateExportFrame()
 
 	local closeAndReturnButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
 	closeAndReturnButton:SetPoint("BOTTOM", f, "BOTTOM", 75, 7.5)
-	closeAndReturnButton:SetScript("OnClick", function(self, button) f:Hide(); PlaySound(openOptionsSound); LibStub("AceConfigDialog-3.0"):Open(addonName) end)
+	closeAndReturnButton:SetScript("OnClick", function(self, button) addon:ToggleOptions() end)
 	closeAndReturnButton:SetText(L["Close & Return"])
 
 	-- Scroll frame
@@ -494,7 +494,7 @@ function addon:OnInitialize()
 
 	self.exportFrame = CreateExportFrame()
 
-	self:RegisterChatCommand(string.lower(addonName), "ToggleOptions")
+	self:RegisterChatCommand(string.lower(addonName), "ChatCommand")
 
 	if LDB then
 		self.LDBObj = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
@@ -550,8 +550,49 @@ function addon:ToggleOptions()
 	end
 end
 
-function addon:ExportData()
-	local fileFormat = self.db.profile.fileFormat
+function addon:SystemMessageInPrimary(msg)
+	local color = ChatTypeInfo["SYSTEM"]
+	DEFAULT_CHAT_FRAME:AddMessage(msg, color.r, color.g, color.b)
+end
+
+function addon:ChatCommand(args)
+	local arg1, arg2 = self:GetArgs(args, 2)
+
+	arg1 = arg1 and arg1:lower()
+	arg2 = arg2 and arg2:lower()
+
+	if arg1 == "help" then
+		local name = addonName:lower()
+		self:SystemMessageInPrimary(string.format("/%s - %s.", name, L["Toggle the export interface"]))
+		self:SystemMessageInPrimary(string.format("/%s help - %s.",  name, L["Print this help"]))
+		self:SystemMessageInPrimary(string.format("/%s export [%s] - %s.",  name, L["file format"],  L["Do an export"]))
+		self:SystemMessageInPrimary(L["Supported file formats:"])
+
+		local tmp = {}
+
+		for k in pairs(supportedFileFormats) do
+			table.insert(tmp, k)
+		end
+
+		table.sort(tmp)
+
+		for _,fileFormat in ipairs(tmp) do
+			self:SystemMessageInPrimary(string.format(" - %s", fileFormat))
+		end
+	elseif arg1 == "export" then
+		LibStub("AceConfigDialog-3.0"):Close(addonName);
+		if supportedFileFormats[arg2] then
+			self:ExportData(arg2)
+		else
+			self:ExportData()
+		end
+	else
+		self:ToggleOptions()
+	end
+end
+
+function addon:ExportData(fileFormat)
+	fileFormat = fileFormat or self.db.profile.fileFormat
 	local ranks = self.db.profile.ranks
 	local columns = self.db.profile.columns
 	local removeRealmFromName = self.db.profile.removeRealmFromName

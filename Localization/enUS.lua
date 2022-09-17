@@ -13,6 +13,13 @@ L["Minimap Icon"] = true
 L["Show a Icon to open the config at the Minimap"] = true
 L["|cffffff00Click|r to toggle the export interface.\nOr use /%s"] = true
 
+-- CHAT COMMAND --
+L["Toggle the export interface"] = true
+L["Print this help"] = true
+L["Do an export"] = true
+L["Supported file formats:"] = true
+L["file format"] = true
+
 -- CONFIGURATION --
 L["Export"] = true
 L["WARNING! Large exports may freeze your game for several seconds!"] = true
