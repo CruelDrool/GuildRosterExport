@@ -12,17 +12,26 @@ local defaults = {
 		fileFormat = "csv";
 		removeRealmFromName = true,
 		adjustRankIndex = true,
-		maxLetters = 2000000,
-		indentationStyle = "spaces",
-		spacesIndentationDepth = 4,
-		csvDelimiter = ',',
-		csvEnclosure = '"',
-		xmlRootElementName = "GuildRoster",
-		xmlRecordElementName = "Character",
-		xmlMinify = false,
-		jsonMinify = false,
-		yamlQuotationMark = "single",
-		yamlMinify = false,
+		indentation = {
+			style = "spaces",
+			depth = 4,
+		},
+		csv = {
+			delimiter = ',',
+			enclosure = '"',
+		},
+		json = {
+			minify = false,
+		},
+		xml = {
+			rootElementName = "GuildRoster",
+			recordElementName = "Character",
+			minify = false,
+		},
+		yaml = {
+			quotationMark = "single",
+			minify = false,
+		},
 		columns = {
 			[1] = {enabled = true, name = "name"},
 			[2] = {enabled = true, name = "rankName"},
@@ -66,6 +75,7 @@ local defaults = {
 				700, -- Width
 				450, -- Height
 			},
+			maxLetters = 2000000,
 		},
 	}
 }
@@ -189,8 +199,8 @@ addon.options = {
 							width = "normal",
 							name = L["Maximum letters"],
 							desc = L["Set the maximum number of letters that the export window can show. Set to empty or 0 to use Blizzard's default."],
-							get = function() return addon.db.profile.maxLetters > 0 and tostring(addon.db.profile.maxLetters) or "" end,
-							set = function(info, value) value = value == "" and 0 or tonumber(value) or addon.db.profile.maxLetters if value >= 0 then addon.db.profile.maxLetters = value end end,
+							get = function() return addon.db.profile.exportFrame.maxLetters > 0 and tostring(addon.db.profile.exportFrame.maxLetters) or "" end,
+							set = function(info, value) value = value == "" and 0 or tonumber(value) or addon.db.profile.exportFrame.maxLetters if value >= 0 then addon.db.profile.exportFrame.maxLetters = value end end,
 						},
 						spacer1 = {
 							order = 4,
@@ -206,8 +216,8 @@ addon.options = {
 							name = L["Indentation style"],
 							desc = L["Select what style to use when exporting JSON and XML."],
 							values = {["tabs"] = L["Tabs"], ["spaces"] = L["Spaces"]},
-							get = function() return addon.db.profile.indentationStyle end,
-							set = function(info, value) addon.db.profile.indentationStyle = value end,
+							get = function() return addon.db.profile.indentation.style end,
+							set = function(info, value) addon.db.profile.indentation.style = value end,
 						},
 						indentationInfoText = {
 							order = 6,
@@ -220,7 +230,7 @@ addon.options = {
 							type = "description",
 							name = "",
 						},
-						spacesIndentationDepth = {
+						indentationDepth = {
 							order = 8,
 							type = "range",
 							min = 0,
@@ -229,8 +239,8 @@ addon.options = {
 							width = "normal",
 							name = L["Indentation depth (spaces)"],
 							desc = L["Set the depth used when spaces are set as indentation style. Smaller depth shortens the time before the data is displayed."],
-							get = function() return addon.db.profile.spacesIndentationDepth end,
-							set = function(info, value) addon.db.profile.spacesIndentationDepth = value; end,
+							get = function() return addon.db.profile.indentation.depth end,
+							set = function(info, value) addon.db.profile.indentation.depth = value; end,
 						},
 					},
 				},
@@ -245,8 +255,8 @@ addon.options = {
 							type = "input",
 							width = "half",
 							name = L["Delimiter"],
-							get = function() return addon.db.profile.csvDelimiter end,
-							set = function(info, value) if value ~= "" then addon.db.profile.csvDelimiter = value end end,
+							get = function() return addon.db.profile.csv.delimiter end,
+							set = function(info, value) if value ~= "" then addon.db.profile.csv.delimiter = value end end,
 						},
 						spacer1 = {
 							order = 2,
@@ -259,8 +269,8 @@ addon.options = {
 							type = "input",
 							width = "half",
 							name = L["Enclosure"],
-							get = function() return addon.db.profile.csvEnclosure end,
-							set = function(info, value) if value ~= "" then addon.db.profile.csvEnclosure = value end end,
+							get = function() return addon.db.profile.csv.enclosure end,
+							set = function(info, value) if value ~= "" then addon.db.profile.csv.enclosure = value end end,
 						},
 					},
 				},
@@ -276,8 +286,8 @@ addon.options = {
 							width = "full",
 							name = L["Minify"],
 							desc = "",
-							get = function() return addon.db.profile.jsonMinify end,
-							set = function(info, value) addon.db.profile.jsonMinify = value end,
+							get = function() return addon.db.profile.json.minify end,
+							set = function(info, value) addon.db.profile.json.minify = value end,
 						}
 					},
 				},
@@ -292,8 +302,8 @@ addon.options = {
 							type = "input",
 							width = "normal",
 							name = L["Root element name"],
-							get = function() return addon.db.profile.xmlRootElementName end,
-							set = function(info, value) if value ~= "" then addon.db.profile.xmlRootElementName = value end end,
+							get = function() return addon.db.profile.xml.rootElementName end,
+							set = function(info, value) if value ~= "" then addon.db.profile.xml.rootElementName = value end end,
 						},
 						spacer1 = {
 							order = 2,
@@ -306,8 +316,8 @@ addon.options = {
 							type = "input",
 							width = "normal",
 							name = L["Each record's element name"],
-							get = function() return addon.db.profile.xmlRecordElementName end,
-							set = function(info, value) if value ~= "" then addon.db.profile.xmlRecordElementName = value end end,
+							get = function() return addon.db.profile.xml.recordElementName end,
+							set = function(info, value) if value ~= "" then addon.db.profile.xml.recordElementName = value end end,
 						},
 						minify = {
 							order = 4,
@@ -315,8 +325,8 @@ addon.options = {
 							width = "full",
 							name = L["Minify"],
 							desc = "",
-							get = function() return addon.db.profile.xmlMinify end,
-							set = function(info, value) addon.db.profile.xmlMinify = value end,
+							get = function() return addon.db.profile.xml.minify end,
+							set = function(info, value) addon.db.profile.xml.minify = value end,
 						}
 					},
 				},
@@ -334,8 +344,8 @@ addon.options = {
 							name = L["Quotation mark"],
 							desc = L["What type of quotation mark to use when strings need to be put in quotes."],
 							values = {["double"] = L["Double"], ["single"] = L["Single"]},
-							get = function() return addon.db.profile.yamlQuotationMark end,
-							set = function(info, value) addon.db.profile.yamlQuotationMark = value end,
+							get = function() return addon.db.profile.yaml.quotationMark end,
+							set = function(info, value) addon.db.profile.yaml.quotationMark = value end,
 						},
 						minify = {
 							order = 2,
@@ -343,8 +353,8 @@ addon.options = {
 							width = "full",
 							name = L["Minify"],
 							desc = "",
-							get = function() return addon.db.profile.yamlMinify end,
-							set = function(info, value) addon.db.profile.yamlMinify = value end,
+							get = function() return addon.db.profile.yaml.minify end,
+							set = function(info, value) addon.db.profile.yaml.minify = value end,
 						}
 					},
 				},
@@ -490,6 +500,8 @@ function addon:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateConfigs")
 	self.db.RegisterCallback(self, "OnProfileReset", "UpdateConfigs")
 
+	self:ConvertOldConfig()
+
 	self:SetupOptions()
 
 	self.exportFrame = CreateExportFrame()
@@ -519,11 +531,45 @@ function addon:OnInitialize()
 	end
 end
 
+function addon:ConvertOldConfig()
+	self.db.profile.exportFrame.maxLetters = self.db.profile.maxLetters or self.db.profile.exportFrame.maxLetters
+	self.db.profile.maxLetters = nil
+
+	self.db.profile.indentation.style = self.db.profile.indentationStyle or self.db.profile.indentation.style
+	self.db.profile.indentation.depth = self.db.profile.spacesIndentationDepth or self.db.profile.indentation.depth
+	self.db.profile.indentationStyle = nil
+	self.db.profile.spacesIndentationDepth = nil
+
+	self.db.profile.csv.delimiter = self.db.profile.csvDelimiter or self.db.profile.csv.delimiter
+	self.db.profile.csv.enclosure = self.db.profile.csvEnclosure or self.db.profile.csv.enclosure
+	self.db.profile.csvDelimiter = nil
+	self.db.profile.csvEnclosure = nil
+
+	self.db.profile.json.minify = self.db.profile.jsonMinify or self.db.profile.json.minify
+	self.db.profile.jsonMinify = nil
+
+	self.db.profile.xml.rootElementName = self.db.profile.xmlRootElementName or self.db.profile.xml.rootElementName
+	self.db.profile.xml.recordElementName = self.db.profile.xmlRecordElementName or self.db.profile.xml.recordElementName
+	self.db.profile.xml.minify =  self.db.profile.xmlMinify or self.db.profile.xml.minify
+	self.db.profile.xmlRootElementName = nil
+	self.db.profile.xmlRecordElementName = nil
+	self.db.profile.xmlMinify = nil
+
+	self.db.profile.yaml.minify = self.db.profile.yamlMinify or self.db.profile.yaml.minify
+	self.db.profile.yaml.quotationMark = self.db.profile.yamlQuotationMark or self.db.profile.yaml.quotationMark
+	self.db.profile.yamlMinify = nil
+	self.db.profile.yamlQuotationMark = nil
+end
+
 function addon:UpdateConfigs()
+	self:ConvertOldConfig()
+
 	if LDB and LDBIcon then
 		LDBIcon:Refresh(addonName, self.db.profile.minimapIcon)
 	end
+
 	LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
+
 	self.exportFrame:ClearAllPoints()
 	self.exportFrame:SetPoint(unpack(self.db.profile.exportFrame.position))
 	self.exportFrame:SetSize(unpack(self.db.profile.exportFrame.size))
@@ -620,7 +666,7 @@ function addon:ExportData(fileFormat)
 		end
 	end
 
-	self.exportFrame.text:SetMaxLetters(self.db.profile.maxLetters)
+	self.exportFrame.text:SetMaxLetters(self.db.profile.exportFrame.maxLetters)
 	self.exportFrame.text:SetText("") -- Clear the edit box else SetMaxLetters is ignored if the edit box has been filled once before
 	--[[
 	Set the text in the export window's EditBox and display it.
@@ -643,8 +689,8 @@ local function getTabSub(n)
 end
 
 function addon:csv(data)
-	local enclosure = self.db.profile.csvEnclosure
-	local delimiter = self.db.profile.csvDelimiter
+	local enclosure = self.db.profile.csv.enclosure
+	local delimiter = self.db.profile.csv.delimiter
 	local columns = self.db.profile.columns
 	local output = ""
 	local header = {}
@@ -659,10 +705,12 @@ function addon:csv(data)
 
 	for i=0, #data do
 		local line = ""
+
 		for _, c in pairs(data[i]) do
 			if (type(c) == "string") then
 				c =  c:gsub(enclosure, enclosure..enclosure)
 			end
+
 			if type(c) == "boolean" then
 				c = tostring(c)
 			end
@@ -679,13 +727,14 @@ end
 
 function addon:json(data)
 	local columns = self.db.profile.columns
-	local indentationStyle = self.db.profile.indentationStyle
-	local indentationDepth = self.db.profile.spacesIndentationDepth
-	local minify = self.db.profile.jsonMinify
+	local indentationStyle = self.db.profile.indentation.style
+	local indentationDepth = self.db.profile.indentation.depth
+	local minify = self.db.profile.json.minify
 	local output = ""
 
 	for _, v in pairs(data) do
 		local lines = ""
+
 		for k, c in pairs(v) do
 			if (type(c) == "string") then
 				c =  c:gsub('\\', '\\\\')
@@ -718,27 +767,29 @@ function addon:json(data)
 		local tabSub = getTabSub(indentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
-	
+
 	return output
 end
 
 function addon:xml(data)
-	local xmlRootElementName = self.db.profile.xmlRootElementName
-	local xmlRecordElementName = self.db.profile.xmlRecordElementName
 	local columns = self.db.profile.columns
-	local indentationStyle = self.db.profile.indentationStyle
-	local indentationDepth = self.db.profile.spacesIndentationDepth
-	local minify = self.db.profile.xmlMinify
+	local indentationStyle = self.db.profile.indentation.style
+	local indentationDepth = self.db.profile.indentation.depth
+	local rootElementName = self.db.profile.xml.rootElementName
+	local recordElementName = self.db.profile.xml.recordElementName
+	local minify = self.db.profile.xml.minify
 	local output = ""
 
 	for _, v in pairs(data) do
 		local lines = ""
+
 		for k, c in pairs(v) do
 			if type(c) == "string" then
 				c =  c:gsub("&", '&amp;')
 				c =  c:gsub("<", '&lt;')
 				c =  c:gsub(">", '&gt;')
 			end
+
 			if type(c) == "boolean" then
 				c = tostring(c)
 			end
@@ -747,10 +798,10 @@ function addon:xml(data)
 		end
 
 		-- Add the block of lines to the output.
-		output = string.format("%1$s\n\t<%2$s>\n%3$s\t</%2$s>", output, xmlRecordElementName, lines)
+		output = string.format("%1$s\n\t<%2$s>\n%3$s\t</%2$s>", output, recordElementName, lines)
 	end
 
-	output = string.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%1$s>%2$s\n</%1$s>", xmlRootElementName, output)
+	output = string.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%1$s>%2$s\n</%1$s>", rootElementName, output)
 
 	if minify then
 		output = output:gsub("\t", "")
@@ -765,8 +816,8 @@ end
 
 function addon:yaml(data)
 	local columns = self.db.profile.columns
-	local quotationMark = self.db.profile.yamlQuotationMark
-	local minify = self.db.profile.yamlMinify
+	local quotationMark = self.db.profile.yaml.quotationMark
+	local minify = self.db.profile.yaml.minify
 	local output = ""
 	local specialCharacters = {
 		--[[
@@ -820,6 +871,7 @@ function addon:yaml(data)
 
 	local function findSpecialCharacters(str)
 		local found = false
+
 		for k,v in pairs(specialCharacters) do
 			local pos = str:lower():find(k)
 			if pos and ((pos == 1 and v == "first") or (pos >= 1 and v == "any")) then
@@ -827,11 +879,13 @@ function addon:yaml(data)
 				break
 			end
 		end
+
 		return found
 	end
 
 	for _, v in pairs(data) do
 		local lines = ""
+
 		for k, c in pairs(v) do
 			if type(c) == "string" and findSpecialCharacters(c) then
 				if quotationMark == "double" then
