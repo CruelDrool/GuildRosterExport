@@ -9,57 +9,35 @@ L["Close"] = true
 L["Close & Return"] = true
 
 -- MINIMAP ICON --
-L["Minimap Icon"] = true
-L["Show a Icon to open the config at the Minimap"] = true
-L["|cffffff00Click|r to toggle the export interface.\nOr use /%s"] = true
+L["%sClick%s to toggle options."] = true -- %s is the text color wrapping.
+L["Or use /%s"] = true -- %s is the chat command.
 
 -- CHAT COMMAND --
-L["Toggle the export interface"] = true
+L["Toggle options"] = true
 L["Print this help"] = true
 L["Do an export"] = true
 L["Supported file formats:"] = true
 L["file format"] = true
 
--- CONFIGURATION --
-L["Export"] = true
-L["WARNING! Large exports may freeze your game for several seconds!"] = true
-L["Global"] = true
-L["Remove realm name"] = true
-L["With this setting enabled, the realm name will be removed from character names in column #1."] = true
-L["Adjust %s"] = true -- rankIndex
-L["%s normally starts at 0, but this setting adjust that to 1."] = true -- rankIndex
-L["Export frame"] = true
-L["Maximum letters"] = true
-L["Set the maximum number of letters that the export window can show. Set to empty or 0 to use Blizzard's default."] = true
-L["Indentation"] = true
-L["Style"] = true
-L["Select what style to use when exporting JSON and XML."] = true
-L["Spaces"] = true
-L["Tabs"] = true
-L["Depth"] = true
-L["Set the depth used when spaces are set as indentation style. Smaller depth shortens the time before the data is displayed."] = true
-L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."] = true
-L["Settings"] = true
-L["File format"] = true
+-- FILE FORMATS --
 L["CSV"] = true
-L["Delimiter"] = true
-L["Enclosure"] = true
 L["XML"] = true
-L["Root element name"] = true
-L["Each record's element name"] = true
-L["Columns"] = true
-L["Ranks"] = true
-L["Unknown"] = true
-L["%1$s Default column name: \"%2$s\"."] = true
 L["JSON"] = true
 L["YAML"] = true
-L["Minify"] = true
-L["Quotation mark"] = true
-L["What type of quotation mark to use when strings need to be put in quotes."] = true
-L["Double"] = true
-L["Single"] = true
 
--- COLUMN DESCRIPTIONS --
+-- OPTIONS --
+L["Minimap icon"] = true
+L["Show an icon to open the config at the Minimap"] = true
+L["Export"] = true
+L["WARNING! Large exports may freeze your game for several seconds!"] = true
+L["Settings"] = true
+L["Minify"] = true
+
+-- OPTIONS: Settings - Columns --
+L["Columns"] = true
+L["%1$s Default column name: \"%2$s\"."] = true -- %1$s is column description, %2$s is column name.
+
+-- OPTIONS: Settings - Column descriptions --
 L["String - Name of character with realm (e.g. \"Arthas-Silvermoon\"). This addon defaults to removing the realm name."] = true
 L["String - Name of character's guild rank."] = true
 L["Number - Index of rank, starting at 0 for Guild Master. This addon defaults to adjusting that to 1."] = true
@@ -77,3 +55,44 @@ L["Boolean - true: player logged in via mobile app."] = true
 L["Boolean - Scroll of Resurrection eligible."] = true
 L["Number - Standing ID for character's guild reputation"] = true
 L["String - Character's Globally Unique Identifier."] = true
+
+-- OPTIONS: Settings - Ranks --
+L["Ranks"] = true
+L["Unknown"] = true
+
+-- OPTIONS: Settings -> Global --
+L["Global"] = true
+L["Remove realm name in column #1"] = true
+L["Adjust rank index in column #3"] = true
+L["The index normally starts at 0, but this setting adjust that to 1."] = true
+
+-- OPTIONS: Settings -> Global - Export frame --
+L["Export frame"] = true
+L["Maximum letters"] = true
+L["Set the maximum number of letters that the export window can show. Set to empty or 0 to use Blizzard's default."] = true
+
+-- OPTIONS: Settings -> Global - Indentation --
+L["Indentation"] = true
+L["Style"] = true
+L["Select what style to use when exporting JSON and XML."] = true
+L["Spaces"] = true
+L["Tabs"] = true
+L["Depth"] = true
+L["Set the depth used when spaces are set as indentation style. Smaller depth shortens the time before the data is displayed."] = true
+L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."] = true
+
+-- OPTIONS: Settings -> CSV --
+L["Delimiter"] = true
+L["Enclosure"] = true
+
+-- OPTIONS: Settings -> XML --
+L["Root element name"] = true
+L["Each record's element name"] = true
+
+-- OPTIONS: Settings -> JSON --
+
+-- OPTIONS: Settings -> YAML --
+L["Quotation mark"] = true
+L["What type of quotation mark to use when strings need to be put in quotes."] = true
+L["Double"] = true
+L["Single"] = true

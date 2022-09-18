@@ -124,8 +124,8 @@ addon.options = {
 		minimapIcon = {
 			order = 1,
 			type = "toggle",
-			name = L["Minimap Icon"],
-			desc = L["Show a Icon to open the config at the Minimap"],
+			name = L["Minimap icon"],
+			desc = L["Show an icon to open the config at the Minimap"],
 			get = function() return not addon.db.profile.minimapIcon.hide end,
 			set = function(info, value) addon.db.profile.minimapIcon.hide = not value; LDBIcon[value and "Show" or "Hide"](LDBIcon, addonName) end,
 			disabled = function() return not LDBIcon end,
@@ -176,9 +176,8 @@ addon.options = {
 						removeRealmName = {
 							order = 1,
 							type = "toggle",
-							name = L["Remove realm name"],
+							name = L["Remove realm name in column #1"],
 							width = "full",
-							desc = L["With this setting enabled, the realm name will be removed from character names in column #1."],
 							get = function() return addon.db.profile.removeRealmFromName end,
 							set = function(info, value) addon.db.profile.removeRealmFromName = value end,
 						},
@@ -186,8 +185,8 @@ addon.options = {
 							order = 2,
 							type = "toggle",
 							width = "full",
-							name = string.format(L["Adjust %s"], "rankIndex"),
-							desc = string.format(L["%s normally starts at 0, but this setting adjust that to 1."], "rankIndex"),
+							name = L["Adjust rank index in column #3"],
+							desc = L["The index normally starts at 0, but this setting adjust that to 1."] ,
 							get = function() return addon.db.profile.adjustRankIndex end,
 							set = function(info, value) addon.db.profile.adjustRankIndex = value end,
 						},
@@ -515,7 +514,7 @@ function addon:OnInitialize()
 
 	self.exportFrame = CreateExportFrame()
 
-	self:RegisterChatCommand(string.lower(addonName), "ChatCommand")
+	self:RegisterChatCommand(addonName:lower(), "ChatCommand")
 
 	if LDB then
 		self.LDBObj = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
@@ -529,7 +528,8 @@ function addon:OnInitialize()
 			OnTooltipShow = function(tooltip)
 				if not tooltip or not tooltip.AddLine then return end
 				tooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
-				tooltip:AddLine(string.format(L["|cffffff00Click|r to toggle the export interface.\nOr use /%s"], string.lower(addonName)))
+				tooltip:AddLine(string.format(L["%sClick%s to toggle options."], "|cffffff00", "|r"))
+				tooltip:AddLine(string.format(L["Or use /%s"], addonName:lower()))
 			end,
 		})
 
@@ -618,7 +618,7 @@ function addon:ChatCommand(args)
 
 	if arg1 == "help" then
 		local name = addonName:lower()
-		self:SystemMessageInPrimary(string.format("/%s - %s.", name, L["Toggle the export interface"]))
+		self:SystemMessageInPrimary(string.format("/%s - %s.", name, L["Toggle options"]))
 		self:SystemMessageInPrimary(string.format("/%s help - %s.",  name, L["Print this help"]))
 		self:SystemMessageInPrimary(string.format("/%s export [%s] - %s.",  name, L["file format"],  L["Do an export"]))
 		self:SystemMessageInPrimary(L["Supported file formats:"])
