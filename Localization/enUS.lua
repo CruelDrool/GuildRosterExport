@@ -21,6 +21,7 @@ L["file format"] = true
 
 -- FILE FORMATS --
 L["CSV"] = true
+L["HTML"] = true
 L["XML"] = true
 L["JSON"] = true
 L["YAML"] = true
@@ -32,6 +33,7 @@ L["Export"] = true
 L["WARNING! Large exports may freeze your game for several seconds!"] = true
 L["Settings"] = true
 L["Minify"] = true
+L["Enabled"] = true
 
 -- OPTIONS: Settings - Columns --
 L["Columns"] = true
@@ -84,6 +86,16 @@ L["Spaces are the default indentation style because tabs may be displayed as a s
 -- OPTIONS: Settings -> CSV --
 L["Delimiter"] = true
 L["Enclosure"] = true
+
+-- OPTIONS: Settings -> HTML --
+L["Table header"] = true
+
+-- OPTIONS: Settings -> HTML - WordPress --
+L["WordPress"] = true
+L["Output as a WordPress block (Gutenberg editor)."] = true
+L["Only use this if you know what you're doing. It requires you to edit the post's code directly. This will also minify the HTML code."] = true
+L["Striped style"] = true
+L["Fixed width table cells"] = true
 
 -- OPTIONS: Settings -> XML --
 L["Root element name"] = true

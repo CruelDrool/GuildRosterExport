@@ -20,6 +20,15 @@ local defaults = {
 			delimiter = ',',
 			enclosure = '"',
 		},
+		html = {
+			tableHeader = true,
+			minify = false,
+			wp = {
+				enabled = false,
+				stripedStyle = false,
+				fixedWidth = false,
+			},
+		},
 		json = {
 			minify = false,
 		},
@@ -107,6 +116,7 @@ The upper case name is displayed in the options menu.
 --]]
 local supportedFileFormats = {
 	["csv"] = L["CSV"],
+	["html"] = L["HTML"],
 	["json"] = L["JSON"],
 	["xml"] = L["XML"],
 	["yaml"] = L["YAML"],
@@ -282,8 +292,75 @@ addon.options = {
 						},
 					},
 				},
-				json = {
+				html = {
 					order = 5,
+					type = "group",
+					name = supportedFileFormats["html"],
+					-- guiInline = true,
+					args = {
+						tableHeader = {
+							order = 1,
+							type = "toggle",
+							width = "full",
+							name = L["Table header"] ,
+							desc = "",
+							get = function() return addon.db.profile.html.tableHeader end,
+							set = function(info, value) addon.db.profile.html.tableHeader = value end,
+						},
+						minify = {
+							order = 2,
+							type = "toggle",
+							width = "full",
+							name = L["Minify"],
+							desc = "",
+							get = function() return addon.db.profile.html.minify end,
+							set = function(info, value) addon.db.profile.html.minify = value end,
+						},
+						wp = {
+							order = 4,
+							type = "group",
+							name = L["WordPress"],
+							guiInline = true,
+							args = {
+								desc = {
+									order = 1,
+									type = "description",
+									width = "full",
+									name = L["Output as a WordPress block (Gutenberg editor)."],
+								},
+								enabled = {
+									order = 2,
+									type = "toggle",
+									width = "full",
+									name = L["Enabled"],
+									desc = L["Only use this if you know what you're doing. It requires you to edit the post's code directly. This will also minify the HTML code."],
+									get = function() return addon.db.profile.html.wp.enabled end,
+									set = function(info, value) addon.db.profile.html.wp.enabled = value end,
+								},
+								stripedStyle = {
+									order = 3,
+									type = "toggle",
+									width = "full",
+									name = L["Striped style"],
+									get = function() return addon.db.profile.html.wp.stripedStyle end,
+									set = function(info, value) addon.db.profile.html.wp.stripedStyle = value end,
+									-- disabled = function() return not addon.db.profile.html.wp.enabled end,
+								},
+								fixedWidth = {
+									order = 4,
+									type = "toggle",
+									width = "full",
+									name = L["Fixed width table cells"],
+									get = function() return addon.db.profile.html.wp.fixedWidth end,
+									set = function(info, value) addon.db.profile.html.wp.fixedWidth = value end,
+									-- disabled = function() return not addon.db.profile.html.wp.enabled end,
+								},
+							},
+						},
+					},
+				},
+				json = {
+					order = 6,
 					type = "group",
 					name = supportedFileFormats["json"],
 					-- guiInline = true,
@@ -300,7 +377,7 @@ addon.options = {
 					},
 				},
 				xml = {
-					order = 6,
+					order = 7,
 					type = "group",
 					name = supportedFileFormats["xml"],
 					-- guiInline = true,
@@ -339,7 +416,7 @@ addon.options = {
 					},
 				},
 				yaml = {
-					order = 7,
+					order = 8,
 					type = "group",
 					name = supportedFileFormats["yaml"],
 					-- guiInline = true,
@@ -732,6 +809,77 @@ function addon:csv(data)
 	end
 
 	return output:sub(1,-2)
+end
+
+function addon:html(data)
+	local columns = self.db.profile.columns
+	local indentationStyle = self.db.profile.indentation.style
+	local indentationDepth = self.db.profile.indentation.depth
+	local header = self.db.profile.html.tableHeader
+	local minify = self.db.profile.html.minify
+	local wp = self.db.profile.html.wp.enabled
+	local wpStripedStyle = self.db.profile.html.wp.stripedStyle
+	local wpFixedWidth = self.db.profile.html.wp.fixedWidth
+	local thead = ""
+	local tbody = ""
+	local output = ""
+
+	if header then
+		for _, v in pairs(columns) do
+			if v.enabled then
+				thead = string.format("%s\t\t\t<th>%s</th>\n", thead, v.name)
+			end
+		end
+		thead = string.format("\t<thead>\n\t\t<tr>\n%s\t\t</tr>\n\t</thead>\n",thead)
+	end
+
+	for _, v in pairs(data) do
+		local cells = ""
+
+		for _, c in pairs(v) do
+			if type(c) == "string" then
+				c =  c:gsub("&", '&amp;')
+				c =  c:gsub("<", '&lt;')
+				c =  c:gsub(">", '&gt;')
+			end
+
+			if type(c) == "boolean" then
+				c = tostring(c)
+			end
+
+			cells = string.format("%s\t\t\t<td>%s</td>\n", cells, c)
+		end
+
+		-- Add the block of cells to the body as a row.
+		tbody = string.format("%s\n\t\t<tr>\n%s\t\t</tr>", tbody, cells)
+	end
+
+	output = string.format('<table%s>\n%s\t<tbody>%s\n\t</tbody>\n</table>', (wp and wpFixedWidth) and  ' class="has-fixed-layout"' or "", thead, tbody)
+
+	if minify or wp then
+		output = output:gsub("\t", "")
+		output = output:gsub("\n", "")
+	elseif indentationStyle == "spaces" then
+		local tabSub = getTabSub(indentationDepth)
+		output = output:gsub("\t", tabSub)
+	end
+
+	if wp then
+		local attributes = ""
+
+		if wpStripedStyle or wpFixedWidth then
+			local tmp = {}
+
+			table.insert(tmp, wpFixedWidth and '"hasFixedLayout":true' or nil)
+			table.insert(tmp, wpStripedStyle and '"className":"is-style-stripes"' or nil)
+
+			attributes = string.format(" {%s}", table.concat(tmp, ","))
+		end
+
+		output = string.format('<!-- wp:table%s -->\n<figure class="wp-block-table%s">%s</figure>\n<!-- /wp:table -->', attributes, wpStripedStyle and " is-style-stripes" or "", output)
+	end
+
+	return output
 end
 
 function addon:json(data)
