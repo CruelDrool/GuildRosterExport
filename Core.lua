@@ -240,7 +240,7 @@ addon.options = {
 									style = "radio",
 									width = "half",
 									name = L["Style"],
-									desc = L["Select what style to use when exporting JSON and XML."],
+									desc = L["Select what style to use when exporting HTML, JSON, and XML."],
 									values = {["tabs"] = L["Tabs"], ["spaces"] = L["Spaces"]},
 									get = function() return addon.db.profile.indentation.style end,
 									set = function(info, value) addon.db.profile.indentation.style = value end,

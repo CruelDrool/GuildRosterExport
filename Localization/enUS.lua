@@ -78,7 +78,7 @@ L["Set the maximum number of letters that the export window can show. Set to emp
 -- OPTIONS: Settings -> Global - Indentation --
 L["Indentation"] = true
 L["Style"] = true
-L["Select what style to use when exporting JSON and XML."] = true
+L["Select what style to use when exporting HTML, JSON, and XML."] = true
 L["Spaces"] = true
 L["Tabs"] = true
 L["Depth"] = true
