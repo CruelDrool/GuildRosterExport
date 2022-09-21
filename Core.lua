@@ -1,5 +1,5 @@
 local addonName = ...
-local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0")
+local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName, false)
 -- _G[addonName] = addon -- uncomment for debugging purposes
 
@@ -12,6 +12,7 @@ local defaults = {
 		fileFormat = "csv";
 		removeRealmFromName = true,
 		adjustRankIndex = true,
+		autoExport = false,
 		indentation = {
 			style = "spaces",
 			depth = 4,
@@ -200,8 +201,16 @@ addon.options = {
 							get = function() return addon.db.profile.adjustRankIndex end,
 							set = function(info, value) addon.db.profile.adjustRankIndex = value end,
 						},
-						exportFrame = {
+						autoExport = {
 							order = 3,
+							type = "toggle",
+							name = L["Auto export"],
+							desc = L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."],
+							get = function() return addon.db.profile.autoExport end,
+							set = function(info, value) addon.db.profile.autoExport = value; addon.db.profile.autoExportSave = nil end,
+						},
+						exportFrame = {
+							order = 4,
 							type = "group",
 							guiInline = true,
 							name = L["Export frame"],
@@ -218,7 +227,7 @@ addon.options = {
 							},
 						},
 						indentation = {
-							order = 4,
+							order = 5,
 							type = "group",
 							guiInline = true,
 							name = L["Indentation"],
@@ -593,6 +602,9 @@ function addon:OnInitialize()
 
 	self:RegisterChatCommand(addonName:lower(), "ChatCommand")
 
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("GUILD_ROSTER_UPDATE")
+
 	if LDB then
 		self.LDBObj = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
 			type = "launcher",
@@ -614,6 +626,19 @@ function addon:OnInitialize()
 			LDBIcon:Register(addonName, self.LDBObj, self.db.profile.minimapIcon)
 		end
 
+	end
+end
+
+function addon:PLAYER_ENTERING_WORLD()
+	if self.db.profile.autoExport then
+		-- Request updated guild roster data from the server. This will trigger "GUILD_ROSTER_UPDATE". 
+		C_GuildInfo.GuildRoster()
+	end
+end
+
+function addon:GUILD_ROSTER_UPDATE()
+	if self.db.profile.autoExport then
+		self:ExportData(nil, true)
 	end
 end
 
@@ -649,6 +674,9 @@ end
 
 function addon:UpdateConfigs()
 	self:ConvertOldConfig()
+
+	-- Reset the auto export save. Don't want that when changing profile.
+	self.db.autoExportSave = nil
 
 	if LDB and LDBIcon then
 		LDBIcon:Refresh(addonName, self.db.profile.minimapIcon)
@@ -723,7 +751,7 @@ function addon:ChatCommand(args)
 	end
 end
 
-function addon:ExportData(fileFormat)
+function addon:ExportData(fileFormat, saveToDB)
 	fileFormat = fileFormat or self.db.profile.fileFormat
 	local ranks = self.db.profile.ranks
 	local columns = self.db.profile.columns
@@ -752,16 +780,20 @@ function addon:ExportData(fileFormat)
 		end
 	end
 
-	self.exportFrame.text:SetMaxLetters(self.db.profile.exportFrame.maxLetters)
-	self.exportFrame.text:SetText("") -- Clear the edit box else SetMaxLetters is ignored if the edit box has been filled once before
 	--[[
-	Set the text in the export window's EditBox and display it.
 	Doing the function call to the export function via a table key, so we can use the value of "fileFormat" to determine which function to use.
 	This lets us easily add more export functions. All that is needed is to add the file format to "supportedFileFormats".
 	]]--
-	self.exportFrame.text:SetText(self[fileFormat](self, roster))
-	self.exportFrame.text:HighlightText()
-	self.exportFrame:Show()
+	if saveToDB then
+		self.db.profile.autoExportSave = self[fileFormat](self, roster)
+	else
+		self.exportFrame.text:SetMaxLetters(self.db.profile.exportFrame.maxLetters)
+		self.exportFrame.text:SetText("") -- Clear the edit box else SetMaxLetters is ignored if the edit box has been filled once before
+		-- Set the text in the export window's EditBox and display it.
+		self.exportFrame.text:SetText(self[fileFormat](self, roster))
+		self.exportFrame.text:HighlightText()
+		self.exportFrame:Show()
+	end
 end
 
 local function getTabSub(n)

@@ -67,6 +67,8 @@ L["Global"] = true
 L["Remove realm name in column #1"] = true
 L["Adjust rank index in column #3"] = true
 L["The index normally starts at 0, but this setting adjust that to 1."] = true
+L["Auto export"] = true
+L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."] = true
 
 -- OPTIONS: Settings -> Global - Export frame --
 L["Export frame"] = true
