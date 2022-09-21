@@ -1,4 +1,5 @@
 local addonName = ...
+local chatCommand = addonName:lower()
 local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName, false)
 -- _G[addonName] = addon -- uncomment for debugging purposes
@@ -128,6 +129,7 @@ local closeOptionsSound = 624 -- "GAMEGENERICBUTTONPRESS"
 local closeExportFrame = SOUNDKIT.GS_TITLE_OPTION_EXIT
 
 addon.options = {
+	name = addonName,
 	childGroups = "tree",
 	type = "group",
 	plugins = {},
@@ -600,7 +602,7 @@ function addon:OnInitialize()
 
 	self.exportFrame = CreateExportFrame()
 
-	self:RegisterChatCommand(addonName:lower(), "ChatCommand")
+	self:RegisterChatCommand(chatCommand, "ChatCommand")
 
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
@@ -618,7 +620,7 @@ function addon:OnInitialize()
 				if not tooltip or not tooltip.AddLine then return end
 				tooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
 				tooltip:AddLine(string.format(L["%sClick%s to toggle options."], "|cffffff00", "|r"))
-				tooltip:AddLine(string.format(L["Or use /%s"], addonName:lower()))
+				tooltip:AddLine(string.format(L["Or use /%s"], chatCommand))
 			end,
 		})
 
@@ -691,7 +693,6 @@ end
 
 function addon:SetupOptions()
 	self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db) }
-	self.options.name = addonName
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName, self.options)
 	-- LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, addonName)
 end
@@ -722,10 +723,9 @@ function addon:ChatCommand(args)
 	arg2 = arg2 and arg2:lower()
 
 	if arg1 == "help" then
-		local name = addonName:lower()
-		self:SystemMessageInPrimary(string.format("/%s - %s.", name, L["Toggle options"]))
-		self:SystemMessageInPrimary(string.format("/%s help - %s.",  name, L["Print this help"]))
-		self:SystemMessageInPrimary(string.format("/%s export [%s] - %s.",  name, L["file format"],  L["Do an export"]))
+		self:SystemMessageInPrimary(string.format("/%s - %s.", chatCommand, L["Toggle options"]))
+		self:SystemMessageInPrimary(string.format("/%s help - %s.",  chatCommand, L["Print this help"]))
+		self:SystemMessageInPrimary(string.format("/%s export [%s] - %s.",  chatCommand, L["file format"],  L["Do an export"]))
 		self:SystemMessageInPrimary(L["Supported file formats:"])
 
 		local tmp = {}
