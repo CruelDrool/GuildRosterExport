@@ -564,7 +564,15 @@ local function CreateExportFrame()
 
 	-- Resizing
 	f:SetResizable(true)
-	f:SetMinResize(340, 110)
+
+	-- :SetMinResize removed in patch 10.0.0.
+	if f.SetResizeBounds then
+		f:SetResizeBounds(340, 110)
+	else
+		-- Backwards compatibility with any client not using the new method yet.
+		f:SetMinResize(340, 110)
+	end
+
 	local rb = CreateFrame("Button", nil, f)
 	rb:SetPoint("BOTTOMRIGHT", -4, 4)
 	rb:SetSize(16, 16)
