@@ -537,12 +537,12 @@ local function CreateExportFrame()
 	-- Buttons
 	local closeButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
 	closeButton:SetPoint("BOTTOM", f, "BOTTOM", -75, 7.5)
-	closeButton:SetScript("OnClick", function(self, button) f:Hide(); PlaySound(closeExportFrame) end)
+	closeButton:SetScript("OnClick", function(self, button) f.text:SetText(""); f:Hide(); PlaySound(closeExportFrame) end)
 	closeButton:SetText(L["Close"])
 
 	local closeAndReturnButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
 	closeAndReturnButton:SetPoint("BOTTOM", f, "BOTTOM", 75, 7.5)
-	closeAndReturnButton:SetScript("OnClick", function(self, button) addon:ToggleOptions() end)
+	closeAndReturnButton:SetScript("OnClick", function(self, button) f.text:SetText(""); addon:ToggleOptions() end)
 	closeAndReturnButton:SetText(L["Close & Return"])
 
 	-- Scroll frame
@@ -558,7 +558,7 @@ local function CreateExportFrame()
 	eb:SetMultiLine(true)
 	eb:SetAutoFocus(true)
 	eb:SetFontObject("ChatFontNormal")
-	eb:SetScript("OnEscapePressed", function() f:Hide() end)
+	eb:SetScript("OnEscapePressed", function() f.text:SetText(""); f:Hide() end)
 	sf:SetScrollChild(eb)
 	f.text = eb
 
