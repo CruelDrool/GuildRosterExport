@@ -57,6 +57,7 @@ L["Boolean - true: player logged in via mobile app."] = true
 L["Boolean - Scroll of Resurrection eligible."] = true
 L["Number - Standing ID for character's guild reputation"] = true
 L["String - Character's Globally Unique Identifier."] = true
+L["Number - UNIX timestamp. Note that since Blizzard's API doesn't return minutes this timestamp may be wrong by an hour."] = true
 
 -- OPTIONS: Settings - Ranks --
 L["Ranks"] = true
@@ -67,6 +68,8 @@ L["Global"] = true
 L["Remove realm name in column #1"] = true
 L["Adjust rank index in column #3"] = true
 L["The index normally starts at 0, but this setting adjust that to 1."] = true
+L["Use hours since last online in column #18"] = true
+L["Calculates how many hours since last being online."] = true
 L["Auto export"] = true
 L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."] = true
 

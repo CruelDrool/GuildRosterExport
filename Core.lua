@@ -13,6 +13,7 @@ local defaults = {
 		fileFormat = "csv";
 		removeRealmFromName = true,
 		adjustRankIndex = true,
+		lastOnlineHours = false,
 		autoExport = false,
 		indentation = {
 			style = "spaces",
@@ -44,35 +45,36 @@ local defaults = {
 			minify = false,
 		},
 		columns = {
-			[1] = {enabled = true, name = "name"},
-			[2] = {enabled = true, name = "rankName"},
-			[3] = {enabled = true, name = "rankIndex"},
-			[4] = {enabled = true, name = "level"},
-			[5] = {enabled = true, name = "class"},
-			[6] = {enabled = false, name = "zone"},
-			[7] = {enabled = false, name = "note"},
-			[8] = {enabled = false, name = "officerNote"},
-			[9] = {enabled = false, name = "isOnline"},
-			[10] = {enabled = false, name = "status"},
-			[11] = {enabled = false, name = "classFileName"},
-			[12] = {enabled = false, name = "achievementPoints"},
-			[13] = {enabled = false, name = "achievementRank"},
-			[14] = {enabled = false, name = "isMobile"},
-			[15] = {enabled = false, name = "isSoREligible"},
-			[16] = {enabled = false, name = "repStandingID"},
-			[17] = {enabled = false, name = "GUID"},
+			{enabled = true, name = "name"}, -- 1
+			{enabled = true, name = "rankName"}, -- 2
+			{enabled = true, name = "rankIndex"}, -- 3
+			{enabled = true, name = "level"}, -- 4
+			{enabled = true, name = "class"}, -- 5
+			{enabled = false, name = "zone"}, -- 6
+			{enabled = false, name = "note"}, -- 7
+			{enabled = false, name = "officerNote"}, -- 8
+			{enabled = false, name = "isOnline"}, -- 9
+			{enabled = false, name = "status"}, -- 10
+			{enabled = false, name = "classFileName"}, -- 11
+			{enabled = false, name = "achievementPoints"}, -- 12
+			{enabled = false, name = "achievementRank"}, -- 13
+			{enabled = false, name = "isMobile"}, -- 14
+			{enabled = false, name = "isSoREligible"}, -- 15
+			{enabled = false, name = "repStandingID"}, -- 16
+			{enabled = false, name = "GUID"}, -- 17
+			{enabled = false, name = "lastOnline"}, -- 18
 		},
 		ranks = {
-			[1] = true,
-			[2] = true,
-			[3] = true,
-			[4] = true,
-			[5] = true,
-			[6] = true,
-			[7] = true,
-			[8] = true,
-			[9] = true,
-			[10] = true,
+			true, -- 1
+			true, -- 2
+			true, -- 3
+			true, -- 4
+			true, -- 5
+			true, -- 6
+			true, -- 7
+			true, -- 8
+			true, -- 9
+			true, -- 10
 		},
 		exportFrame = {
 			position = {
@@ -92,23 +94,24 @@ local defaults = {
 }
 
 local columnDescriptions = {
-	[1] = L["String - Name of character with realm (e.g. \"Arthas-Silvermoon\"). This addon defaults to removing the realm name."],
-	[2] = L["String - Name of character's guild rank."],
-	[3] = L["Number - Index of rank, starting at 0 for Guild Master. This addon defaults to adjusting that to 1."],
-	[4] = L["Number - Character's level."],
-	[5] = L["String - Localised class name."],
-	[6] = L["String - Character's location (last location if offline)."],
-	[7] = L["String - Character's public note. Empty if you can't view notes."],
-	[8] = L["String - Character's officer note. Empty if you can't view officer notes."],
-	[9] = L["Boolean - true: online; false: offline."],
-	[10] = L["Number - 0: none; 1: AFK; 2: Busy."],
-	[11] = L["String - Upper-case, localisation-independent class name."],
-	[12] = L["Number - Character's achievement points."],
-	[13] = L["Number - Where the character ranks in guild in terms of achievement points."],
-	[14] = L["Boolean - true: player logged in via mobile app."],
-	[15] = L["Boolean - Scroll of Resurrection eligible."],
-	[16] = L["Number - Standing ID for character's guild reputation"],
-	[17] = L["String - Character's Globally Unique Identifier."],
+	L["String - Name of character with realm (e.g. \"Arthas-Silvermoon\"). This addon defaults to removing the realm name."], -- 1
+	L["String - Name of character's guild rank."], -- 2
+	L["Number - Index of rank, starting at 0 for Guild Master. This addon defaults to adjusting that to 1."], -- 3
+	L["Number - Character's level."], -- 4
+	L["String - Localised class name."], -- 5
+	L["String - Character's location (last location if offline)."], -- 6
+	L["String - Character's public note. Empty if you can't view notes."], -- 7
+	L["String - Character's officer note. Empty if you can't view officer notes."], -- 8
+	L["Boolean - true: online; false: offline."], -- 9
+	L["Number - 0: none; 1: AFK; 2: Busy."], -- 10
+	L["String - Upper-case, localisation-independent class name."], -- 11
+	L["Number - Character's achievement points."], -- 12
+	L["Number - Where the character ranks in guild in terms of achievement points."], -- 13
+	L["Boolean - true: player logged in via mobile app."], -- 14
+	L["Boolean - Scroll of Resurrection eligible."], -- 15
+	L["Number - Standing ID for character's guild reputation"], -- 16
+	L["String - Character's Globally Unique Identifier."], -- 17
+	L["Number - UNIX timestamp. Note that since Blizzard's API doesn't return minutes this timestamp may be wrong by an hour."], -- 18
 }
 --[[
 Supported file formats.
@@ -203,8 +206,17 @@ addon.options = {
 							get = function() return addon.db.profile.adjustRankIndex end,
 							set = function(info, value) addon.db.profile.adjustRankIndex = value end,
 						},
-						autoExport = {
+						lastOnlineHours = {
 							order = 3,
+							type = "toggle",
+							width = "full",
+							name = L["Use hours since last online in column #18"],
+							desc = L["Calculates how many hours since last being online."] ,
+							get = function() return addon.db.profile.lastOnlineHours end,
+							set = function(info, value) addon.db.profile.lastOnlineHours = value end,
+						},
+						autoExport = {
+							order = 4,
 							type = "toggle",
 							name = L["Auto export"],
 							desc = L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."],
@@ -212,7 +224,7 @@ addon.options = {
 							set = function(info, value) addon.db.profile.autoExport = value; addon.db.profile.autoExportSave = nil end,
 						},
 						exportFrame = {
-							order = 4,
+							order = 5,
 							type = "group",
 							guiInline = true,
 							name = L["Export frame"],
@@ -229,7 +241,7 @@ addon.options = {
 							},
 						},
 						indentation = {
-							order = 5,
+							order = 6,
 							type = "group",
 							guiInline = true,
 							name = L["Indentation"],
@@ -765,10 +777,35 @@ function addon:ExportData(fileFormat, saveToDB)
 	local columns = self.db.profile.columns
 	local removeRealmFromName = self.db.profile.removeRealmFromName
 	local adjustRankIndex = self.db.profile.adjustRankIndex
+	local lastOnlineHours = self.db.profile.lastOnlineHours
 	local roster = {}
+	local serverTime = GetServerTime()
+	local serverTimeInfo = date("*t",serverTime)
+	local currentTime = time({day=serverTimeInfo.day, month=serverTimeInfo.month, year=serverTimeInfo.year, hour=serverTimeInfo.hour})
 
 	for i=1, GetNumGuildMembers() do
 		local row = { GetGuildRosterInfo(i) }
+		local lastOnline = currentTime
+		local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(i)
+
+		if hoursOffline then
+			local dateInfo = date("*t",serverTime-(hoursOffline * 3600 + daysOffline * 86400))
+			local year = dateInfo.year - yearsOffline
+			local month = dateInfo.month - monthsOffline
+			local day = dateInfo.day
+
+			if month <= 0 then
+				year = year - 1
+				month = month + 12
+			end
+
+			lastOnline = time({day=day,month=month,year=year,hour=dateInfo.hour})
+		end
+
+		lastOnline = lastOnlineHours and ((currentTime-lastOnline)/3600) or lastOnline
+
+		table.insert(row, lastOnline)
+
 		local rankIndex = row[3] + 1
 		if ranks[rankIndex] then
 			for k, v in pairs(row) do
@@ -821,7 +858,7 @@ function addon:csv(data)
 	local output = ""
 	local header = {}
 
-	for _, v in pairs(columns) do
+	for _, v in ipairs(columns) do
 		if v.enabled then
 			table.insert(header, v.name)
 		end
@@ -831,7 +868,6 @@ function addon:csv(data)
 
 	for i=0, #data do
 		local line = ""
-
 		for _, c in pairs(data[i]) do
 			if (type(c) == "string") then
 				c =  c:gsub(enclosure, enclosure..enclosure)
@@ -865,7 +901,7 @@ function addon:html(data)
 	local output = ""
 
 	if header then
-		for _, v in pairs(columns) do
+		for _, v in ipairs(columns) do
 			if v.enabled then
 				thead = string.format("%s\t\t\t<th>%s</th>\n", thead, v.name)
 			end
