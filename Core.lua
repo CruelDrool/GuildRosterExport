@@ -779,8 +779,7 @@ function addon:ExportData(fileFormat, saveToDB)
 	local adjustRankIndex = self.db.profile.adjustRankIndex
 	local lastOnlineHours = self.db.profile.lastOnlineHours
 	local roster = {}
-	local serverTime = GetServerTime()
-	local serverTimeInfo = date("*t",serverTime)
+	local serverTimeInfo = date("*t",GetServerTime())
 	local currentTime = time({day=serverTimeInfo.day, month=serverTimeInfo.month, year=serverTimeInfo.year, hour=serverTimeInfo.hour})
 
 	for i=1, GetNumGuildMembers() do
@@ -789,7 +788,7 @@ function addon:ExportData(fileFormat, saveToDB)
 		local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(i)
 
 		if hoursOffline then
-			local dateInfo = date("*t",serverTime-(hoursOffline * 3600 + daysOffline * 86400))
+			local dateInfo = date("*t",currentTime-(hoursOffline * 3600 + daysOffline * 86400))
 			local year = dateInfo.year - yearsOffline
 			local month = dateInfo.month - monthsOffline
 			local day = dateInfo.day
