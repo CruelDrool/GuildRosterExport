@@ -127,11 +127,13 @@ local supportedFileFormats = {
 	["yaml"] = L["YAML"],
 }
 
-local openOptionsSound = 88 -- "GAMEDIALOGOPEN"
-local closeOptionsSound = 624 -- "GAMEGENERICBUTTONPRESS"
-local closeExportFrame = SOUNDKIT.GS_TITLE_OPTION_EXIT
+local sounds = {
+	openOptions = 88, -- "GAMEDIALOGOPEN"
+	closeOptions = 624, -- "GAMEGENERICBUTTONPRESS"
+	closeExportFrame = SOUNDKIT.GS_TITLE_OPTION_EXIT
+}
 
-addon.options = {
+local options = {
 	name = addonName,
 	childGroups = "tree",
 	type = "group",
@@ -472,7 +474,7 @@ addon.options = {
 }
 
 for k, v in ipairs(defaults.profile.columns) do
-	addon.options.args.settings.args.columns.args[v.name] = {
+	options.args.settings.args.columns.args[v.name] = {
 		order = k,
 		type = "group",
 		width = "full",
@@ -508,7 +510,7 @@ local function insertGuildRanksIntoOptions()
 
 		rankName = string.format("%1$s - %2$s", k, rankName)
 
-		addon.options.args.settings.args.ranks.args["rank"..tostring(k)] = {
+		options.args.settings.args.ranks.args["rank"..tostring(k)] = {
 			order = k,
 			type = "toggle",
 			name = rankName,
@@ -549,7 +551,7 @@ local function CreateExportFrame()
 	-- Buttons
 	local closeButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
 	closeButton:SetPoint("BOTTOM", f, "BOTTOM", -75, 7.5)
-	closeButton:SetScript("OnClick", function(self, button) f.text:SetText(""); f:Hide(); PlaySound(closeExportFrame) end)
+	closeButton:SetScript("OnClick", function(self, button) f.text:SetText(""); f:Hide(); PlaySound(sounds.closeExportFrame) end)
 	closeButton:SetText(L["Close"])
 
 	local closeAndReturnButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
@@ -736,8 +738,8 @@ function addon:UpdateConfigs()
 end
 
 function addon:SetupOptions()
-	self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db) }
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName, self.options)
+	options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db) }
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName, options)
 	-- LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, addonName)
 end
 
@@ -746,11 +748,11 @@ function addon:ToggleOptions()
 		self.exportFrame:Hide()
 	end
 	if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
-		PlaySound(closeOptionsSound)
+		PlaySound(sounds.closeOptions)
 		LibStub("AceConfigDialog-3.0"):Close(addonName)
 	else
 		insertGuildRanksIntoOptions()
-		PlaySound(openOptionsSound)
+		PlaySound(sounds.openOptions)
 		LibStub("AceConfigDialog-3.0"):Open(addonName)
 	end
 end
@@ -1125,7 +1127,7 @@ function addon:yaml(data)
 		["^off$"] = "first", -- Boolean. Equal to "false". YAML 1.1
 	}
 
-	local function findSpecialCharacters(str)
+	local findSpecialCharacters = function(str)
 		local found = false
 
 		for k,v in pairs(specialCharacters) do
