@@ -627,27 +627,51 @@ function addon:OnInitialize()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 
+	local iconPath =  "Interface\\AddOns\\"..addonName.."\\icon"
+
+	local iconOnClick = function(mouseButton)
+		if mouseButton == "LeftButton" or mouseButton == "RightButton" then
+			self:ToggleOptions()
+		end
+	end
+
+	local iconTooltipText = function(tooltip)
+		if not (tooltip and tooltip.AddLine) then return end
+		tooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
+		tooltip:AddLine(string.format(L["%sClick%s to toggle options."], "|cffffff00", "|r"))
+		tooltip:AddLine(string.format(L["Or use /%s"], chatCommand))
+	end
+
 	if LDB then
-		self.LDBObj = LibStub("LibDataBroker-1.1"):NewDataObject(addonName, {
+		local LDBObj = LDB:NewDataObject(addonName, {
 			type = "launcher",
-			OnClick = function(_, msg)
-				if msg == "LeftButton" or msg == "RightButton" then
-					self:ToggleOptions()
-				end
+			icon = iconPath,
+			OnClick = function(_, mouseButton)
+				iconOnClick(mouseButton)
 			end,
-			icon = "Interface\\AddOns\\"..addonName.."\\icon",
-			OnTooltipShow = function(tooltip)
-				if not tooltip or not tooltip.AddLine then return end
-				tooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
-				tooltip:AddLine(string.format(L["%sClick%s to toggle options."], "|cffffff00", "|r"))
-				tooltip:AddLine(string.format(L["Or use /%s"], chatCommand))
-			end,
+			OnTooltipShow = iconTooltipText,
 		})
 
 		if LDBIcon then
-			LDBIcon:Register(addonName, self.LDBObj, self.db.profile.minimapIcon)
+			LDBIcon:Register(addonName, LDBObj, self.db.profile.minimapIcon)
 		end
+	end
 
+	if AddonCompartmentFrame then
+		AddonCompartmentFrame:RegisterAddon({
+			text = addonName,
+			notCheckable = true,
+			registerForAnyClick = true,
+			icon = iconPath,
+			func = function(_, _, _, _, mouseButton)
+				iconOnClick(mouseButton)
+			end,
+			funcOnEnter = function()
+				GameTooltip:SetOwner(AddonCompartmentFrame, "ANCHOR_TOPRIGHT")
+				iconTooltipText(GameTooltip)
+				GameTooltip:Show()
+			end,
+		})
 	end
 end
 
