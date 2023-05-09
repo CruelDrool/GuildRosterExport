@@ -9,7 +9,9 @@ local LDBIcon = LibStub("LibDBIcon-1.0", true)
 
 local defaults = {
 	profile = {
-		minimapIcon = {},
+		minimapIcon = {
+			showInCompartment = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE,
+		},
 		fileFormat = "csv";
 		removeRealmFromName = true,
 		adjustRankIndex = true,
@@ -629,51 +631,26 @@ function addon:OnInitialize()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 
-	local iconPath =  "Interface\\AddOns\\"..addonName.."\\icon"
-
-	local iconOnClick = function(mouseButton)
-		if mouseButton == "LeftButton" or mouseButton == "RightButton" then
-			self:ToggleOptions()
-		end
-	end
-
-	local iconTooltipText = function(tooltip)
-		if not (tooltip and tooltip.AddLine) then return end
-		tooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
-		tooltip:AddLine(string.format(L["%sClick%s to toggle options."], "|cffffff00", "|r"))
-		tooltip:AddLine(string.format(L["Or use /%s"], chatCommand))
-	end
-
 	if LDB then
 		local LDBObj = LDB:NewDataObject(addonName, {
 			type = "launcher",
-			icon = iconPath,
+			icon = "Interface\\AddOns\\"..addonName.."\\icon",
 			OnClick = function(_, mouseButton)
-				iconOnClick(mouseButton)
+				if mouseButton == "LeftButton" or mouseButton == "RightButton" then
+					self:ToggleOptions()
+				end
 			end,
-			OnTooltipShow = iconTooltipText,
+			OnTooltipShow = function(tooltip)
+				if not (tooltip and tooltip.AddLine) then return end
+				tooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
+				tooltip:AddLine(string.format(L["%sClick%s to toggle options."], "|cffffff00", "|r"))
+				tooltip:AddLine(string.format(L["Or use /%s"], chatCommand))
+			end,
 		})
 
 		if LDBIcon then
 			LDBIcon:Register(addonName, LDBObj, self.db.profile.minimapIcon)
 		end
-	end
-
-	if AddonCompartmentFrame then
-		AddonCompartmentFrame:RegisterAddon({
-			text = addonName,
-			notCheckable = true,
-			registerForAnyClick = true,
-			icon = iconPath,
-			func = function(_, _, _, _, mouseButton)
-				iconOnClick(mouseButton)
-			end,
-			funcOnEnter = function()
-				GameTooltip:SetOwner(AddonCompartmentFrame, "ANCHOR_TOPRIGHT")
-				iconTooltipText(GameTooltip)
-				GameTooltip:Show()
-			end,
-		})
 	end
 end
 
