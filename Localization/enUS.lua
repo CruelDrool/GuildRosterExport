@@ -28,7 +28,7 @@ L["YAML"] = true
 
 -- OPTIONS --
 L["Minimap icon"] = true
-L["Show an icon to open the config at the Minimap"] = true
+L["Show an icon to open the config at the Minimap."] = true
 L["Export"] = true
 L["WARNING! Large exports may freeze your game for several seconds!"] = true
 L["Settings"] = true

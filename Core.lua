@@ -144,12 +144,12 @@ local options = {
 		minimapIcon = {
 			order = 1,
 			type = "toggle",
+			width = 1.0225,
 			name = L["Minimap icon"],
-			desc = L["Show an icon to open the config at the Minimap"],
+			desc = L["Show an icon to open the config at the Minimap."],
 			get = function() return not addon.db.profile.minimapIcon.hide end,
 			set = function(info, value) addon.db.profile.minimapIcon.hide = not value; LDBIcon[value and "Show" or "Hide"](LDBIcon, addonName) end,
 			disabled = function() return not LDBIcon end,
-			-- disabled = function() return not LDBTitan end,
 		},
 		fileFormat = {
 			order = 2,
@@ -170,7 +170,7 @@ local options = {
 			func = function() LibStub("AceConfigDialog-3.0"):Close(addonName); addon:ExportData() end,
 		},
 		settings = {
-			order = 2,
+			order = 4,
 			type = "group",
 			name = L["Settings"],
 			args = {
