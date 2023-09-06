@@ -22,6 +22,7 @@ local defaults = {
 			depth = 4,
 		},
 		csv = {
+			header = true,
 			delimiter = ',',
 			enclosure = '"',
 		},
@@ -295,8 +296,17 @@ local options = {
 					name = supportedFileFormats["csv"],
 					-- guiInline = true,
 					args = {
-						delimiter = {
+						header = {
 							order = 1,
+							type = "toggle",
+							width = "full",
+							name = L["Header"] ,
+							desc = "",
+							get = function() return addon.db.profile.csv.header end,
+							set = function(info, value) addon.db.profile.csv.header = value end,
+						},
+						delimiter = {
+							order = 2,
 							type = "input",
 							width = "half",
 							name = L["Delimiter"],
@@ -304,13 +314,13 @@ local options = {
 							set = function(info, value) if value ~= "" then addon.db.profile.csv.delimiter = value end end,
 						},
 						spacer1 = {
-							order = 2,
+							order = 3,
 							width = "full",
 							type = "description",
 							name = "",
 						},
 						enclosure = {
-							order = 3,
+							order = 4,
 							type = "input",
 							width = "half",
 							name = L["Enclosure"],
@@ -856,19 +866,22 @@ end
 function addon:csv(data)
 	local enclosure = self.db.profile.csv.enclosure
 	local delimiter = self.db.profile.csv.delimiter
+	local header = self.db.profile.csv.header
 	local columns = self.db.profile.columns
 	local output = ""
-	local header = {}
+	local headerData = {}
 
-	for _, v in ipairs(columns) do
-		if v.enabled then
-			table.insert(header, v.name)
+	if header then
+		for _, v in ipairs(columns) do
+			if v.enabled then
+				table.insert(headerData, v.name)
+			end
 		end
+
+		data[0] = headerData
 	end
 
-	data[0] = header
-
-	for i=0, #data do
+	for i=header and 0 or 1, #data do
 		local line = ""
 		for _, c in pairs(data[i]) do
 			if (type(c) == "string") then

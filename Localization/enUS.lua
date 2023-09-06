@@ -89,6 +89,7 @@ L["Set the depth used when spaces are set as indentation style. Smaller depth sh
 L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."] = true
 
 -- OPTIONS: Settings -> CSV --
+L["Header"] = true
 L["Delimiter"] = true
 L["Enclosure"] = true
 
