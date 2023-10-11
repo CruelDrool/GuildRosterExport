@@ -869,9 +869,9 @@ function addon:csv(data)
 	local header = self.db.profile.csv.header
 	local columns = self.db.profile.columns
 	local output = ""
-	local headerData = {}
 
 	if header then
+		local headerData = {}
 		for _, v in ipairs(columns) do
 			if v.enabled then
 				table.insert(headerData, v.name)
