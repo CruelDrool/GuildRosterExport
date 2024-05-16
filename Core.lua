@@ -711,7 +711,7 @@ function addon:UpdateConfigs()
 	self:ConvertOldConfig()
 
 	-- Reset the auto export save. Don't want that when changing profile.
-	self.db.autoExportSave = nil
+	self.db.profile.autoExportSave = nil
 
 	if LDB and LDBIcon then
 		LDBIcon:Refresh(addonName, self.db.profile.minimapIcon)
