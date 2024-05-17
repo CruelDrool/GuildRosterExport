@@ -97,24 +97,24 @@ local defaults = {
 }
 
 local columnDescriptions = {
-	L["String - Name of character with realm (e.g. \"Arthas-Silvermoon\"). This addon defaults to removing the realm name."], -- 1
-	L["String - Name of character's guild rank."], -- 2
-	L["Number - Index of rank, starting at 0 for Guild Master. This addon defaults to adjusting that to 1."], -- 3
-	L["Number - Character's level."], -- 4
-	L["String - Localised class name."], -- 5
-	L["String - Character's location (last location if offline)."], -- 6
-	L["String - Character's public note. Empty if you can't view notes."], -- 7
-	L["String - Character's officer note. Empty if you can't view officer notes."], -- 8
-	L["Boolean - true: online; false: offline."], -- 9
-	L["Number - 0: none; 1: AFK; 2: Busy."], -- 10
-	L["String - Upper-case, localisation-independent class name."], -- 11
-	L["Number - Character's achievement points."], -- 12
-	L["Number - Where the character ranks in guild in terms of achievement points."], -- 13
-	L["Boolean - true: player logged in via mobile app."], -- 14
-	L["Boolean - Scroll of Resurrection eligible."], -- 15
-	L["Number - Standing ID for character's guild reputation"], -- 16
-	L["String - Character's Globally Unique Identifier."], -- 17
-	L["Number - UNIX timestamp. Note that since Blizzard's API doesn't return minutes this timestamp may be wrong by an hour."], -- 18
+	string.format(L["%1$s - %2$s"], L["String"], L[ [[Character's name with realm name included (e.g., "Arthas-Silvermoon"). This addon defaults to removing the realm name.]] ]), -- 1
+	string.format(L["%1$s - %2$s"], L["String"], L["Name of the character's guild rank."]), -- 2
+	string.format(L["%1$s - %2$s"], L["Number"], L["Index of rank, starting at 0 for Guild Master. This addon defaults to adjusting that to 1."]), -- 3
+	string.format(L["%1$s - %2$s"], L["Number"], L["Character's level."]), -- 4
+	string.format(L["%1$s - %2$s"], L["String"], L["Localized class name."]), -- 5
+	string.format(L["%1$s - %2$s"], L["String"], L["Character's location (last location if offline)."]), -- 6
+	string.format(L["%1$s - %2$s"], L["String"], L["Character's public note. Empty if you can't view notes."]), -- 7
+	string.format(L["%1$s - %2$s"], L["String"], L["Character's officer note. Empty if you can't view officer notes."]), -- 8
+	string.format(L["%1$s - %2$s"], L["Boolean"], L["true: online; false: offline."]), -- 9
+	string.format(L["%1$s - %2$s"], L["Number"], L["0: none; 1: AFK; 2: busy."]), -- 10
+	string.format(L["%1$s - %2$s"], L["String"], L["Upper-case, non-localized class name."]), -- 11
+	string.format(L["%1$s - %2$s"], L["Number"], L["Character's achievement points."]), -- 12
+	string.format(L["%1$s - %2$s"], L["Number"], L["Where the character ranks in the guild in terms of achievement points."]), -- 13
+	string.format(L["%1$s - %2$s"], L["Boolean"], L["true: the character is logged in via the mobile app."]), -- 14
+	string.format(L["%1$s - %2$s"], L["Boolean"], L[ [[true: the character is eligible for "Scroll of Resurrection".]] ]), -- 15
+	string.format(L["%1$s - %2$s"], L["Number"], L["Standing ID for the character's guild reputation."]), -- 16
+	string.format(L["%1$s - %2$s"], L["String"], L["Character's Globally Unique Identifier."]), -- 17
+	string.format(L["%1$s - %2$s"], L["Number"], L["UNIX timestamp. Note that since Blizzard's API doesn't return minutes, this timestamp may be wrong by an hour."]), -- 18
 }
 --[[
 Supported file formats.
@@ -194,34 +194,48 @@ local options = {
 					type = "group",
 					name = L["Global"],
 					args = {
-						removeRealmName = {
+						title = {
 							order = 1,
-							type = "toggle",
-							name = L["Remove realm name in column #1"],
 							width = "full",
+							type = "description",
+							fontSize = "large",
+							name = L["Global"],
+						},
+						spacer1 = {
+							order = 2,
+							width = "full",
+							type = "description",
+							name = "",
+						},
+						removeRealmName = {
+							order = 3,
+							type = "toggle",
+							width = "full",
+							name = L["Remove realm name in column #1"],
+							desc = L[ [["Arthas-Silvermoon" will become "Arthas".]] ],
 							get = function() return addon.db.profile.removeRealmFromName end,
 							set = function(info, value) addon.db.profile.removeRealmFromName = value end,
 						},
 						adjustRankIndex = {
-							order = 2,
+							order = 4,
 							type = "toggle",
 							width = "full",
 							name = L["Adjust rank index in column #3"],
-							desc = L["The index normally starts at 0, but this setting adjust that to 1."] ,
+							desc = L["The index normally starts at 0, but this setting adjusts that to 1."] ,
 							get = function() return addon.db.profile.adjustRankIndex end,
 							set = function(info, value) addon.db.profile.adjustRankIndex = value end,
 						},
 						lastOnlineHours = {
-							order = 3,
+							order = 5,
 							type = "toggle",
 							width = "full",
 							name = L["Use hours since last online in column #18"],
-							desc = L["Calculates how many hours since last being online."] ,
+							desc = L["Calculates how many hours have passed since last being online."] ,
 							get = function() return addon.db.profile.lastOnlineHours end,
 							set = function(info, value) addon.db.profile.lastOnlineHours = value end,
 						},
 						autoExport = {
-							order = 4,
+							order = 6,
 							type = "toggle",
 							name = L["Auto export"],
 							desc = L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."],
@@ -229,7 +243,7 @@ local options = {
 							set = function(info, value) addon.db.profile.autoExport = value; addon.db.profile.autoExportSave = nil end,
 						},
 						exportFrame = {
-							order = 5,
+							order = 7,
 							type = "group",
 							guiInline = true,
 							name = L["Export frame"],
@@ -239,14 +253,14 @@ local options = {
 									type = "input",
 									width = "normal",
 									name = L["Maximum letters"],
-									desc = L["Set the maximum number of letters that the export window can show. Set to empty or 0 to use Blizzard's default."],
+									desc = L["Set the maximum number of letters that the export window can show. Set this to empty or 0 to use Blizzard's default."],
 									get = function() return addon.db.profile.exportFrame.maxLetters > 0 and tostring(addon.db.profile.exportFrame.maxLetters) or "" end,
 									set = function(info, value) value = value == "" and 0 or tonumber(value) or addon.db.profile.exportFrame.maxLetters if value >= 0 then addon.db.profile.exportFrame.maxLetters = value end end,
 								},
 							},
 						},
 						indentation = {
-							order = 6,
+							order = 8,
 							type = "group",
 							guiInline = true,
 							name = L["Indentation"],
@@ -265,7 +279,7 @@ local options = {
 								infoText = {
 									order = 2,
 									type = "description",
-									name = L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs work just fine and will be displayed correctly in a text editor."],
+									name = L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs works just fine and will be displayed correctly in a text editor."],
 								},
 								spacer1 = {
 									order = 3,
@@ -281,7 +295,7 @@ local options = {
 									step = 1,
 									width = "normal",
 									name = L["Depth"],
-									desc = L["Set the depth used when spaces are set as indentation style. Smaller depth shortens the time before the data is displayed."],
+									desc = L["Set the depth used when spaces are set as indentation style. A smaller depth shortens the time before the data is displayed."],
 									get = function() return addon.db.profile.indentation.depth end,
 									set = function(info, value) addon.db.profile.indentation.depth = value; end,
 									disabled = function() return addon.db.profile.indentation.style ~= "spaces" end,
@@ -296,36 +310,51 @@ local options = {
 					name = supportedFileFormats["csv"],
 					-- guiInline = true,
 					args = {
-						header = {
+						title = {
 							order = 1,
-							type = "toggle",
 							width = "full",
-							name = L["Header"] ,
-							desc = "",
-							get = function() return addon.db.profile.csv.header end,
-							set = function(info, value) addon.db.profile.csv.header = value end,
-						},
-						delimiter = {
-							order = 2,
-							type = "input",
-							width = "half",
-							name = L["Delimiter"],
-							get = function() return addon.db.profile.csv.delimiter end,
-							set = function(info, value) if value ~= "" then addon.db.profile.csv.delimiter = value end end,
+							type = "description",
+							fontSize = "large",
+							name = supportedFileFormats["csv"],
 						},
 						spacer1 = {
-							order = 3,
+							order = 2,
 							width = "full",
 							type = "description",
 							name = "",
+						},
+						header = {
+							order = 3,
+							type = "toggle",
+							width = "full",
+							name = L["Header"] ,
+							desc = L["Whether or not to have the column names added to top of the CSV output."],
+							get = function() return addon.db.profile.csv.header end,
+							set = function(info, value) addon.db.profile.csv.header = value end,
 						},
 						enclosure = {
 							order = 4,
 							type = "input",
 							width = "half",
 							name = L["Enclosure"],
+							desc = L["Character that is used when enclosing values."],
 							get = function() return addon.db.profile.csv.enclosure end,
 							set = function(info, value) if value ~= "" then addon.db.profile.csv.enclosure = value end end,
+						},
+						spacer2 = {
+							order = 5,
+							width = "full",
+							type = "description",
+							name = "",
+						},
+						delimiter = {
+							order = 6,
+							type = "input",
+							width = "half",
+							name = L["Delimiter"],
+							desc = L["Character that is used when separating values."],
+							get = function() return addon.db.profile.csv.delimiter end,
+							set = function(info, value) if value ~= "" then addon.db.profile.csv.delimiter = value end end,
 						},
 					},
 				},
@@ -335,26 +364,39 @@ local options = {
 					name = supportedFileFormats["html"],
 					-- guiInline = true,
 					args = {
-						tableHeader = {
+						title = {
 							order = 1,
+							width = "full",
+							type = "description",
+							fontSize = "large",
+							name = supportedFileFormats["html"],
+						},
+						spacer1 = {
+							order = 2,
+							width = "full",
+							type = "description",
+							name = "",
+						},
+						tableHeader = {
+							order = 3,
 							type = "toggle",
 							width = "full",
 							name = L["Table header"] ,
-							desc = "",
+							desc = L["Whether or not to have the column names added to the table."],
 							get = function() return addon.db.profile.html.tableHeader end,
 							set = function(info, value) addon.db.profile.html.tableHeader = value end,
 						},
 						minify = {
-							order = 2,
+							order = 4,
 							type = "toggle",
 							width = "full",
 							name = L["Minify"],
-							desc = "",
+							desc = L["To minify means removing unnecessary characters and putting everything on one single line to save space."],
 							get = function() return addon.db.profile.html.minify end,
 							set = function(info, value) addon.db.profile.html.minify = value end,
 						},
 						wp = {
-							order = 4,
+							order = 5,
 							type = "group",
 							name = L["WordPress"],
 							guiInline = true,
@@ -387,7 +429,7 @@ local options = {
 									order = 4,
 									type = "toggle",
 									width = "full",
-									name = L["Fixed width table cells"],
+									name = L["Fixed-width table cells"],
 									get = function() return addon.db.profile.html.wp.fixedWidth end,
 									set = function(info, value) addon.db.profile.html.wp.fixedWidth = value end,
 									-- disabled = function() return not addon.db.profile.html.wp.enabled end,
@@ -402,12 +444,25 @@ local options = {
 					name = supportedFileFormats["json"],
 					-- guiInline = true,
 					args = {
-						minify = {
+						title = {
 							order = 1,
+							width = "full",
+							type = "description",
+							fontSize = "large",
+							name = supportedFileFormats["json"],
+						},
+						spacer1 = {
+							order = 2,
+							width = "full",
+							type = "description",
+							name = "",
+						},
+						minify = {
+							order = 3,
 							type = "toggle",
 							width = "full",
 							name = L["Minify"],
-							desc = "",
+							desc = L["To minify means removing unnecessary characters and putting everything on one single line to save space."],
 							get = function() return addon.db.profile.json.minify end,
 							set = function(info, value) addon.db.profile.json.minify = value end,
 						}
@@ -419,13 +474,12 @@ local options = {
 					name = supportedFileFormats["xml"],
 					-- guiInline = true,
 					args = {
-						delimiter = {
+						title = {
 							order = 1,
-							type = "input",
-							width = "normal",
-							name = L["Root element name"],
-							get = function() return addon.db.profile.xml.rootElementName end,
-							set = function(info, value) if value ~= "" then addon.db.profile.xml.rootElementName = value end end,
+							width = "full",
+							type = "description",
+							fontSize = "large",
+							name = supportedFileFormats["csv"],
 						},
 						spacer1 = {
 							order = 2,
@@ -433,8 +487,22 @@ local options = {
 							type = "description",
 							name = "",
 						},
-						enclosure = {
+						delimiter = {
 							order = 3,
+							type = "input",
+							width = "normal",
+							name = L["Root element name"],
+							get = function() return addon.db.profile.xml.rootElementName end,
+							set = function(info, value) if value ~= "" then addon.db.profile.xml.rootElementName = value end end,
+						},
+						spacer2 = {
+							order = 4,
+							width = "full",
+							type = "description",
+							name = "",
+						},
+						enclosure = {
+							order = 5,
 							type = "input",
 							width = "normal",
 							name = L["Each record's element name"],
@@ -442,11 +510,11 @@ local options = {
 							set = function(info, value) if value ~= "" then addon.db.profile.xml.recordElementName = value end end,
 						},
 						minify = {
-							order = 4,
+							order = 6,
 							type = "toggle",
 							width = "full",
 							name = L["Minify"],
-							desc = "",
+							desc = L["To minify means removing unnecessary characters and putting everything on one single line to save space."],
 							get = function() return addon.db.profile.xml.minify end,
 							set = function(info, value) addon.db.profile.xml.minify = value end,
 						}
@@ -458,8 +526,21 @@ local options = {
 					name = supportedFileFormats["yaml"],
 					-- guiInline = true,
 					args = {
-						quotationMark = {
+						title = {
 							order = 1,
+							width = "full",
+							type = "description",
+							fontSize = "large",
+							name = supportedFileFormats["yaml"],
+						},
+						spacer1 = {
+							order = 2,
+							width = "full",
+							type = "description",
+							name = "",
+						},
+						quotationMark = {
+							order = 3,
 							type = "select",
 							style = "radio",
 							width = "half",
@@ -470,11 +551,11 @@ local options = {
 							set = function(info, value) addon.db.profile.yaml.quotationMark = value end,
 						},
 						minify = {
-							order = 2,
+							order = 4,
 							type = "toggle",
 							width = "full",
 							name = L["Minify"],
-							desc = "",
+							desc = L["To minify means removing unnecessary characters and putting everything on one single line to save space."],
 							get = function() return addon.db.profile.yaml.minify end,
 							set = function(info, value) addon.db.profile.yaml.minify = value end,
 						}
@@ -497,7 +578,7 @@ for k, v in ipairs(defaults.profile.columns) do
 				order = 1,
 				type = "input",
 				name = tostring(k),
-				desc = string.format(L["%1$s Default column name: \"%2$s\"."], columnDescriptions[k], v.name ),
+				desc = string.format(L[ [[%1$s Default column name: "%2$s".]] ], columnDescriptions[k], v.name ),
 				get = function() return addon.db.profile.columns[k].name end,
 				set = function(info, value) addon.db.profile.columns[k].name = value end,
 			},
