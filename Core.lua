@@ -479,7 +479,7 @@ local options = {
 							width = "full",
 							type = "description",
 							fontSize = "large",
-							name = supportedFileFormats["csv"],
+							name = supportedFileFormats["xml"],
 						},
 						spacer1 = {
 							order = 2,
