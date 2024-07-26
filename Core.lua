@@ -1,11 +1,20 @@
 local addonName = ...
 local chatCommand = addonName:lower()
+
+---@class BackdropFrame: BackdropTemplate
+---@class BackdropFrame: Frame
+
+---@class addon: AceEvent-3.0
+---@class addon: AceConsole-3.0
+---@class addon: AceAddon
 local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName, false)
--- _G[addonName] = addon -- uncomment for debugging purposes
-
-local LDB = LibStub("LibDataBroker-1.1", true)
-local LDBIcon = LibStub("LibDBIcon-1.0", true)
+local LibDataBroker = LibStub("LibDataBroker-1.1", true)
+local LibDBIcon = LibStub("LibDBIcon-1.0", true)
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+local AceDB = LibStub("AceDB-3.0")
+local AceDBOptions = LibStub("AceDBOptions-3.0")
 
 local defaults = {
 	profile = {
@@ -149,8 +158,8 @@ local options = {
 			name = L["Minimap icon"],
 			desc = L["Show an icon to open the config at the Minimap."],
 			get = function() return not addon.db.profile.minimapIcon.hide end,
-			set = function(info, value) addon.db.profile.minimapIcon.hide = not value; LDBIcon[value and "Show" or "Hide"](LDBIcon, addonName) end,
-			disabled = function() return not LDBIcon end,
+			set = function(info, value) addon.db.profile.minimapIcon.hide = not value; LibDBIcon[value and "Show" or "Hide"](LibDBIcon, addonName) end,
+			disabled = function() return not LibDBIcon end,
 		},
 		fileFormat = {
 			order = 2,
@@ -168,7 +177,7 @@ local options = {
 			desc = L["WARNING! Large exports may freeze your game for several seconds!"],
 			name = L["Export"],
 			width = "half",
-			func = function() LibStub("AceConfigDialog-3.0"):Close(addonName); addon:ExportData() end,
+			func = function() AceConfigDialog:Close(addonName); addon:ExportData() end,
 		},
 		settings = {
 			order = 4,
@@ -615,6 +624,8 @@ end
 
 local function CreateExportFrame()
 	-- Main Frame
+
+	---@class BackdropFrame
 	local f = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)
 	f:Hide()
 	f:ClearAllPoints()
@@ -677,6 +688,7 @@ local function CreateExportFrame()
 		f:SetResizeBounds(340, 110)
 	else
 		-- Backwards compatibility with any client not using the new method yet.
+		---@diagnostic disable-next-line: undefined-field
 		f:SetMinResize(340, 110)
 	end
 
@@ -706,7 +718,7 @@ local function CreateExportFrame()
 end
 
 function addon:OnInitialize()
-	self.db = LibStub("AceDB-3.0"):New(addonName.."DB", defaults)
+	self.db = AceDB:New(addonName.."DB", defaults)
 	self.db.RegisterCallback(self, "OnProfileChanged", "UpdateConfigs")
 	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateConfigs")
 	self.db.RegisterCallback(self, "OnProfileReset", "UpdateConfigs")
@@ -722,8 +734,8 @@ function addon:OnInitialize()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 
-	if LDB then
-		local LDBObj = LDB:NewDataObject(addonName, {
+	if LibDataBroker then
+		local LDBObj = LibDataBroker:NewDataObject(addonName, {
 			type = "launcher",
 			icon = "Interface\\AddOns\\"..addonName.."\\icon",
 			OnClick = function(_, mouseButton)
@@ -739,8 +751,8 @@ function addon:OnInitialize()
 			end,
 		})
 
-		if LDBIcon then
-			LDBIcon:Register(addonName, LDBObj, self.db.profile.minimapIcon)
+		if LibDBIcon then
+			LibDBIcon:Register(addonName, LDBObj, self.db.profile.minimapIcon)
 		end
 	end
 end
@@ -794,11 +806,11 @@ function addon:UpdateConfigs()
 	-- Reset the auto export save. Don't want that when changing profile.
 	self.db.profile.autoExportSave = nil
 
-	if LDB and LDBIcon then
-		LDBIcon:Refresh(addonName, self.db.profile.minimapIcon)
+	if LibDataBroker and LibDBIcon then
+		LibDBIcon:Refresh(addonName, self.db.profile.minimapIcon)
 	end
 
-	LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
+	AceConfigRegistry:NotifyChange(addonName)
 
 	self.exportFrame:ClearAllPoints()
 	self.exportFrame:SetPoint(unpack(self.db.profile.exportFrame.position))
@@ -806,22 +818,22 @@ function addon:UpdateConfigs()
 end
 
 function addon:SetupOptions()
-	options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db) }
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(addonName, options)
-	-- LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, addonName)
+	options.plugins.profiles = { profiles = AceDBOptions:GetOptionsTable(self.db) }
+	AceConfigRegistry:RegisterOptionsTable(addonName, options)
+	-- AceConfigDialog:AddToBlizOptions(addonName, addonName)
 end
 
 function addon:ToggleOptions()
 	if self.exportFrame:IsShown() then
 		self.exportFrame:Hide()
 	end
-	if LibStub("AceConfigDialog-3.0").OpenFrames[addonName] then
+	if AceConfigDialog.OpenFrames[addonName] then
 		PlaySound(sounds.closeOptions)
-		LibStub("AceConfigDialog-3.0"):Close(addonName)
+		AceConfigDialog:Close(addonName)
 	else
 		insertGuildRanksIntoOptions()
 		PlaySound(sounds.openOptions)
-		LibStub("AceConfigDialog-3.0"):Open(addonName)
+		AceConfigDialog:Open(addonName)
 	end
 end
 
@@ -854,7 +866,7 @@ function addon:ChatCommand(args)
 			self:SystemMessageInPrimary(string.format(" - %s", fileFormat))
 		end
 	elseif arg1 == "export" then
-		LibStub("AceConfigDialog-3.0"):Close(addonName);
+		AceConfigDialog:Close(addonName);
 		if supportedFileFormats[arg2] then
 			self:ExportData(arg2)
 		else
