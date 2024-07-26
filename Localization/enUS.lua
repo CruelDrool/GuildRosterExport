@@ -62,6 +62,7 @@ L[ [[true: the character is eligible for "Scroll of Resurrection".]] ] = true --
 L["Standing ID for the character's guild reputation."] = true -- 16
 L["Character's Globally Unique Identifier."] = true -- 17
 L["UNIX timestamp. Note that since Blizzard's API doesn't return minutes, this timestamp may be wrong by an hour."] = true -- 18
+L["Name of realm."] = true -- 19
 
 -- OPTIONS: Settings - Ranks --
 L["Ranks"] = true

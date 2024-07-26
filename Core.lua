@@ -75,6 +75,7 @@ local defaults = {
 			{enabled = false, name = "repStandingID"}, -- 16
 			{enabled = false, name = "GUID"}, -- 17
 			{enabled = false, name = "lastOnline"}, -- 18
+			{enabled = false, name = "realmName"}, -- 19
 		},
 		ranks = {
 			true, -- 1
@@ -124,6 +125,7 @@ local columnDescriptions = {
 	string.format(L["%1$s - %2$s"], L["Number"], L["Standing ID for the character's guild reputation."]), -- 16
 	string.format(L["%1$s - %2$s"], L["String"], L["Character's Globally Unique Identifier."]), -- 17
 	string.format(L["%1$s - %2$s"], L["Number"], L["UNIX timestamp. Note that since Blizzard's API doesn't return minutes, this timestamp may be wrong by an hour."]), -- 18
+	string.format(L["%1$s - %2$s"], L["String"], L["Name of realm."]), -- 19
 }
 --[[
 Supported file formats.
@@ -910,6 +912,10 @@ function addon:ExportData(fileFormat, saveToDB)
 		lastOnline = lastOnlineHours and ((currentTime-lastOnline)/3600) or lastOnline
 
 		table.insert(row, lastOnline)
+
+		local realmName = row[1]:match("-(.+)") or ""
+
+		table.insert(row, realmName)
 
 		local rankIndex = row[3] + 1
 		if ranks[rankIndex] then
