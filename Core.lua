@@ -913,7 +913,7 @@ function addon:ExportData(fileFormat, saveToDB)
 
 		table.insert(row, lastOnline)
 
-		local realmName = row[1]:match("-(.+)") or ""
+		local realmName = row[1] and row[1]:match("-(.+)") or ""
 
 		table.insert(row, realmName)
 
