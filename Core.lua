@@ -892,47 +892,50 @@ function addon:ExportData(fileFormat, saveToDB)
 
 	for i=1, GetNumGuildMembers() do
 		local row = { GetGuildRosterInfo(i) }
-		local lastOnline = currentTime
-		local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(i)
 
-		if hoursOffline then
-			local dateInfo = date("*t",currentTime-(hoursOffline * 3600 + daysOffline * 86400))
-			local year = dateInfo.year - yearsOffline
-			local month = dateInfo.month - monthsOffline
-			local day = dateInfo.day
+		if #row > 0 then
+			local lastOnline = currentTime
+			local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(i)
 
-			if month <= 0 then
-				year = year - 1
-				month = month + 12
+			if hoursOffline then
+				local dateInfo = date("*t",currentTime-(hoursOffline * 3600 + daysOffline * 86400))
+				local year = dateInfo.year - yearsOffline
+				local month = dateInfo.month - monthsOffline
+				local day = dateInfo.day
+
+				if month <= 0 then
+					year = year - 1
+					month = month + 12
+				end
+
+				lastOnline = time({day=day,month=month,year=year,hour=dateInfo.hour})
 			end
 
-			lastOnline = time({day=day,month=month,year=year,hour=dateInfo.hour})
-		end
+			lastOnline = lastOnlineHours and ((currentTime-lastOnline)/3600) or lastOnline
 
-		lastOnline = lastOnlineHours and ((currentTime-lastOnline)/3600) or lastOnline
+			table.insert(row, lastOnline)
 
-		table.insert(row, lastOnline)
+			local realmName = row[1]:match("-(.+)") or ""
 
-		local realmName = row[1] and row[1]:match("-(.+)") or ""
+			table.insert(row, realmName)
 
-		table.insert(row, realmName)
+			local rankIndex = row[3] + 1
+			if ranks[rankIndex] then
+				for k, v in pairs(row) do
+					if not columns[k].enabled then
+						row[k] = nil
+					else
+						if removeRealmFromName and k == 1 then
+							row[k] = row[k]:gsub("-.+","")
+						end
 
-		local rankIndex = row[3] + 1
-		if ranks[rankIndex] then
-			for k, v in pairs(row) do
-				if not columns[k].enabled then
-					row[k] = nil
-				else
-					if removeRealmFromName and k == 1 then
-						row[k] = row[k]:gsub("-.+","")
-					end
-
-					if adjustRankIndex and k == 3 then
-						row[k] = rankIndex
+						if adjustRankIndex and k == 3 then
+							row[k] = rankIndex
+						end
 					end
 				end
+				table.insert(roster, row)
 			end
-			table.insert(roster, row)
 		end
 	end
 
