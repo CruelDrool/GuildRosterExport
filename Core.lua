@@ -747,7 +747,7 @@ function addon:OnInitialize()
 			end,
 			OnTooltipShow = function(tooltip)
 				if not (tooltip and tooltip.AddLine) then return end
-				tooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
+				tooltip:AddDoubleLine(addonName, C_AddOns.GetAddOnMetadata(addonName, "Version"))
 				tooltip:AddLine(string.format(L["%sClick%s to toggle options."], "|cffffff00", "|r"))
 				tooltip:AddLine(string.format(L["Or use /%s"], chatCommand))
 			end,
