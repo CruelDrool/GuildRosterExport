@@ -5,6 +5,7 @@
 ## Author: CruelDrool
 ## SavedVariables: GuildRosterExportDB
 ## IconTexture: Interface\AddOns\GuildRosterExport\icon
+## Category: Data Export
 ## X-Date: @file-date-iso@
 ## X-Category: Data Export
 ## X-Wago-ID: 2jK8RlNy
