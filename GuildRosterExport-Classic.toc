@@ -6,5 +6,6 @@
 ## SavedVariables: GuildRosterExportDB
 ## X-Date: @file-date-iso@
 ## X-Category: Data Export
+## X-Curse-Project-ID: 1322619
 ## X-Wago-ID: 2jK8RlNy
 Init.xml
