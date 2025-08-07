@@ -1,4 +1,4 @@
-## Interface: 40401
+## Interface: 50500
 ## Version: @project-version@
 ## Title: GuildRosterExport
 ## Notes: Export the guild roster to CSV, HTML, JSON, XML or YAML.
