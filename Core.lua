@@ -915,7 +915,7 @@ function addon:ExportData(fileFormat, saveToDB)
 
 			table.insert(row, lastOnline)
 
-			local realmName = (row[1] and type(row[1]) == "string") and row[1]:match("-(.+)") or ""
+			local realmName = (row[1] and type(row[1]) == "string") and row[1]:match("-([^-]+)") or ""
 
 			table.insert(row, realmName)
 
@@ -925,8 +925,13 @@ function addon:ExportData(fileFormat, saveToDB)
 					if not columns[k].enabled then
 						row[k] = nil
 					else
-						if removeRealmFromName and k == 1 then
-							row[k] = row[k]:gsub("-.+","")
+						if k == 1 then
+							if removeRealmFromName then
+								row[k] = row[k]:gsub("-.+","")
+							else
+								-- Cross realm names have, for some reason, their realm name repeated. Very weird. This fixes that.
+								row[k] = row[k]:gsub("^([^-]+)-([^-]+)-.+", "%1-%2")
+							end
 						end
 
 						if adjustRankIndex and k == 3 then
