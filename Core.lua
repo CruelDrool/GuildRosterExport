@@ -1,12 +1,12 @@
 local addonName = ...
 local chatCommand = addonName:lower()
 
----@class BackdropFrame: BackdropTemplate
 ---@class BackdropFrame: Frame
+---@class BackdropFrame: BackdropTemplate
 
----@class addon: AceEvent-3.0
----@class addon: AceConsole-3.0
 ---@class addon: AceAddon
+---@class addon: AceConsole-3.0
+---@class addon: AceEvent-3.0
 local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName, false)
 local LibDataBroker = LibStub("LibDataBroker-1.1", true)
