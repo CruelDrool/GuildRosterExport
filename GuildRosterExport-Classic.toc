@@ -4,6 +4,7 @@
 ## Notes: Export the guild roster to CSV, HTML, JSON, XML or YAML.
 ## Author: CruelDrool
 ## SavedVariables: GuildRosterExportDB
+## OptionalDeps: _DebugLog
 ## X-Date: @file-date-iso@
 ## X-Category: Data Export
 ## X-Curse-Project-ID: 1322619

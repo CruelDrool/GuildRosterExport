@@ -1,6 +1,14 @@
 local addonName = ...
 local chatCommand = addonName:lower()
 
+local function DebugLog(...)
+	---@diagnostic disable: undefined-global
+	if DLAPI then
+		DLAPI.DebugLog(addonName, ...)
+	end
+	---@diagnostic enable
+end
+
 ---@class BackdropFrame: Frame
 ---@class BackdropFrame: BackdropTemplate
 
