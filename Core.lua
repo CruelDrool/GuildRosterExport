@@ -37,7 +37,7 @@ local defaults = {
 		},
 		html = {
 			tableHeader = true,
-			minify = false,
+			style = "compacted",
 			wp = {
 				enabled = false,
 				stripedStyle = false,
@@ -45,16 +45,16 @@ local defaults = {
 			},
 		},
 		json = {
-			minify = false,
+			style = "compacted",
 		},
 		xml = {
 			rootElementName = "GuildRoster",
 			recordElementName = "Character",
-			minify = false,
+			style = "compacted",
 		},
 		yaml = {
 			quotationMark = "single",
-			minify = false,
+			style = "compacted",
 		},
 		columns = {
 			{enabled = true, name = "name"}, -- 1
@@ -397,14 +397,19 @@ local options = {
 							get = function() return addon.db.profile.html.tableHeader end,
 							set = function(info, value) addon.db.profile.html.tableHeader = value end,
 						},
-						minify = {
+						style = {
 							order = 4,
-							type = "toggle",
-							width = "full",
-							name = L["Minify"],
-							desc = L["To minify means removing unnecessary characters and putting everything on one single line to save space."],
-							get = function() return addon.db.profile.html.minify end,
-							set = function(info, value) addon.db.profile.html.minify = value end,
+							type = "select",
+							style = "radio",
+							width = "half",
+							name = L["Style"],
+							values = {
+								["beautified"] = L["Beautified"],
+								["compacted"] = L["Compacted"],
+								["minified"] = L["Minified"],
+							},
+							get = function() return addon.db.profile.html.style end,
+							set = function(info, value) addon.db.profile.html.style = value end,
 						},
 						wp = {
 							order = 5,
@@ -468,15 +473,20 @@ local options = {
 							type = "description",
 							name = "",
 						},
-						minify = {
+						style = {
 							order = 3,
-							type = "toggle",
-							width = "full",
-							name = L["Minify"],
-							desc = L["To minify means removing unnecessary characters and putting everything on one single line to save space."],
-							get = function() return addon.db.profile.json.minify end,
-							set = function(info, value) addon.db.profile.json.minify = value end,
-						}
+							type = "select",
+							style = "radio",
+							width = "half",
+							name = L["Style"],
+							values = {
+								["beautified"] = L["Beautified"],
+								["compacted"] = L["Compacted"],
+								["minified"] = L["Minified"],
+							},
+							get = function() return addon.db.profile.json.style end,
+							set = function(info, value) addon.db.profile.json.style = value end,
+						},
 					},
 				},
 				xml = {
@@ -520,15 +530,20 @@ local options = {
 							get = function() return addon.db.profile.xml.recordElementName end,
 							set = function(info, value) if value ~= "" then addon.db.profile.xml.recordElementName = value end end,
 						},
-						minify = {
+						style = {
 							order = 6,
-							type = "toggle",
-							width = "full",
-							name = L["Minify"],
-							desc = L["To minify means removing unnecessary characters and putting everything on one single line to save space."],
-							get = function() return addon.db.profile.xml.minify end,
-							set = function(info, value) addon.db.profile.xml.minify = value end,
-						}
+							type = "select",
+							style = "radio",
+							width = "half",
+							name = L["Style"],
+							values = {
+								["beautified"] = L["Beautified"],
+								["compacted"] = L["Compacted"],
+								["minified"] = L["Minified"],
+							},
+							get = function() return addon.db.profile.xml.style end,
+							set = function(info, value) addon.db.profile.xml.style = value end,
+						},
 					},
 				},
 				yaml = {
@@ -561,15 +576,20 @@ local options = {
 							get = function() return addon.db.profile.yaml.quotationMark end,
 							set = function(info, value) addon.db.profile.yaml.quotationMark = value end,
 						},
-						minify = {
+						style = {
 							order = 4,
-							type = "toggle",
-							width = "full",
-							name = L["Minify"],
-							desc = L["To minify means removing unnecessary characters and putting everything on one single line to save space."],
-							get = function() return addon.db.profile.yaml.minify end,
-							set = function(info, value) addon.db.profile.yaml.minify = value end,
-						}
+							type = "select",
+							style = "radio",
+							width = "half",
+							name = L["Style"],
+							values = {
+								["beautified"] = L["Beautified"],
+								["compacted"] = L["Compacted"],
+								["minified"] = L["Minified"],
+							},
+							get = function() return addon.db.profile.yaml.style end,
+							set = function(info, value) addon.db.profile.yaml.style = value end,
+						},
 					},
 				},
 			},
@@ -800,6 +820,18 @@ function addon:ConvertOldConfig()
 	self.db.profile.yaml.quotationMark = self.db.profile.yamlQuotationMark or self.db.profile.yaml.quotationMark
 	self.db.profile.yamlMinify = nil
 	self.db.profile.yamlQuotationMark = nil
+
+	self.db.profile.html.style = self.db.profile.html.minify and "minified" or self.db.profile.html.style
+	self.db.profile.html.minify = nil
+
+	self.db.profile.json.style = self.db.profile.json.minify and "minified" or self.db.profile.json.style
+	self.db.profile.json.minify = nil
+
+	self.db.profile.xml.style = self.db.profile.xml.minify and "minified" or self.db.profile.xml.style
+	self.db.profile.xml.minify = nil
+
+	self.db.profile.yaml.style = self.db.profile.yaml.minify and "minified" or self.db.profile.yaml.style
+	self.db.profile.yaml.minify = nil
 end
 
 function addon:UpdateConfigs()
@@ -1014,7 +1046,9 @@ function addon:html(data)
 	local indentationStyle = self.db.profile.indentation.style
 	local indentationDepth = self.db.profile.indentation.depth
 	local header = self.db.profile.html.tableHeader
-	local minify = self.db.profile.html.minify
+	local beautify = self.db.profile.html.style == "beautified"
+	local compact = self.db.profile.html.style == "compacted"
+	local minify = self.db.profile.html.style == "minified"
 	local wp = self.db.profile.html.wp.enabled
 	local wpStripedStyle = self.db.profile.html.wp.stripedStyle
 	local wpFixedWidth = self.db.profile.html.wp.fixedWidth
@@ -1025,10 +1059,19 @@ function addon:html(data)
 	if header then
 		for _, v in ipairs(columns) do
 			if v.enabled then
-				thead = string.format("%s\t\t\t<th>%s</th>\n", thead, v.name)
+				if compact then
+					thead = string.format("%s<th>%s</th>", thead, v.name)
+				else
+					thead = string.format("%s\t\t\t<th>%s</th>\n", thead, v.name)
+				end
 			end
 		end
-		thead = string.format("\t<thead>\n\t\t<tr>\n%s\t\t</tr>\n\t</thead>\n",thead)
+
+		if compact then
+			thead = string.format("<thead>\n<tr>%s</tr></thead>",thead)
+		else
+			thead = string.format("\t<thead>\n\t\t<tr>\n%s\t\t</tr>\n\t</thead>\n",thead)
+		end
 	end
 
 	for _, v in pairs(data) do
@@ -1044,20 +1087,31 @@ function addon:html(data)
 			if type(c) == "boolean" then
 				c = tostring(c)
 			end
-
-			cells = string.format("%s\t\t\t<td>%s</td>\n", cells, c)
+			if compact then
+				cells = string.format("%s<td>%s</td>", cells, c)
+			else
+				cells = string.format("%s\t\t\t<td>%s</td>\n", cells, c)
+			end
 		end
 
 		-- Add the block of cells to the body as a row.
-		tbody = string.format("%s\n\t\t<tr>\n%s\t\t</tr>", tbody, cells)
+		if compact then
+			tbody = string.format("%s<tr>%s</tr>\n", tbody, cells)
+		else
+			tbody = string.format("%s\n\t\t<tr>\n%s\t\t</tr>", tbody, cells)
+		end
 	end
 
-	output = string.format('<table%s>\n%s\t<tbody>%s\n\t</tbody>\n</table>', (wp and wpFixedWidth) and  ' class="has-fixed-layout"' or "", thead, tbody)
+	if compact then
+		output = string.format('<table%s>%s<tbody>\n%s</tbody></table>', (wp and wpFixedWidth) and  ' class="has-fixed-layout"' or "", thead, tbody)
+	else
+		output = string.format('<table%s>\n%s\t<tbody>%s\n\t</tbody>\n</table>', (wp and wpFixedWidth) and  ' class="has-fixed-layout"' or "", thead, tbody)
+	end
 
 	if minify or wp then
 		output = output:gsub("\t", "")
 		output = output:gsub("\n", "")
-	elseif indentationStyle == "spaces" then
+	elseif beautify and indentationStyle == "spaces" then
 		local tabSub = getTabSub(indentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
@@ -1084,7 +1138,9 @@ function addon:json(data)
 	local columns = self.db.profile.columns
 	local indentationStyle = self.db.profile.indentation.style
 	local indentationDepth = self.db.profile.indentation.depth
-	local minify = self.db.profile.json.minify
+	local beautify = self.db.profile.json.style == "beautified"
+	local compact = self.db.profile.json.style == "compacted"
+	local minify = self.db.profile.json.style == "minified"
 	local output = ""
 
 	for _, v in pairs(data) do
@@ -1101,7 +1157,7 @@ function addon:json(data)
 				c = tostring(c)
 			end
 
-			if minify then
+			if compact or minify then
 				lines = string.format("%1$s\"%2$s\":%3$s,", lines, columns[k].name, c)
 			else
 				lines = string.format("%1$s\n\t\t\"%2$s\": %3$s,", lines, columns[k].name, c)
@@ -1109,16 +1165,26 @@ function addon:json(data)
 		end
 
 		-- Add the block of lines to the output. Trailing comma is removed.
-		output = string.format("%1$s\n\t{%2$s\n\t},",output, lines:sub(1,-2))
+		if compact then
+			output = string.format("%1$s{%2$s},\n",output, lines:sub(1,-2))
+		else
+			output = string.format("%1$s\n\t{%2$s\n\t},",output, lines:sub(1,-2))
+		end
 	end
 
-	-- Format the ouput. Trailing \n (newline) is removed.
-	output = string.format("[%1$s\n]", output:sub(1,-2))
+	-- Format the ouput.
+	if compact then
+		-- Trailing \n (newline) and commma is removed.
+		output = string.format("[%s]", output:sub(1,-3))
+	else
+		-- Trailing \n (newline) is removed.
+		output = string.format("[%s\n]", output:sub(1,-2))
+	end
 
 	if minify then
 		output = output:gsub("\t", "")
 		output = output:gsub("\n", "")
-	elseif indentationStyle == "spaces" then
+	elseif beautify and indentationStyle == "spaces" then
 		local tabSub = getTabSub(indentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
@@ -1132,7 +1198,9 @@ function addon:xml(data)
 	local indentationDepth = self.db.profile.indentation.depth
 	local rootElementName = self.db.profile.xml.rootElementName
 	local recordElementName = self.db.profile.xml.recordElementName
-	local minify = self.db.profile.xml.minify
+	local beautify = self.db.profile.xml.style == "beautified"
+	local compact = self.db.profile.xml.style == "compacted"
+	local minify = self.db.profile.xml.style == "minified"
 	local output = ""
 
 	for _, v in pairs(data) do
@@ -1149,11 +1217,19 @@ function addon:xml(data)
 				c = tostring(c)
 			end
 
-			lines = string.format("%1$s\t\t<%2$s>%3$s</%2$s>\n", lines, columns[k].name, c)
+			if compact then
+				lines = string.format("%1$s<%2$s>%3$s</%2$s>", lines, columns[k].name, c)
+			else
+				lines = string.format("%1$s\t\t<%2$s>%3$s</%2$s>\n", lines, columns[k].name, c)
+			end
 		end
 
 		-- Add the block of lines to the output.
-		output = string.format("%1$s\n\t<%2$s>\n%3$s\t</%2$s>", output, recordElementName, lines)
+		if compact then
+			output = string.format("%1$s\n<%2$s>%3$s</%2$s>", output, recordElementName, lines)
+		else
+			output = string.format("%1$s\n\t<%2$s>\n%3$s\t</%2$s>", output, recordElementName, lines)
+		end
 	end
 
 	output = string.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<%1$s>%2$s\n</%1$s>", rootElementName, output)
@@ -1172,7 +1248,9 @@ end
 function addon:yaml(data)
 	local columns = self.db.profile.columns
 	local quotationMark = self.db.profile.yaml.quotationMark
-	local minify = self.db.profile.yaml.minify
+	local beautify = self.db.profile.yaml.style == "beautified"
+	local compact = self.db.profile.yaml.style == "compacted"
+	local minify = self.db.profile.yaml.style == "minified"
 	local output = ""
 	local specialCharacters = {
 		--[[
@@ -1190,13 +1268,13 @@ function addon:yaml(data)
 		--["^-$"] = "first", -- A single hyphen only.
 		--["-%s"] = "first", -- A single hyphen character at the start becomes a problem if it's followed by a space character. If something else follows, even another hyphen, everything is fine.
 
-		["?"] = minify and "any" or "first", -- Mapping key indicator. When minifying, yamllint.com craps out on any question marks that aren't inside quotes. The other validators/parsers do not.
+		["?"] = (compact or minify) and "any" or "first", -- Mapping key indicator. When minifying, yamllint.com craps out on any question marks that aren't inside quotes. The other validators/parsers do not.
 
 		[":"] = "any", -- Mapping value indicator.
-		-- [":"] = minify and "any" or nil, -- Yamllint.com craps out on any colon not inside quotes when minifying.
-		-- ["^:"] = minify and nil or "first", -- Usually a colon at the start isn't a problem (as long it's not followed by a space). However, yamllint.com replaces the colon with the text "!ruby/symbol", though...
-		-- [":$"] = minify and nil or "any", -- Colon character at the end.
-		-- ["%S+%s*:%s+"] = minify and nil or "any", -- Non-space characters (usually words) followed by zero, or more, space character(s) and then a colon followed by 1, or more, space character(s).
+		-- [":"] = (compact or minify) and "any" or nil, -- Yamllint.com craps out on any colon not inside quotes when minifying.
+		-- ["^:"] = (compact or minify) and nil or "first", -- Usually a colon at the start isn't a problem (as long it's not followed by a space). However, yamllint.com replaces the colon with the text "!ruby/symbol", though...
+		-- [":$"] = (compact or minify) and nil or "any", -- Colon character at the end.
+		-- ["%S+%s*:%s+"] = (compact or minify) and nil or "any", -- Non-space characters (usually words) followed by zero, or more, space character(s) and then a colon followed by 1, or more, space character(s).
 
 		[","] =  "any", -- End flow collection entry indicator.
 		["%["] ="any", -- Start flow sequence indicator.
@@ -1257,7 +1335,7 @@ function addon:yaml(data)
 				c = tostring(c)
 			end
 
-			if minify then
+			if compact or minify then
 				lines = string.format("%1$s%2$s: %3$s,", lines, columns[k].name, c)
 			else
 				lines = string.format("%1$s %2$s: %3$s\n", lines, columns[k].name, c)
@@ -1266,17 +1344,24 @@ function addon:yaml(data)
 		end
 
 		-- Add the block of lines to the output.
-		if minify then
+		if compact then
+			output = string.format("%1$s{%2$s},\n", output, lines:sub(1,-2))
+		elseif minify then
 			output = string.format("%1$s{%2$s},", output, lines:sub(1,-2))
 		else
 			output = string.format("%1$s-\n%2$s", output, lines)
 		end
 	end
 
-	-- The trailing \n (newline) or comma is removed.
-	output = output:sub(1,-2)
+	if compact then
+		-- The trailing \n (newline) and comma is removed.
+		output = output:sub(1,-3)
+	else
+		-- The trailing \n (newline) or comma is removed.
+		output = output:sub(1,-2)
+	end
 
-	if minify then
+	if compact or minify then
 		output = string.format("[%s]", output)
 	end
 
