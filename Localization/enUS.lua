@@ -1,7 +1,8 @@
 local addonName = ...
 -- English localization file for enUS and enGB.
-local AceLocale = LibStub:GetLibrary("AceLocale-3.0")
-local L = AceLocale:NewLocale(addonName, "enUS", true)
+local L = LibStub("AceLocale-3.0"):NewLocale(addonName, "enUS", true)
+
+L["tocNotes"] = "Export the guild roster to CSV, HTML, JSON, XML or YAML."
 
 -- EXPORT FRAME --
 L["Close"] = true
@@ -43,10 +44,9 @@ L["String"] = true
 
 -- OPTIONS: Settings - Columns --
 L["Columns"] = true
-L[ [[%1$s Default column name: "%2$s".]] ] = true -- %1$s is column description, %2$s is column name.
+L[ [[%s Default column name: "%s".]] ] = true -- %1$s is column description, %2$s is column name.
 
 -- OPTIONS: Settings - Column descriptions --
-L["%1$s - %2$s"] = true -- %1$s is the type of value (boolean, number, string), %2$s is the description.
 L[ [[Character's name with realm name included (e.g., "Arthas-Silvermoon"). This addon defaults to removing the realm name.]] ] = true -- 1
 L["Name of the character's guild rank."] = true -- 2
 L["Index of rank, starting at 0 for Guild Master. This addon defaults to adjusting that to 1."] = true -- 3
@@ -101,9 +101,9 @@ L["Spaces are the default indentation style because tabs may be displayed as a s
 L["Header"] = true
 L["Whether or not to have the column names added to top of the CSV output."] = true
 L["Enclosure"] = true
-L["Character that is used when enclosing values."] = true
+L["Text character that is used when enclosing values."] = true
 L["Delimiter"] = true
-L["Character that is used when separating values."] = true
+L["Text character that is used when separating values."] = true
 
 -- OPTIONS: Settings -> HTML --
 L["Table header"] = true

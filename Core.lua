@@ -115,25 +115,25 @@ local defaults = {
 }
 
 local columnDescriptions = {
-	string.format(L["%1$s - %2$s"], L["String"], L[ [[Character's name with realm name included (e.g., "Arthas-Silvermoon"). This addon defaults to removing the realm name.]] ]), -- 1
-	string.format(L["%1$s - %2$s"], L["String"], L["Name of the character's guild rank."]), -- 2
-	string.format(L["%1$s - %2$s"], L["Number"], L["Index of rank, starting at 0 for Guild Master. This addon defaults to adjusting that to 1."]), -- 3
-	string.format(L["%1$s - %2$s"], L["Number"], L["Character's level."]), -- 4
-	string.format(L["%1$s - %2$s"], L["String"], L["Localized class name."]), -- 5
-	string.format(L["%1$s - %2$s"], L["String"], L["Character's location (last location if offline)."]), -- 6
-	string.format(L["%1$s - %2$s"], L["String"], L["Character's public note. Empty if you can't view notes."]), -- 7
-	string.format(L["%1$s - %2$s"], L["String"], L["Character's officer note. Empty if you can't view officer notes."]), -- 8
-	string.format(L["%1$s - %2$s"], L["Boolean"], L["true: online; false: offline."]), -- 9
-	string.format(L["%1$s - %2$s"], L["Number"], L["0: none; 1: AFK; 2: busy."]), -- 10
-	string.format(L["%1$s - %2$s"], L["String"], L["Upper-case, non-localized class name."]), -- 11
-	string.format(L["%1$s - %2$s"], L["Number"], L["Character's achievement points."]), -- 12
-	string.format(L["%1$s - %2$s"], L["Number"], L["Where the character ranks in the guild in terms of achievement points."]), -- 13
-	string.format(L["%1$s - %2$s"], L["Boolean"], L["true: the character is logged in via the mobile app."]), -- 14
-	string.format(L["%1$s - %2$s"], L["Boolean"], L[ [[true: the character is eligible for "Scroll of Resurrection".]] ]), -- 15
-	string.format(L["%1$s - %2$s"], L["Number"], L["Standing ID for the character's guild reputation."]), -- 16
-	string.format(L["%1$s - %2$s"], L["String"], L["Character's Globally Unique Identifier."]), -- 17
-	string.format(L["%1$s - %2$s"], L["Number"], L["UNIX timestamp. Note that since Blizzard's API doesn't return minutes, this timestamp may be wrong by an hour."]), -- 18
-	string.format(L["%1$s - %2$s"], L["String"], L["Name of realm."]), -- 19
+	string.format("%s - %s", L["String"], L[ [[Character's name with realm name included (e.g., "Arthas-Silvermoon"). This addon defaults to removing the realm name.]] ]), -- 1
+	string.format("%s - %s", L["String"], L["Name of the character's guild rank."]), -- 2
+	string.format("%s - %s", L["Number"], L["Index of rank, starting at 0 for Guild Master. This addon defaults to adjusting that to 1."]), -- 3
+	string.format("%s - %s", L["Number"], L["Character's level."]), -- 4
+	string.format("%s - %s", L["String"], L["Localized class name."]), -- 5
+	string.format("%s - %s", L["String"], L["Character's location (last location if offline)."]), -- 6
+	string.format("%s - %s", L["String"], L["Character's public note. Empty if you can't view notes."]), -- 7
+	string.format("%s - %s", L["String"], L["Character's officer note. Empty if you can't view officer notes."]), -- 8
+	string.format("%s - %s", L["Boolean"], L["true: online; false: offline."]), -- 9
+	string.format("%s - %s", L["Number"], L["0: none; 1: AFK; 2: busy."]), -- 10
+	string.format("%s - %s", L["String"], L["Upper-case, non-localized class name."]), -- 11
+	string.format("%s - %s", L["Number"], L["Character's achievement points."]), -- 12
+	string.format("%s - %s", L["Number"], L["Where the character ranks in the guild in terms of achievement points."]), -- 13
+	string.format("%s - %s", L["Boolean"], L["true: the character is logged in via the mobile app."]), -- 14
+	string.format("%s - %s", L["Boolean"], L[ [[true: the character is eligible for "Scroll of Resurrection".]] ]), -- 15
+	string.format("%s - %s", L["Number"], L["Standing ID for the character's guild reputation."]), -- 16
+	string.format("%s - %s", L["String"], L["Character's Globally Unique Identifier."]), -- 17
+	string.format("%s - %s", L["Number"], L["UNIX timestamp. Note that since Blizzard's API doesn't return minutes, this timestamp may be wrong by an hour."]), -- 18
+	string.format("%s - %s", L["String"], L["Name of realm."]), -- 19
 }
 --[[
 Supported file formats.
@@ -356,7 +356,7 @@ local options = {
 							type = "input",
 							width = "half",
 							name = L["Enclosure"],
-							desc = L["Character that is used when enclosing values."],
+							desc = L["Text character that is used when enclosing values."],
 							get = function() return addon.db.profile.csv.enclosure end,
 							set = function(info, value) if value ~= "" then addon.db.profile.csv.enclosure = value end end,
 						},
@@ -371,7 +371,7 @@ local options = {
 							type = "input",
 							width = "half",
 							name = L["Delimiter"],
-							desc = L["Character that is used when separating values."],
+							desc = L["Text character that is used when separating values."],
 							get = function() return addon.db.profile.csv.delimiter end,
 							set = function(info, value) if value ~= "" then addon.db.profile.csv.delimiter = value end end,
 						},
@@ -617,7 +617,7 @@ for k, v in ipairs(defaults.profile.columns) do
 				order = 1,
 				type = "input",
 				name = tostring(k),
-				desc = string.format(L[ [[%1$s Default column name: "%2$s".]] ], columnDescriptions[k], v.name ),
+				desc = string.format(L[ [[%s Default column name: "%s".]] ], columnDescriptions[k], v.name ),
 				get = function() return addon.db.profile.columns[k].name end,
 				set = function(info, value) addon.db.profile.columns[k].name = value end,
 			},
