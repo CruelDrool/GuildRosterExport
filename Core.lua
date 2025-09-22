@@ -919,6 +919,64 @@ function addon:ChatCommand(args)
 	end
 end
 
+local function CalculateLastOnline(currentTime, yearsOffline, monthsOffline, daysOffline, hoursOffline)
+	local dateInfo = date("*t",currentTime-(hoursOffline * 3600 + daysOffline * 86400))
+	local year = dateInfo.year - yearsOffline
+	local month = dateInfo.month - monthsOffline
+	local day = dateInfo.day
+
+	if month <= 0 then
+		year = year - 1
+		month = month + 12
+	end
+
+	return time({day=day,month=month,year=year,hour=dateInfo.hour})
+end
+
+local function GetTestRoster(self, currentTime)
+
+	local realmName = "SomeRealm"
+	local lastOnlineHours = self.db.profile.lastOnlineHours
+
+	local zoneIDs = {
+		2112,
+		2214,
+		2215,
+		2248,
+		2255,
+		2339,
+		2346,
+		2369,
+	}
+
+	local GenerateLocation = function()
+		return C_Map.GetMapInfo(zoneIDs[random(#zoneIDs)]).name
+	end
+
+	local GeneratelastOnline = function()
+		local lastOnline = CalculateLastOnline(currentTime, 0, math.random(0,2), math.random(0,28), math.random(0,23))
+		return lastOnlineHours and ((currentTime-lastOnline)/3600) or lastOnline
+	end
+
+	local tbl = {
+		{"Coldbarr-" .. realmName,"Initiate",4,80,GetClassInfo(8),GenerateLocation(),"","",false,0,"MAGE",6710,13,false,false,4,"Player-9999-3129C53",GeneratelastOnline(),realmName},
+		{"Borre-" .. realmName,"Member",3,80,GetClassInfo(7),GenerateLocation(),"","",false,0,"SHAMAN",24520,4,false,false,5,"Player-9999-EFB134A",GeneratelastOnline(),realmName},
+		{"Dedli-" .. realmName,"Member",3,80,GetClassInfo(4),GenerateLocation(),"","",false,0,"ROGUE",12800,11,false,false,6,"Player-9999-6AB86C5",GeneratelastOnline(),realmName},
+		{"Kilhe-" .. realmName,"Member",3,80,GetClassInfo(10),GenerateLocation(),"","",false,0,"MONK",22705,5,false,false,6,"Player-9999-A97F5C2",GeneratelastOnline(),realmName},
+		{"Ongel-" .. realmName,"Member",3,80,GetClassInfo(2),GenerateLocation(),"","",false,0,"PALADIN",18430,8,false,false,7,"Player-9999-AE48979",GeneratelastOnline(),realmName},
+		{"Sylis-" .. realmName,"Member",3,80,GetClassInfo(11),GenerateLocation(),"","",false,0,"DRUID",19390,6,false,false,8,"Player-9999-3794CAB",GeneratelastOnline(),realmName},
+		{"Falka-" .. realmName,"Veteran",2,80,GetClassInfo(5),GenerateLocation(),"","",false,0,"PRIEST",17435,9,false,false,8,"Player-9999-BF7C323",GeneratelastOnline(),realmName},
+		{"Nikoru-" .. realmName,"Veteran",2,80,GetClassInfo(6),GenerateLocation(),"","",false,0,"DEATHKNIGHT",19260,7,false,false,8,"Player-9999-7156B04",GeneratelastOnline(),realmName},
+		{"Pawind-" .. realmName,"Veteran",2,80,GetClassInfo(3),GenerateLocation(),"","",false,0,"HUNTER",8100,12,false,false,8,"Player-9999-E10B3D9",GeneratelastOnline(),realmName},
+		{"Dexxer-" .. realmName,"Officer",1,80,GetClassInfo(9),GenerateLocation(),"","",false,0,"WARLOCK",16570,10,false,false,8,"Player-9999-ED50CED",GeneratelastOnline(),realmName},
+		{"Fraddi-" .. realmName,"Officer",1,80,GetClassInfo(12),GenerateLocation(),"","",false,0,"DEMONHUNTER",35745,1,false,false,8,"Player-9999-4B38DB8",GeneratelastOnline(),realmName},
+		{"Wiley-" .. realmName,"Officer",1,80,GetClassInfo(13),GenerateLocation(),"","",false,0,"EVOKER",26270,3,false,false,8,"Player-9999-F7F79D4",GeneratelastOnline(),realmName},
+		{"Leewar-" .. realmName,"Guild Master",0,80,GetClassInfo(1),GenerateLocation(),"","",false,0,"WARRIOR",27150,2,false,false,8,"Player-9999-DA07A3A",GeneratelastOnline(),realmName},
+	}
+
+	return tbl
+end
+
 function addon:ExportData(fileFormat, saveToDB)
 	fileFormat = fileFormat or self.db.profile.fileFormat
 	local ranks = self.db.profile.ranks
@@ -926,39 +984,40 @@ function addon:ExportData(fileFormat, saveToDB)
 	local removeRealmFromName = self.db.profile.removeRealmFromName
 	local adjustRankIndex = self.db.profile.adjustRankIndex
 	local lastOnlineHours = self.db.profile.lastOnlineHours
-	local roster = {}
+	local rawRoster = {}
+	local filteredRoster = {}
 	local serverTimeInfo = date("*t",GetServerTime())
 	local currentTime = time({day=serverTimeInfo.day, month=serverTimeInfo.month, year=serverTimeInfo.year, hour=serverTimeInfo.hour})
 
-	for i=1, GetNumGuildMembers() do
-		local row = { GetGuildRosterInfo(i) }
+	if IsInGuild() then
+		for i=1, GetNumGuildMembers() do
+			local row = { GetGuildRosterInfo(i) }
 
-		if #row > 0 then
-			local lastOnline = currentTime
-			local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(i)
+			if #row >= 17 then -- Maybe we get more columns in the future?
+				local lastOnline = currentTime
+				local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(i)
 
-			if hoursOffline then
-				local dateInfo = date("*t",currentTime-(hoursOffline * 3600 + daysOffline * 86400))
-				local year = dateInfo.year - yearsOffline
-				local month = dateInfo.month - monthsOffline
-				local day = dateInfo.day
-
-				if month <= 0 then
-					year = year - 1
-					month = month + 12
+				if hoursOffline then
+					lastOnline = CalculateLastOnline(currentTime, yearsOffline, monthsOffline, daysOffline, hoursOffline)
 				end
 
-				lastOnline = time({day=day,month=month,year=year,hour=dateInfo.hour})
+				lastOnline = lastOnlineHours and ((currentTime-lastOnline)/3600) or lastOnline
+
+				table.insert(row, lastOnline)
+
+				local realmName = row[1]:match("-([^-]+)")
+
+				table.insert(row, realmName)
+
+				table.insert(rawRoster, row)
 			end
+		end
+	else
+		rawRoster = GetTestRoster(self, currentTime)
+	end
 
-			lastOnline = lastOnlineHours and ((currentTime-lastOnline)/3600) or lastOnline
-
-			table.insert(row, lastOnline)
-
-			local realmName = (row[1] and type(row[1]) == "string") and row[1]:match("-([^-]+)") or ""
-
-			table.insert(row, realmName)
-
+	if #rawRoster > 0 then
+		for _, row in ipairs(rawRoster) do
 			local rankIndex = row[3] + 1
 			if ranks[rankIndex] then
 				for k, v in pairs(row) do
@@ -979,7 +1038,7 @@ function addon:ExportData(fileFormat, saveToDB)
 						end
 					end
 				end
-				table.insert(roster, row)
+				table.insert(filteredRoster, row)
 			end
 		end
 	end
@@ -988,15 +1047,19 @@ function addon:ExportData(fileFormat, saveToDB)
 	Doing the function call to the export function via a table key, so we can use the value of "fileFormat" to determine which function to use.
 	This lets us easily add more export functions. All that is needed is to add the file format to "supportedFileFormats".
 	]]--
-	if saveToDB then
-		self.db.profile.autoExportSave = self[fileFormat](self, roster)
-	else
-		self.exportFrame.text:SetMaxLetters(self.db.profile.exportFrame.maxLetters)
-		self.exportFrame.text:SetText("") -- Clear the edit box else SetMaxLetters is ignored if the edit box has been filled once before
-		-- Set the text in the export window's EditBox and display it.
-		self.exportFrame.text:SetText(self[fileFormat](self, roster))
-		self.exportFrame.text:HighlightText()
-		self.exportFrame:Show()
+
+	if #filteredRoster > 0 then
+		local output = self[fileFormat](self, filteredRoster)
+		if saveToDB then
+				self.db.profile.autoExportSave = output
+		else
+			self.exportFrame.text:SetMaxLetters(self.db.profile.exportFrame.maxLetters)
+			self.exportFrame.text:SetText("") -- Clear the edit box else SetMaxLetters is ignored if the edit box has been filled once before
+			-- Set the text in the export window's EditBox and display it.
+			self.exportFrame.text:SetText(output)
+			self.exportFrame.text:HighlightText()
+			self.exportFrame:Show()
+		end
 	end
 end
 
