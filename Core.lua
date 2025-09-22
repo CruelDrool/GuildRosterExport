@@ -6,7 +6,7 @@ local function DebugLog(...)
 	if DLAPI then
 		DLAPI.DebugLog(addonName, ...)
 	end
-	---@diagnostic enable
+	---@diagnostic enable: undefined-global
 end
 
 ---@class BackdropFrame: Frame
