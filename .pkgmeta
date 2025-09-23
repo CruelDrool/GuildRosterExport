@@ -1,2 +1,11 @@
 ignore:
   - README.md
+
+embedded-libraries:
+ - libstub
+ - callbackhandler
+ - ace3
+ - libdbicon-1-0
+
+tools-used:
+ - libdatabroker-1-1
