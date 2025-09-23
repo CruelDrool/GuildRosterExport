@@ -5,7 +5,6 @@ local L = LibStub("AceLocale-3.0"):NewLocale(addonName, "enUS", true)
 L["tocNotes"] = "Export the guild roster to CSV, HTML, JSON, XML or YAML."
 
 -- EXPORT FRAME --
-L["Close"] = true
 L["Close & Return"] = true
 
 -- MINIMAP ICON --
@@ -69,7 +68,6 @@ L["Name of realm."] = true -- 19
 
 -- OPTIONS: Settings - Ranks --
 L["Ranks"] = true
-L["Unknown"] = true
 
 -- OPTIONS: Settings -> Global --
 L["Global"] = true

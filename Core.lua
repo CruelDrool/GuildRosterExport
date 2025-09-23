@@ -637,7 +637,7 @@ local function insertGuildRanksIntoOptions()
 		local rankName = GuildControlGetRankName(k)
 
 		if rankName == "" then
-			rankName = L["Unknown"]
+			rankName = UNKNOWN
 		end
 
 		rankName = string.format("%1$s - %2$s", k, rankName)
@@ -686,7 +686,7 @@ local function CreateExportFrame()
 	local closeButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
 	closeButton:SetPoint("BOTTOM", f, "BOTTOM", -75, 7.5)
 	closeButton:SetScript("OnClick", function(self, button) f.text:SetText(""); f:Hide(); PlaySound(sounds.closeExportFrame) end)
-	closeButton:SetText(L["Close"])
+	closeButton:SetText(CLOSE)
 
 	local closeAndReturnButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
 	closeAndReturnButton:SetPoint("BOTTOM", f, "BOTTOM", 75, 7.5)
