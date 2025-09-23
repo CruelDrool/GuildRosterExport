@@ -256,7 +256,7 @@ local options = {
 						autoExport = {
 							order = 6,
 							type = "toggle",
-							name = L["Auto export"],
+							name = L["Automatic export"],
 							desc = L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."],
 							get = function() return addon.db.profile.autoExport end,
 							set = function(info, value) addon.db.profile.autoExport = value; addon.db.profile.autoExportSave = nil end,

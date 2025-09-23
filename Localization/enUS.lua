@@ -79,7 +79,7 @@ L["Adjust rank index in column #3"] = true
 L["The index normally starts at 0, but this setting adjusts that to 1."] = true
 L["Use hours since last online in column #18"] = true
 L["Calculates how many hours have passed since last being online."] = true
-L["Auto export"] = true
+L["Automatic export"] = true
 L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."] = true
 
 -- OPTIONS: Settings -> Global - Export frame --
