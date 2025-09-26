@@ -1,5 +1,6 @@
 local addonName = ...
 local chatCommand = addonName:lower()
+local GUILD_ROSTER_NUM_ROWS = 17
 
 local function DebugLog(...)
 	---@diagnostic disable: undefined-global
@@ -787,15 +788,16 @@ function addon:OnInitialize()
 	end
 end
 
-function addon:PLAYER_ENTERING_WORLD()
-	if self.db.profile.autoExport then
-		-- Request updated guild roster data from the server. This will trigger "GUILD_ROSTER_UPDATE". 
+function addon:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
+	if self.db.profile.autoExport and (isInitialLogin or isReloadingUi) and IsInGuild() then
+		-- Request updated guild roster data from the server. This will trigger "GUILD_ROSTER_UPDATE".
 		C_GuildInfo.GuildRoster()
 	end
 end
 
-function addon:GUILD_ROSTER_UPDATE()
-	if self.db.profile.autoExport then
+function addon:GUILD_ROSTER_UPDATE(event)
+	-- This event only triggers when in a guild. But why trust anyone!?
+	if self.db.profile.autoExport and IsInGuild() and #{GetGuildRosterInfo(1)} >= GUILD_ROSTER_NUM_ROWS then
 		self:ExportData(nil, true)
 	end
 end
@@ -990,10 +992,16 @@ function addon:ExportData(fileFormat, saveToDB)
 	local currentTime = time({day=serverTimeInfo.day, month=serverTimeInfo.month, year=serverTimeInfo.year, hour=serverTimeInfo.hour})
 
 	if IsInGuild() then
-		for i=1, GetNumGuildMembers() do
-			local row = { GetGuildRosterInfo(i) }
 
-			if #row >= 17 then -- Maybe we get more columns in the future?
+		local numRows = #{ GetGuildRosterInfo(1) } -- Always at least 1 person in a guild, and that's the exporter themself.
+
+		if numRows > GUILD_ROSTER_NUM_ROWS then
+			DebugLog("Export~6~ERR~More columns than expected. Number of columns: %s.", tostring(numRows))
+		elseif numRows < GUILD_ROSTER_NUM_ROWS then
+			DebugLog("Export~6~ERR~Fewer columns than expected. Number of columns: %s.", tostring(numRows))
+		else
+			for i=1, GetNumGuildMembers() do
+				local row = { GetGuildRosterInfo(i) }
 				local lastOnline = currentTime
 				local yearsOffline, monthsOffline, daysOffline, hoursOffline = GetGuildRosterLastOnline(i)
 
