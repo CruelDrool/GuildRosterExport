@@ -1,17 +1,12 @@
 ---@class Private
 local Private = select(2, ...)
 
+---@class Debug
+local Debug = Private.Debug
+
 local addonName = ...
 local chatCommand = addonName:lower()
 local GUILD_ROSTER_NUM_ROWS = 17
-
-local function DebugLog(...)
-	---@diagnostic disable: undefined-global
-	if DLAPI then
-		DLAPI.DebugLog(addonName, ...)
-	end
-	---@diagnostic enable: undefined-global
-end
 
 ---@class BackdropFrame: Frame
 ---@class BackdropFrame: BackdropTemplate
@@ -999,9 +994,9 @@ function addon:ExportData(fileFormat, saveToDB)
 		local numRows = #{ GetGuildRosterInfo(1) } -- Always at least 1 person in a guild, and that's the exporter themself.
 
 		if numRows > GUILD_ROSTER_NUM_ROWS then
-			DebugLog("Export~6~ERR~More columns than expected. Number of columns: %s.", tostring(numRows))
+			Debug:Log("Export~6~ERR~More columns than expected. Number of columns: %s.", tostring(numRows))
 		elseif numRows < GUILD_ROSTER_NUM_ROWS then
-			DebugLog("Export~6~ERR~Fewer columns than expected. Number of columns: %s.", tostring(numRows))
+			Debug:Log("Export~6~ERR~Fewer columns than expected. Number of columns: %s.", tostring(numRows))
 		else
 			for i=1, GetNumGuildMembers() do
 				local row = { GetGuildRosterInfo(i) }
