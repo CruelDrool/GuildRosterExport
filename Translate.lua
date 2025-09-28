@@ -34,6 +34,9 @@ gameLocale = gameLocale == "enGB" and "enUS" or gameLocale
 ---@type localecode
 local currentLocale = gameLocale
 
+---@type localecode
+local defaultLocale
+
 ---Local function to handle errors.
 ---@param ... any
 local function errorhandler(...)
@@ -41,8 +44,8 @@ local function errorhandler(...)
 	Debug:Log(("Translate~5~ERR~%s"):format(message))
 end
 
--- A read-only table where the entries are stored. Requesting unknown entry will just the return key.
--- The metatable will block writing entries to the locale table unless `rawset()` is used.
+-- A read-only table where the translated text strings are stored. Requesting an unknown text string will just the return the requested text string.
+-- The metatable will block writing text strings to the table unless `rawset()` is used.
 ---@type table<string, string>
 local entries = setmetatable({},{
 	__index = function(self, key)-- Requesting unknown entry. Return key.
@@ -57,7 +60,7 @@ local entries = setmetatable({},{
 	end,
 })
 
----Register the default locale.
+---Register the default locale. This is required before registering any other locales.
 ---@param locale localecode Name of the locale to register, e.g. "enUS", "deDE", etc.
 ---@return table<string, boolean|string>? proxy  A write-proxy table for writing the default localization text strings to, or `nil` if the locale is already registered.
 function Translate:RegisterDefaultLocale(locale)
@@ -67,6 +70,8 @@ function Translate:RegisterDefaultLocale(locale)
 	end
 
 	isDefaulLocaleRegistered = true
+
+	defaultLocale = locale
 
 	currentLocale = locale == gameLocale and locale or currentLocale
 
@@ -120,16 +125,34 @@ function Translate:RegisterLocale(locale)
 	return proxy
 end
 
----Returns localizations for the current locale (or default locale if translations are missing).
----@return table<string, string> entries The locale table for the current language.
-function Translate:GetLocale()
-	return entries
-end
-
 ---Check if the locale is registered.
 ---@return boolean isRegistered True if registered, false if not.
 function Translate:IsLocaleRegistered(locale)
 	return registeredLocales[locale] and true
+end
+
+---Retrieve the locale code game's locale.
+---@return localecode gameLocale Locale code for the game's language.
+function Translate:GetGameLocale()
+	return gameLocale
+end
+
+---Retrieve the locale code for the default locale.
+---@return localecode defaultLocale Locale code for the current language.
+function Translate:GetDefaultLocale()
+	return defaultLocale
+end
+
+---Retrieve the locale code that is currently in use.
+---@return localecode currentLocale Locale code for the current language.
+function Translate:GetCurrentLocale()
+	return currentLocale
+end
+
+---Returns table of localization entries for the current locale (or default locale if translations are missing).
+---@return table<string, string> entries The localization table for the current language.
+function Translate:GetLocaleEntries()
+	return entries
 end
 
 ---Sets active locale.
@@ -149,20 +172,56 @@ function Translate:SetLocale(locale)
 end
 
 ---Retrieve registered locales.
+---@param strict boolean? Only those with at least one translated entry.
 ---@return table<number, string> list Table/array of registered locales
-function Translate:GetRegisteredLocales()
+function Translate:GetRegisteredLocales(strict)
 	local list = {}
-	for k in pairs(registeredLocales) do
-		table.insert(list, k)
+	for localeCode, localeTbl in pairs(registeredLocales) do
+		if strict then
+			local translated = 0
+			for entry, translation in pairs(localeTbl) do
+				if localeCode ~= defaultLocale and entry ~= translation then
+					translated = translated + 1
+				end
+
+				if translated > 0 or localeCode == defaultLocale then
+					-- One translated entry qualifies.
+					table.insert(list, localeCode)
+					break
+				end
+			end
+
+		else
+			table.insert(list, localeCode)
+		end
 	end
 
 	return list
 end
 
----Retrieve the locale that is currently in use.
----@return localecode currentLocale The current locale.
-function Translate:GetCurrentLocale()
-	return currentLocale
+---Retrieve stats for the registered locales.
+---@return table<localecode, table<string, number|boolean>> stats Stats table.
+function Translate:GetStats()
+	local stats = {}
+	for localeCode, localeTbl in pairs(registeredLocales) do
+		local total = 0
+		local translated = 0
+
+		for entry, translation in pairs(localeTbl) do
+			total = total + 1
+			if localeCode ~= defaultLocale and entry ~= translation then
+				translated = translated + 1
+			end
+		end
+
+		stats[localeCode] = {
+			["total"] = total,
+			["translated"] = localeCode ~= defaultLocale and translated or nil,
+			["isDefault"]  = localeCode == defaultLocale or nil
+		}
+	end
+
+	return stats
 end
 
 -- Add to the addon's private namespace.
@@ -170,7 +229,9 @@ Private.Translate = setmetatable(Translate,{
 	__index = function(self, key)
 		return entries[key]
 	end,
-	__newindex = function() end,
+	__newindex = function(self, key, value)
+		entries[key] = value
+	end,
 	__call = function(self, phrase)
 		return entries[phrase]
 	end,
