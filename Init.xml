@@ -3,5 +3,7 @@
 	<Script file="Debug.lua"/>
 	<Script file="Translate.lua"/>
 	<Include file="Localization\Localizations.xml" />
+	<Script file="tmp.lua"/>
+	<Script file="Settings.lua"/>
 	<Script file="Core.lua"/>
 </Ui>

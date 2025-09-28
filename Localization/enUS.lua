@@ -127,3 +127,7 @@ L["Quotation mark"] = true
 L["What type of quotation mark to use when strings need to be put in quotes."] = true
 L["Double"] = true
 L["Single"] = true
+
+L["Unknown"] = true
+L["enUS"] = "English (US)"
+L["deDE"] = "German (DE)"
