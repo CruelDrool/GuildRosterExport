@@ -3,12 +3,26 @@ param(
 	[Switch]$WhatIf,
 	[Switch]$Verbose,
 	[String]$BlockName = "** Auto-inserted locale block. **",
-	[String]$DefaultLocaleFile = "..\Localization\enUS.lua",
-	[String]$OutputFile
+	[String]$DefaultLocaleFile,
+	[String]$BaseDirectory = ".\",
+	[String]$OutputFile,
+	[String]$SearchKeyword = "L",
+	[String]$TableName = "L"
 )
 
+If (-not (Test-Path $BaseDirectory)) {
+	Write-Error "Couldn't find directory `"$BaseDirectory`"." -Category ReadError
+	exit
+}
+
+$BaseDirectory = (Get-Item $BaseDirectory).FullName
+
+If ($DefaultLocaleFile -eq "") {
+	$DefaultLocaleFile = "$BaseDirectory\Localization\enUS.lua"
+}
+
 If (-not (Test-Path $DefaultLocaleFile)) {
-	Write-Error "Couldn't find `"$DefaultLocaleFile`"." -Category ReadError
+	Write-Error "Couldn't find file `"$DefaultLocaleFile`"." -Category ReadError
 	exit
 }
 
@@ -17,7 +31,7 @@ if ($OutputFile -eq "") {
 }
 
 If (-not (Test-Path $OutputFile)) {
-	Write-Error "Couldn't find `"$OutputFile`"." -Category ReadError
+	Write-Error "Couldn't find file `"$OutputFile`"." -Category ReadError
 	exit
 }
 
@@ -52,7 +66,7 @@ if ( $Remove ) {
 		$content = $content.Remove($start, $end - $start)
 
 		if ($WhatIf) {
-			Write-Host "What if: Locale block removed."
+			Write-Host "What if: Locale block was removed."
 		} else{
 			[System.IO.File]::WriteAllText($OutputFile, $content)
 			Write-Host "Locale block was removed."
@@ -61,16 +75,15 @@ if ( $Remove ) {
 		Write-Host "Locale block not found. Nothing was removed."
 	}
 } else {
-	$Files = Get-ChildItem ..\ -File -Recurse -Filter '*.lua' | Where-Object {$_.FullName -notmatch '(?:\.tools|\.github|\.release|\.vscode|Localization|Libs).*$'}
+	$Files = Get-ChildItem $BaseDirectory -File -Recurse -Filter '*.lua' | Where-Object {$_.FullName -notmatch '(?:\.tools|\.github|\.release|\.vscode|Localization|Libs).*$'}
 	$RegexOptions = 1 -bor 2 -bor 16
-	$searchKeyword = "L"
-	$TableName = "L"
+	$SearchKeyword = "L"
 	$MissingEntries = @()
 
 	foreach ($File in $Files) {
 		$Content  = (Get-Content -Raw $File.FullName -Encoding UTF8)
 		if ( $Content ) {
-			$Results = [Text.RegularExpressions.Regex]::Matches($Content, "$searchKeyword\s*[[(]\s*([`"'].+?[`"']|\[\[.+?\]\])\s*[])]", $RegexOptions)
+			$Results = [Text.RegularExpressions.Regex]::Matches($Content, "$SearchKeyword\s*[[(]\s*([`"'].+?[`"']|\[\[.+?\]\])\s*[])]", $RegexOptions)
 		
 			foreach($Result in $Results) {
 				if ($Result.Success) {
@@ -127,13 +140,13 @@ if ( $Remove ) {
 		}
 
 		if ( $WhatIf ) {
-			Write-Host "What if: Found $($Sorted.Length) entries. Writing locale block to file '$OutputFile'."
+			Write-Host "What if: Found $($MissingEntries.Length) entries. Writing locale block to file '$OutputFile'."
 		} else {
-			Write-Host "Found $($Sorted.Length) entries.  Writing locale block to file '$OutputFile'."
+			Write-Host "Found $($MissingEntries.Length) entries.  Writing locale block to file '$OutputFile'."
 			[System.IO.File]::WriteAllText($OutputFile, $content)
 		}
 
 	} else {
-		Write-Host "All entries in the codebase are also found in the default locale file."
+		Write-Host "All entries in the codebase are also found in '$OutputFile'."
 	}
 }
