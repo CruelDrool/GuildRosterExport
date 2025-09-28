@@ -1,3 +1,6 @@
+---@class Private
+local Private = select(2, ...)
+
 local addonName = ...
 local chatCommand = addonName:lower()
 local GUILD_ROSTER_NUM_ROWS = 17
@@ -17,7 +20,7 @@ end
 ---@class addon: AceConsole-3.0
 ---@class addon: AceEvent-3.0
 local addon = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0")
-local L = LibStub("AceLocale-3.0"):GetLocale(addonName, false)
+local L = Private.Translate:GetLocale()
 local LibDataBroker = LibStub("LibDataBroker-1.1", true)
 local LibDBIcon = LibStub("LibDBIcon-1.0", true)
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")

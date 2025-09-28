@@ -1,6 +1,8 @@
-local addonName = ...
+---@class Private
+local Private = select(2, ...)
+
 -- English localization file for enUS and enGB.
-local L = LibStub("AceLocale-3.0"):NewLocale(addonName, "enUS", true)
+local L = Private.Translate:RegisterDefaultLocale("enUS")
 
 L["tocNotes"] = "Export the guild roster to CSV, HTML, JSON, XML or YAML."
 
