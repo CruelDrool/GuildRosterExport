@@ -42,32 +42,6 @@ local defaults = {
 			style = "spaces",
 			depth = 4,
 		},
-		csv = {
-			header = true,
-			delimiter = ',',
-			enclosure = '"',
-		},
-		html = {
-			tableHeader = true,
-			style = "compacted",
-			wp = {
-				enabled = false,
-				stripedStyle = false,
-				fixedWidth = false,
-			},
-		},
-		json = {
-			style = "compacted",
-		},
-		xml = {
-			rootElementName = "GuildRoster",
-			recordElementName = "Character",
-			style = "compacted",
-		},
-		yaml = {
-			quotationMark = "single",
-			style = "compacted",
-		},
 		columns = {
 			{enabled = true, name = "name"}, -- 1
 			{enabled = true, name = "rankName"}, -- 2
@@ -119,11 +93,25 @@ local defaults = {
 }
 
 local fileFormats = {}
+local fileFormatOptions = {}
 
+---@param fileFormat string
+---@param displayName string
 function Settings:RegisterFileFormat(fileFormat, displayName)
 	fileFormats[fileFormat] = displayName
 end
 
+---@param fileFormat string
+---@param formatDefaults table
+function Settings:RegisterFileFormatDefaults(fileFormat, formatDefaults)
+	defaults.profile[fileFormat] = formatDefaults
+end
+
+function Settings:RegisterFileFormatOptions(fileFormat, func)
+	table.insert(fileFormatOptions, {fileFormat, func})
+end
+
+---@return table
 function Settings:GetDefaults()
 	return defaults
 end
@@ -330,319 +318,6 @@ local function GetGlobalOptions(order)
 	return global
 end
 
----@param order number
----@return table
-local function GetCsvOptions(order)
-	local csv = {
-		order = order,
-		type = "group",
-		name = L["CSV"],
-		-- guiInline = true,
-		args = {
-			title = {
-				order = 1,
-				width = "full",
-				type = "description",
-				fontSize = "large",
-				name = L["CSV"],
-			},
-			spacer1 = {
-				order = 2,
-				width = "full",
-				type = "description",
-				name = "",
-			},
-			header = {
-				order = 3,
-				type = "toggle",
-				width = "full",
-				name = L["Header"] ,
-				desc = L["Whether or not to have the column names added to top of the CSV output."],
-				get = function() return Private.db.profile.csv.header end,
-				set = function(info, value) Private.db.profile.csv.header = value end,
-			},
-			enclosure = {
-				order = 4,
-				type = "input",
-				width = "half",
-				name = L["Enclosure"],
-				desc = L["Text character that is used when enclosing values."],
-				get = function() return Private.db.profile.csv.enclosure end,
-				set = function(info, value) if value ~= "" then Private.db.profile.csv.enclosure = value end end,
-			},
-			spacer2 = {
-				order = 5,
-				width = "full",
-				type = "description",
-				name = "",
-			},
-			delimiter = {
-				order = 6,
-				type = "input",
-				width = "half",
-				name = L["Delimiter"],
-				desc = L["Text character that is used when separating values."],
-				get = function() return Private.db.profile.csv.delimiter end,
-				set = function(info, value) if value ~= "" then Private.db.profile.csv.delimiter = value end end,
-			},
-		},
-	}
-
-	return csv
-end
-
----@param order number
----@return table
-local function GetHtmlOptions(order)
-	local html = {
-		order = order,
-		type = "group",
-		name = L["HTML"],
-		-- guiInline = true,
-		args = {
-			title = {
-				order = 1,
-				width = "full",
-				type = "description",
-				fontSize = "large",
-				name = L["HTML"],
-			},
-			spacer1 = {
-				order = 2,
-				width = "full",
-				type = "description",
-				name = "",
-			},
-			tableHeader = {
-				order = 3,
-				type = "toggle",
-				width = "full",
-				name = L["Table header"] ,
-				desc = L["Whether or not to have the column names added to the table."],
-				get = function() return Private.db.profile.html.tableHeader end,
-				set = function(info, value) Private.db.profile.html.tableHeader = value end,
-			},
-			style = {
-				order = 4,
-				type = "select",
-				style = "radio",
-				width = "half",
-				name = L["Style"],
-				values = {
-					["beautified"] = L["Beautified"],
-					["compacted"] = L["Compacted"],
-					["minified"] = L["Minified"],
-				},
-				get = function() return Private.db.profile.html.style end,
-				set = function(info, value) Private.db.profile.html.style = value end,
-			},
-			wp = {
-				order = 5,
-				type = "group",
-				name = L["WordPress"],
-				guiInline = true,
-				args = {
-					desc = {
-						order = 1,
-						type = "description",
-						width = "full",
-						name = L["Output as a WordPress block (Gutenberg editor)."],
-					},
-					enabled = {
-						order = 2,
-						type = "toggle",
-						width = "full",
-						name = L["Enabled"],
-						desc = L["Only use this if you know what you're doing. It requires you to edit the post's code directly. This will also minify the HTML code."],
-						get = function() return Private.db.profile.html.wp.enabled end,
-						set = function(info, value) Private.db.profile.html.wp.enabled = value end,
-					},
-					stripedStyle = {
-						order = 3,
-						type = "toggle",
-						width = "full",
-						name = L["Striped style"],
-						get = function() return Private.db.profile.html.wp.stripedStyle end,
-						set = function(info, value) Private.db.profile.html.wp.stripedStyle = value end,
-						-- disabled = function() return not Private.db.profile.html.wp.enabled end,
-					},
-					fixedWidth = {
-						order = 4,
-						type = "toggle",
-						width = "full",
-						name = L["Fixed-width table cells"],
-						get = function() return Private.db.profile.html.wp.fixedWidth end,
-						set = function(info, value) Private.db.profile.html.wp.fixedWidth = value end,
-						-- disabled = function() return not Private.db.profile.html.wp.enabled end,
-					},
-				},
-			},
-		},
-	}
-
-	return html
-end
-
----@param order number
----@return table
-local function GetJsonOptions(order)
-	local json = {
-		order = order,
-		type = "group",
-		name = L["JSON"],
-		-- guiInline = true,
-		args = {
-			title = {
-				order = 1,
-				width = "full",
-				type = "description",
-				fontSize = "large",
-				name = L["JSON"],
-			},
-			spacer1 = {
-				order = 2,
-				width = "full",
-				type = "description",
-				name = "",
-			},
-			style = {
-				order = 3,
-				type = "select",
-				style = "radio",
-				width = "half",
-				name = L["Style"],
-				values = {
-					["beautified"] = L["Beautified"],
-					["compacted"] = L["Compacted"],
-					["minified"] = L["Minified"],
-				},
-				get = function() return Private.db.profile.json.style end,
-				set = function(info, value) Private.db.profile.json.style = value end,
-			},
-		},
-	}
-
-	return json
-end
-
----@param order number
----@return table
-local function GetXmlOptions(order)
-	local xml = {
-		order = order,
-		type = "group",
-		name = L["XML"],
-		-- guiInline = true,
-		args = {
-			title = {
-				order = 1,
-				width = "full",
-				type = "description",
-				fontSize = "large",
-				name = L["XML"],
-			},
-			spacer1 = {
-				order = 2,
-				width = "full",
-				type = "description",
-				name = "",
-			},
-			delimiter = {
-				order = 3,
-				type = "input",
-				width = "normal",
-				name = L["Root element name"],
-				get = function() return Private.db.profile.xml.rootElementName end,
-				set = function(info, value) if value ~= "" then Private.db.profile.xml.rootElementName = value end end,
-			},
-			spacer2 = {
-				order = 4,
-				width = "full",
-				type = "description",
-				name = "",
-			},
-			enclosure = {
-				order = 5,
-				type = "input",
-				width = "normal",
-				name = L["Each record's element name"],
-				get = function() return Private.db.profile.xml.recordElementName end,
-				set = function(info, value) if value ~= "" then Private.db.profile.xml.recordElementName = value end end,
-			},
-			style = {
-				order = 6,
-				type = "select",
-				style = "radio",
-				width = "half",
-				name = L["Style"],
-				values = {
-					["beautified"] = L["Beautified"],
-					["compacted"] = L["Compacted"],
-					["minified"] = L["Minified"],
-				},
-				get = function() return Private.db.profile.xml.style end,
-				set = function(info, value) Private.db.profile.xml.style = value end,
-			},
-		},
-	}
-
-	return xml
-end
-
----@param order number
----@return table
-local function GetYamlOptions(order)
-	local yaml = {
-		order = order,
-		type = "group",
-		name = L["YAML"],
-		-- guiInline = true,
-		args = {
-			title = {
-				order = 1,
-				width = "full",
-				type = "description",
-				fontSize = "large",
-				name = L["YAML"],
-			},
-			spacer1 = {
-				order = 2,
-				width = "full",
-				type = "description",
-				name = "",
-			},
-			quotationMark = {
-				order = 3,
-				type = "select",
-				style = "radio",
-				width = "half",
-				name = L["Quotation mark"],
-				desc = L["What type of quotation mark to use when strings need to be put in quotes."],
-				values = {["double"] = L["Double"], ["single"] = L["Single"]},
-				get = function() return Private.db.profile.yaml.quotationMark end,
-				set = function(info, value) Private.db.profile.yaml.quotationMark = value end,
-			},
-			style = {
-				order = 4,
-				type = "select",
-				style = "radio",
-				width = "half",
-				name = L["Style"],
-				values = {
-					["beautified"] = L["Beautified"],
-					["compacted"] = L["Compacted"],
-					["minified"] = L["Minified"],
-				},
-				get = function() return Private.db.profile.yaml.style end,
-				set = function(info, value) Private.db.profile.yaml.style = value end,
-			},
-		},
-	}
-
-	return yaml
-end
-
-
 function Settings:GetOptions()
 	local supportedFileFormats = self:GetSupportedFormats()
 
@@ -689,14 +364,15 @@ function Settings:GetOptions()
 					args = {}, -- self:InsertGuildRanksIntoOptions
 				},
 				global = GetGlobalOptions(3),
-				csv = GetCsvOptions(4),
-				html = GetHtmlOptions(5),
-				json = GetJsonOptions(6),
-				xml = GetXmlOptions(7),
-				yaml = GetYamlOptions(8),
 			},
 		},
 	}
+
+	for k, v in ipairs(fileFormatOptions) do
+		local fileFormat, func = unpack(v)
+		local order = k + 3
+		options.args.settings.args[fileFormat] = func(order)
+	end
 
 	return options
 end

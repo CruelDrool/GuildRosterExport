@@ -4,23 +4,69 @@ local Private = select(2, ...)
 ---@class Debug
 local Debug = Private.Debug
 
+---@class Utils
+local Utils = Private.Utils
+
+---@class Translate
+local Translate = Private.Translate
+
 ---@class Exports
 local Exports = Private.Exports
 
 ---@class Json
-local Json = {}
+local Json = {
+	fileFormat = "json",
+	displayName = "JSON", -- Untranslated display name.
+	defaults = {
+		style = "compacted",
+	}
+}
 
-local function getTabSub(n)
-	local str = ""
+local L = Translate:GetLocaleEntries()
 
-	for i=1, n do
-		str = str .. " "
-	end
+---@param order number
+---@return table
+function Json.GetOptions(order)
+	local tbl = {
+		order = order,
+		type = "group",
+		name = L["JSON"],
+		-- guiInline = true,
+		args = {
+			title = {
+				order = 1,
+				width = "full",
+				type = "description",
+				fontSize = "large",
+				name = L["JSON"],
+			},
+			spacer1 = {
+				order = 2,
+				width = "full",
+				type = "description",
+				name = "",
+			},
+			style = {
+				order = 3,
+				type = "select",
+				style = "radio",
+				width = "half",
+				name = L["Style"],
+				values = {
+					["beautified"] = L["Beautified"],
+					["compacted"] = L["Compacted"],
+					["minified"] = L["Minified"],
+				},
+				get = function() return Private.db.profile.json.style end,
+				set = function(info, value) Private.db.profile.json.style = value end,
+			},
+		},
+	}
 
-	return str
+	return tbl
 end
 
-function Json:Export(data)
+function Json.Export(data)
 	local columns = Private.db.profile.columns
 	local indentationStyle = Private.db.profile.indentation.style
 	local indentationDepth = Private.db.profile.indentation.depth
@@ -71,11 +117,11 @@ function Json:Export(data)
 		output = output:gsub("\t", "")
 		output = output:gsub("\n", "")
 	elseif beautify and indentationStyle == "spaces" then
-		local tabSub = getTabSub(indentationDepth)
+		local tabSub = Utils.GetTabSub(indentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
 
 	return output
 end
 
-Exports:RegisterExport("json", "JSON", Json, "Export")
+Exports:RegisterExport(Json)

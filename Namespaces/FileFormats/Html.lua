@@ -4,23 +4,125 @@ local Private = select(2, ...)
 ---@class Debug
 local Debug = Private.Debug
 
+---@class Utils
+local Utils = Private.Utils
+
+---@class Translate
+local Translate = Private.Translate
+
 ---@class Exports
 local Exports = Private.Exports
 
 ---@class Html
-local Html = {}
+local Html = {
+	fileFormat = "html",
+	displayName = "HTML", -- Untranslated display name.
+	defaults = {
+		tableHeader = true,
+		style = "compacted",
+		wp = {
+			enabled = false,
+			stripedStyle = false,
+			fixedWidth = false,
+		},
+	}
+}
 
-local function getTabSub(n)
-	local str = ""
+local L = Translate:GetLocaleEntries()
 
-	for i=1, n do
-		str = str .. " "
-	end
+---@param order number
+---@return table
+function Html.GetOptions(order)
+	local tbl = {
+		order = order,
+		type = "group",
+		name = L["HTML"],
+		-- guiInline = true,
+		args = {
+			title = {
+				order = 1,
+				width = "full",
+				type = "description",
+				fontSize = "large",
+				name = L["HTML"],
+			},
+			spacer1 = {
+				order = 2,
+				width = "full",
+				type = "description",
+				name = "",
+			},
+			tableHeader = {
+				order = 3,
+				type = "toggle",
+				width = "full",
+				name = L["Table header"] ,
+				desc = L["Whether or not to have the column names added to the table."],
+				get = function() return Private.db.profile.html.tableHeader end,
+				set = function(info, value) Private.db.profile.html.tableHeader = value end,
+			},
+			style = {
+				order = 4,
+				type = "select",
+				style = "radio",
+				width = "half",
+				name = L["Style"],
+				values = {
+					["beautified"] = L["Beautified"],
+					["compacted"] = L["Compacted"],
+					["minified"] = L["Minified"],
+				},
+				get = function() return Private.db.profile.html.style end,
+				set = function(info, value) Private.db.profile.html.style = value end,
+			},
+			wp = {
+				order = 5,
+				type = "group",
+				name = L["WordPress"],
+				guiInline = true,
+				args = {
+					desc = {
+						order = 1,
+						type = "description",
+						width = "full",
+						name = L["Output as a WordPress block (Gutenberg editor)."],
+					},
+					enabled = {
+						order = 2,
+						type = "toggle",
+						width = "full",
+						name = L["Enabled"],
+						desc = L["Only use this if you know what you're doing. It requires you to edit the post's code directly. This will also minify the HTML code."],
+						get = function() return Private.db.profile.html.wp.enabled end,
+						set = function(info, value) Private.db.profile.html.wp.enabled = value end,
+					},
+					stripedStyle = {
+						order = 3,
+						type = "toggle",
+						width = "full",
+						name = L["Striped style"],
+						get = function() return Private.db.profile.html.wp.stripedStyle end,
+						set = function(info, value) Private.db.profile.html.wp.stripedStyle = value end,
+						-- disabled = function() return not Private.db.profile.html.wp.enabled end,
+					},
+					fixedWidth = {
+						order = 4,
+						type = "toggle",
+						width = "full",
+						name = L["Fixed-width table cells"],
+						get = function() return Private.db.profile.html.wp.fixedWidth end,
+						set = function(info, value) Private.db.profile.html.wp.fixedWidth = value end,
+						-- disabled = function() return not Private.db.profile.html.wp.enabled end,
+					},
+				},
+			},
+		},
+	}
 
-	return str
+	return tbl
 end
 
-function Html:Export(data)
+function Html.Export(data)
 	local columns = Private.db.profile.columns
 	local indentationStyle = Private.db.profile.indentation.style
 	local indentationDepth = Private.db.profile.indentation.depth
@@ -91,7 +193,7 @@ function Html:Export(data)
 		output = output:gsub("\t", "")
 		output = output:gsub("\n", "")
 	elseif beautify and indentationStyle == "spaces" then
-		local tabSub = getTabSub(indentationDepth)
+		local tabSub = Utils.GetTabSub(indentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
 
@@ -113,4 +215,4 @@ function Html:Export(data)
 	return output
 end
 
-Exports:RegisterExport("html", "HTML", Html, "Export")
+Exports:RegisterExport(Html)

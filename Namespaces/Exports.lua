@@ -13,16 +13,18 @@ local Exports = {}
 
 local registry = {}
 
-function Exports:RegisterExport(fileFormat,displayName, obj, funcName)
-	registry[fileFormat] = {obj, funcName}
-	Settings:RegisterFileFormat(fileFormat, displayName)
+function Exports:RegisterExport(obj)
+	registry[obj.fileFormat] = obj
+	Settings:RegisterFileFormat(obj.fileFormat, obj.displayName)
+	Settings:RegisterFileFormatDefaults(obj.fileFormat, obj.defaults)
+	Settings:RegisterFileFormatOptions(obj.fileFormat, obj.GetOptions)
 end
 
 
 function Exports:DoExport(fileFormat, data)
-	local obj, funcName = unpack(registry[fileFormat])
+	local obj = registry[fileFormat]
 
-	return obj[funcName](obj, data)
+	return obj.Export(data)
 end
 
 Private.Exports = Exports

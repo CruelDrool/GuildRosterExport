@@ -4,23 +4,93 @@ local Private = select(2, ...)
 ---@class Debug
 local Debug = Private.Debug
 
+---@class Utils
+local Utils = Private.Utils
+
+---@class Translate
+local Translate = Private.Translate
+
 ---@class Exports
 local Exports = Private.Exports
 
 ---@class Xml
-local Xml = {}
+local Xml = {
+	fileFormat = "xml",
+	displayName = "XML", -- Untranslated display name.
+	defaults = {
+		rootElementName = "GuildRoster",
+		recordElementName = "Character",
+		style = "compacted",
+	},
+}
 
-local function getTabSub(n)
-	local str = ""
+local L = Translate:GetLocaleEntries()
 
-	for i=1, n do
-		str = str .. " "
-	end
+---@param order number
+---@return table
+function Xml.GetOptions(order)
+	local tbl = {
+		order = order,
+		type = "group",
+		name = L["XML"],
+		-- guiInline = true,
+		args = {
+			title = {
+				order = 1,
+				width = "full",
+				type = "description",
+				fontSize = "large",
+				name = L["XML"],
+			},
+			spacer1 = {
+				order = 2,
+				width = "full",
+				type = "description",
+				name = "",
+			},
+			delimiter = {
+				order = 3,
+				type = "input",
+				width = "normal",
+				name = L["Root element name"],
+				get = function() return Private.db.profile.xml.rootElementName end,
+				set = function(info, value) if value ~= "" then Private.db.profile.xml.rootElementName = value end end,
+			},
+			spacer2 = {
+				order = 4,
+				width = "full",
+				type = "description",
+				name = "",
+			},
+			enclosure = {
+				order = 5,
+				type = "input",
+				width = "normal",
+				name = L["Each record's element name"],
+				get = function() return Private.db.profile.xml.recordElementName end,
+				set = function(info, value) if value ~= "" then Private.db.profile.xml.recordElementName = value end end,
+			},
+			style = {
+				order = 6,
+				type = "select",
+				style = "radio",
+				width = "half",
+				name = L["Style"],
+				values = {
+					["beautified"] = L["Beautified"],
+					["compacted"] = L["Compacted"],
+					["minified"] = L["Minified"],
+				},
+				get = function() return Private.db.profile.xml.style end,
+				set = function(info, value) Private.db.profile.xml.style = value end,
+			},
+		},
+	}
 
-	return str
+	return tbl
 end
 
-function Xml:Export(data)
+function Xml.Export(data)
 	local columns = Private.db.profile.columns
 	local indentationStyle = Private.db.profile.indentation.style
 	local indentationDepth = Private.db.profile.indentation.depth
@@ -66,11 +136,11 @@ function Xml:Export(data)
 		output = output:gsub("\t", "")
 		output = output:gsub("\n", "")
 	elseif indentationStyle == "spaces" then
-		local tabSub = getTabSub(indentationDepth)
+		local tabSub = Utils.GetTabSub(indentationDepth)
 		output = output:gsub("\t", tabSub)
 	end
 
 	return output
 end
 
-Exports:RegisterExport("xml", "XML", Xml, "Export")
+Exports:RegisterExport(Xml)

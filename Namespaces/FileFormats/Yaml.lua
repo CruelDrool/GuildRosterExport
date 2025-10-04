@@ -4,13 +4,81 @@ local Private = select(2, ...)
 ---@class Debug
 local Debug = Private.Debug
 
+---@class Utils
+local Utils = Private.Utils
+
+---@class Translate
+local Translate = Private.Translate
+
 ---@class Exports
 local Exports = Private.Exports
 
 ---@class Yaml
-local Yaml = {}
+local Yaml = {
+	fileFormat = "yaml",
+	displayName = "YAML", -- Untranslated display name.
+	defaults = {
+		quotationMark = "single",
+		style = "compacted",
+	},
+}
 
-function Yaml:Export(data)
+local L = Translate:GetLocaleEntries()
+
+---@param order number
+---@return table
+function Yaml.GetOptions(order)
+	local tbl = {
+		order = order,
+		type = "group",
+		name = L["YAML"],
+		-- guiInline = true,
+		args = {
+			title = {
+				order = 1,
+				width = "full",
+				type = "description",
+				fontSize = "large",
+				name = L["YAML"],
+			},
+			spacer1 = {
+				order = 2,
+				width = "full",
+				type = "description",
+				name = "",
+			},
+			quotationMark = {
+				order = 3,
+				type = "select",
+				style = "radio",
+				width = "half",
+				name = L["Quotation mark"],
+				desc = L["What type of quotation mark to use when strings need to be put in quotes."],
+				values = {["double"] = L["Double"], ["single"] = L["Single"]},
+				get = function() return Private.db.profile.yaml.quotationMark end,
+				set = function(info, value) Private.db.profile.yaml.quotationMark = value end,
+			},
+			style = {
+				order = 4,
+				type = "select",
+				style = "radio",
+				width = "half",
+				name = L["Style"],
+				values = {
+					["beautified"] = L["Beautified"],
+					["compacted"] = L["Compacted"],
+					["minified"] = L["Minified"],
+				},
+				get = function() return Private.db.profile.yaml.style end,
+				set = function(info, value) Private.db.profile.yaml.style = value end,
+			},
+		},
+	}
+
+	return tbl
+end
+
+function Yaml.Export(data)
 	local columns = Private.db.profile.columns
 	local quotationMark = Private.db.profile.yaml.quotationMark
 	local beautify = Private.db.profile.yaml.style == "beautified"
@@ -133,4 +201,4 @@ function Yaml:Export(data)
 	return output
 end
 
-Exports:RegisterExport("yaml", "YAML", Yaml, "Export")
+Exports:RegisterExport(Yaml)

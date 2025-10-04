@@ -33,4 +33,14 @@ Utils.libs = {
 	AceDBOptions = LibStub("AceDBOptions-3.0"),
 }
 
+function Utils.GetTabSub(n)
+	local str = ""
+
+	for i=1, n do
+		str = str .. " "
+	end
+
+	return str
+end
+
 Private.Utils = Utils
