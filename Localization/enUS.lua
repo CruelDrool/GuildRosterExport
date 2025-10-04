@@ -7,6 +7,7 @@ local L = Private.Translate:RegisterDefaultLocale("enUS")
 L["tocNotes"] = "Export the guild roster to CSV, HTML, JSON, XML or YAML."
 
 -- EXPORT FRAME --
+L["Close"] = true
 L["Close & Return"] = true
 
 -- MINIMAP ICON --
@@ -46,6 +47,7 @@ L["String"] = true
 -- OPTIONS: Settings - Columns --
 L["Columns"] = true
 L[ [[%s Default column name: "%s".]] ] = true -- %1$s is column description, %2$s is column name.
+L["Unknown"] = true
 
 -- OPTIONS: Settings - Column descriptions --
 L[ [[Character's name with realm name included (e.g., "Arthas-Silvermoon"). This addon defaults to removing the realm name.]] ] = true -- 1
@@ -128,6 +130,5 @@ L["What type of quotation mark to use when strings need to be put in quotes."] =
 L["Double"] = true
 L["Single"] = true
 
-L["Unknown"] = true
 L["enUS"] = "English (US)"
 L["deDE"] = "German (DE)"

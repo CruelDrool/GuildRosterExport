@@ -5,17 +5,15 @@ local addonName = ...
 ---@class Debug
 local Debug = Private.Debug
 
----@class Addon
-local Addon = Private.Addon
+---@class Translate
+local Translate = Private.Translate
 
-local L = Private.Translate:GetLocaleEntries()
+---@class Utils
+local Utils = Private.Utils
 
-local LibDataBroker = Private.libs.LibDataBroker
-local LibDBIcon = Private.libs.LibDBIcon
-local AceConfigDialog = Private.libs.AceConfigDialog
-local AceConfigRegistry = Private.libs.AceConfigRegistry
-local AceDB = Private.libs.AceDB
-local AceDBOptions = Private.libs.AceDBOptions
+local L = Translate:GetLocaleEntries()
+local LibDBIcon = Utils.libs.LibDBIcon
+local AceConfigDialog = Utils.libs.AceConfigDialog
 
 ---@class Settings
 local Settings = {}
@@ -120,6 +118,12 @@ local defaults = {
 	}
 }
 
+local fileFormats = {}
+
+function Settings:RegisterFileFormat(fileFormat, displayName)
+	fileFormats[fileFormat] = displayName
+end
+
 function Settings:GetDefaults()
 	return defaults
 end
@@ -129,13 +133,11 @@ end
 ---The upper case name is displayed in the options menu.
 ---@return table<string, string> supportedFileFormats
 function Settings:GetSupportedFormats()
-	local supportedFileFormats = {
-		["csv"] = L["CSV"],
-		["html"] = L["HTML"],
-		["json"] = L["JSON"],
-		["xml"] = L["XML"],
-		["yaml"] = L["YAML"],
-	}
+	local supportedFileFormats = {}
+
+	for fileFormat, displayName in pairs(fileFormats) do
+		supportedFileFormats[fileFormat] = L[displayName]
+	end
 
 	return supportedFileFormats
 end
@@ -180,15 +182,15 @@ local function GetColumnOptions(order)
 					type = "input",
 					name = tostring(k),
 					desc = string.format(L[ [[%s Default column name: "%s".]] ], columnDescriptions[k], v.name ),
-					get = function() return Addon.db.profile.columns[k].name end,
-					set = function(info, value) Addon.db.profile.columns[k].name = value end,
+					get = function() return Private.db.profile.columns[k].name end,
+					set = function(info, value) Private.db.profile.columns[k].name = value end,
 				},
 				toggle = {
 					order = 2,
 					type = "toggle",
 					name = "",
-					get = function() return Addon.db.profile.columns[k].enabled end,
-					set = function(info, value) Addon.db.profile.columns[k].enabled = value end,
+					get = function() return Private.db.profile.columns[k].enabled end,
+					set = function(info, value) Private.db.profile.columns[k].enabled = value end,
 				},
 			},
 		}
@@ -233,8 +235,8 @@ local function GetGlobalOptions(order)
 				width = "full",
 				name = L["Remove realm name in column #1"],
 				desc = L[ [["Arthas-Silvermoon" will become "Arthas".]] ],
-				get = function() return Addon.db.profile.removeRealmFromName end,
-				set = function(info, value) Addon.db.profile.removeRealmFromName = value end,
+				get = function() return Private.db.profile.removeRealmFromName end,
+				set = function(info, value) Private.db.profile.removeRealmFromName = value end,
 			},
 			adjustRankIndex = {
 				order = 4,
@@ -242,8 +244,8 @@ local function GetGlobalOptions(order)
 				width = "full",
 				name = L["Adjust rank index in column #3"],
 				desc = L["The index normally starts at 0, but this setting adjusts that to 1."] ,
-				get = function() return Addon.db.profile.adjustRankIndex end,
-				set = function(info, value) Addon.db.profile.adjustRankIndex = value end,
+				get = function() return Private.db.profile.adjustRankIndex end,
+				set = function(info, value) Private.db.profile.adjustRankIndex = value end,
 			},
 			lastOnlineHours = {
 				order = 5,
@@ -251,16 +253,16 @@ local function GetGlobalOptions(order)
 				width = "full",
 				name = L["Use hours since last online in column #18"],
 				desc = L["Calculates how many hours have passed since last being online."] ,
-				get = function() return Addon.db.profile.lastOnlineHours end,
-				set = function(info, value) Addon.db.profile.lastOnlineHours = value end,
+				get = function() return Private.db.profile.lastOnlineHours end,
+				set = function(info, value) Private.db.profile.lastOnlineHours = value end,
 			},
 			autoExport = {
 				order = 6,
 				type = "toggle",
 				name = L["Automatic export"],
 				desc = L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."],
-				get = function() return Addon.db.profile.autoExport end,
-				set = function(info, value) Addon.db.profile.autoExport = value; Addon.db.profile.autoExportSave = nil end,
+				get = function() return Private.db.profile.autoExport end,
+				set = function(info, value) Private.db.profile.autoExport = value; Private.db.profile.autoExportSave = nil end,
 			},
 			exportFrame = {
 				order = 7,
@@ -274,8 +276,8 @@ local function GetGlobalOptions(order)
 						width = "normal",
 						name = L["Maximum letters"],
 						desc = L["Set the maximum number of letters that the export window can show. Set this to empty or 0 to use Blizzard's default."],
-						get = function() return Addon.db.profile.exportFrame.maxLetters > 0 and tostring(Addon.db.profile.exportFrame.maxLetters) or "" end,
-						set = function(info, value) value = value == "" and 0 or tonumber(value) or Addon.db.profile.exportFrame.maxLetters if value >= 0 then Addon.db.profile.exportFrame.maxLetters = value end end,
+						get = function() return Private.db.profile.exportFrame.maxLetters > 0 and tostring(Private.db.profile.exportFrame.maxLetters) or "" end,
+						set = function(info, value) value = value == "" and 0 or tonumber(value) or Private.db.profile.exportFrame.maxLetters if value >= 0 then Private.db.profile.exportFrame.maxLetters = value end end,
 					},
 				},
 			},
@@ -293,8 +295,8 @@ local function GetGlobalOptions(order)
 						name = L["Style"],
 						desc = L["Select what style to use when exporting HTML, JSON, and XML."],
 						values = {["tabs"] = L["Tabs"], ["spaces"] = L["Spaces"]},
-						get = function() return Addon.db.profile.indentation.style end,
-						set = function(info, value) Addon.db.profile.indentation.style = value end,
+						get = function() return Private.db.profile.indentation.style end,
+						set = function(info, value) Private.db.profile.indentation.style = value end,
 					},
 					infoText = {
 						order = 2,
@@ -316,9 +318,9 @@ local function GetGlobalOptions(order)
 						width = "normal",
 						name = L["Depth"],
 						desc = L["Set the depth used when spaces are set as indentation style. A smaller depth shortens the time before the data is displayed."],
-						get = function() return Addon.db.profile.indentation.depth end,
-						set = function(info, value) Addon.db.profile.indentation.depth = value; end,
-						disabled = function() return Addon.db.profile.indentation.style ~= "spaces" end,
+						get = function() return Private.db.profile.indentation.depth end,
+						set = function(info, value) Private.db.profile.indentation.depth = value; end,
+						disabled = function() return Private.db.profile.indentation.style ~= "spaces" end,
 					},
 				},
 			},
@@ -356,8 +358,8 @@ local function GetCsvOptions(order)
 				width = "full",
 				name = L["Header"] ,
 				desc = L["Whether or not to have the column names added to top of the CSV output."],
-				get = function() return Addon.db.profile.csv.header end,
-				set = function(info, value) Addon.db.profile.csv.header = value end,
+				get = function() return Private.db.profile.csv.header end,
+				set = function(info, value) Private.db.profile.csv.header = value end,
 			},
 			enclosure = {
 				order = 4,
@@ -365,8 +367,8 @@ local function GetCsvOptions(order)
 				width = "half",
 				name = L["Enclosure"],
 				desc = L["Text character that is used when enclosing values."],
-				get = function() return Addon.db.profile.csv.enclosure end,
-				set = function(info, value) if value ~= "" then Addon.db.profile.csv.enclosure = value end end,
+				get = function() return Private.db.profile.csv.enclosure end,
+				set = function(info, value) if value ~= "" then Private.db.profile.csv.enclosure = value end end,
 			},
 			spacer2 = {
 				order = 5,
@@ -380,8 +382,8 @@ local function GetCsvOptions(order)
 				width = "half",
 				name = L["Delimiter"],
 				desc = L["Text character that is used when separating values."],
-				get = function() return Addon.db.profile.csv.delimiter end,
-				set = function(info, value) if value ~= "" then Addon.db.profile.csv.delimiter = value end end,
+				get = function() return Private.db.profile.csv.delimiter end,
+				set = function(info, value) if value ~= "" then Private.db.profile.csv.delimiter = value end end,
 			},
 		},
 	}
@@ -417,8 +419,8 @@ local function GetHtmlOptions(order)
 				width = "full",
 				name = L["Table header"] ,
 				desc = L["Whether or not to have the column names added to the table."],
-				get = function() return Addon.db.profile.html.tableHeader end,
-				set = function(info, value) Addon.db.profile.html.tableHeader = value end,
+				get = function() return Private.db.profile.html.tableHeader end,
+				set = function(info, value) Private.db.profile.html.tableHeader = value end,
 			},
 			style = {
 				order = 4,
@@ -431,8 +433,8 @@ local function GetHtmlOptions(order)
 					["compacted"] = L["Compacted"],
 					["minified"] = L["Minified"],
 				},
-				get = function() return Addon.db.profile.html.style end,
-				set = function(info, value) Addon.db.profile.html.style = value end,
+				get = function() return Private.db.profile.html.style end,
+				set = function(info, value) Private.db.profile.html.style = value end,
 			},
 			wp = {
 				order = 5,
@@ -452,26 +454,26 @@ local function GetHtmlOptions(order)
 						width = "full",
 						name = L["Enabled"],
 						desc = L["Only use this if you know what you're doing. It requires you to edit the post's code directly. This will also minify the HTML code."],
-						get = function() return Addon.db.profile.html.wp.enabled end,
-						set = function(info, value) Addon.db.profile.html.wp.enabled = value end,
+						get = function() return Private.db.profile.html.wp.enabled end,
+						set = function(info, value) Private.db.profile.html.wp.enabled = value end,
 					},
 					stripedStyle = {
 						order = 3,
 						type = "toggle",
 						width = "full",
 						name = L["Striped style"],
-						get = function() return Addon.db.profile.html.wp.stripedStyle end,
-						set = function(info, value) Addon.db.profile.html.wp.stripedStyle = value end,
-						-- disabled = function() return not Addon.db.profile.html.wp.enabled end,
+						get = function() return Private.db.profile.html.wp.stripedStyle end,
+						set = function(info, value) Private.db.profile.html.wp.stripedStyle = value end,
+						-- disabled = function() return not Private.db.profile.html.wp.enabled end,
 					},
 					fixedWidth = {
 						order = 4,
 						type = "toggle",
 						width = "full",
 						name = L["Fixed-width table cells"],
-						get = function() return Addon.db.profile.html.wp.fixedWidth end,
-						set = function(info, value) Addon.db.profile.html.wp.fixedWidth = value end,
-						-- disabled = function() return not Addon.db.profile.html.wp.enabled end,
+						get = function() return Private.db.profile.html.wp.fixedWidth end,
+						set = function(info, value) Private.db.profile.html.wp.fixedWidth = value end,
+						-- disabled = function() return not Private.db.profile.html.wp.enabled end,
 					},
 				},
 			},
@@ -514,8 +516,8 @@ local function GetJsonOptions(order)
 					["compacted"] = L["Compacted"],
 					["minified"] = L["Minified"],
 				},
-				get = function() return Addon.db.profile.json.style end,
-				set = function(info, value) Addon.db.profile.json.style = value end,
+				get = function() return Private.db.profile.json.style end,
+				set = function(info, value) Private.db.profile.json.style = value end,
 			},
 		},
 	}
@@ -550,8 +552,8 @@ local function GetXmlOptions(order)
 				type = "input",
 				width = "normal",
 				name = L["Root element name"],
-				get = function() return Addon.db.profile.xml.rootElementName end,
-				set = function(info, value) if value ~= "" then Addon.db.profile.xml.rootElementName = value end end,
+				get = function() return Private.db.profile.xml.rootElementName end,
+				set = function(info, value) if value ~= "" then Private.db.profile.xml.rootElementName = value end end,
 			},
 			spacer2 = {
 				order = 4,
@@ -564,8 +566,8 @@ local function GetXmlOptions(order)
 				type = "input",
 				width = "normal",
 				name = L["Each record's element name"],
-				get = function() return Addon.db.profile.xml.recordElementName end,
-				set = function(info, value) if value ~= "" then Addon.db.profile.xml.recordElementName = value end end,
+				get = function() return Private.db.profile.xml.recordElementName end,
+				set = function(info, value) if value ~= "" then Private.db.profile.xml.recordElementName = value end end,
 			},
 			style = {
 				order = 6,
@@ -578,8 +580,8 @@ local function GetXmlOptions(order)
 					["compacted"] = L["Compacted"],
 					["minified"] = L["Minified"],
 				},
-				get = function() return Addon.db.profile.xml.style end,
-				set = function(info, value) Addon.db.profile.xml.style = value end,
+				get = function() return Private.db.profile.xml.style end,
+				set = function(info, value) Private.db.profile.xml.style = value end,
 			},
 		},
 	}
@@ -617,8 +619,8 @@ local function GetYamlOptions(order)
 				name = L["Quotation mark"],
 				desc = L["What type of quotation mark to use when strings need to be put in quotes."],
 				values = {["double"] = L["Double"], ["single"] = L["Single"]},
-				get = function() return Addon.db.profile.yaml.quotationMark end,
-				set = function(info, value) Addon.db.profile.yaml.quotationMark = value end,
+				get = function() return Private.db.profile.yaml.quotationMark end,
+				set = function(info, value) Private.db.profile.yaml.quotationMark = value end,
 			},
 			style = {
 				order = 4,
@@ -631,8 +633,8 @@ local function GetYamlOptions(order)
 					["compacted"] = L["Compacted"],
 					["minified"] = L["Minified"],
 				},
-				get = function() return Addon.db.profile.yaml.style end,
-				set = function(info, value) Addon.db.profile.yaml.style = value end,
+				get = function() return Private.db.profile.yaml.style end,
+				set = function(info, value) Private.db.profile.yaml.style = value end,
 			},
 		},
 	}
@@ -651,8 +653,8 @@ function Settings:GetOptions()
 			width = 1.0225,
 			name = L["Minimap icon"],
 			desc = L["Show an icon to open the config at the Minimap."],
-			get = function() return not Addon.db.profile.minimapIcon.hide end,
-			set = function(info, value) Addon.db.profile.minimapIcon.hide = not value; LibDBIcon[value and "Show" or "Hide"](LibDBIcon, addonName) end,
+			get = function() return not Private.db.profile.minimapIcon.hide end,
+			set = function(info, value) Private.db.profile.minimapIcon.hide = not value; LibDBIcon[value and "Show" or "Hide"](LibDBIcon, addonName) end,
 			disabled = function() return not LibDBIcon end,
 		},
 		fileFormat = {
@@ -662,8 +664,8 @@ function Settings:GetOptions()
 			width = "half",
 			name = "",
 			values = supportedFileFormats,
-			get = function() return Addon.db.profile.fileFormat end,
-			set = function(info, value) Addon.db.profile.fileFormat = value end,
+			get = function() return Private.db.profile.fileFormat end,
+			set = function(info, value) Private.db.profile.fileFormat = value end,
 		},
 		exportButton = {
 			order = 3,
@@ -671,7 +673,7 @@ function Settings:GetOptions()
 			desc = L["WARNING! Large exports may freeze your game for several seconds!"],
 			name = L["Export"],
 			width = "half",
-			func = function() AceConfigDialog:Close(addonName); Addon:ExportData() end,
+			func = function() AceConfigDialog:Close(addonName); Private.Core:ExportData() end,
 		},
 		settings = {
 			order = 4,
@@ -717,8 +719,51 @@ function Settings:InsertGuildRanksIntoOptions()
 			order = k,
 			type = "toggle",
 			name = rankName,
-			get = function() return Addon.db.profile.ranks[k] end,
-			set = function(info, value) Addon.db.profile.ranks[k] = value end,
+			get = function() return Private.db.profile.ranks[k] end,
+			set = function(info, value) Private.db.profile.ranks[k] = value end,
 		}
 	end
 end
+
+function Settings:ConvertOldConfig()
+	Private.db.profile.exportFrame.maxLetters = Private.db.profile.maxLetters or Private.db.profile.exportFrame.maxLetters
+	Private.db.profile.maxLetters = nil
+
+	Private.db.profile.indentation.style = Private.db.profile.indentationStyle or Private.db.profile.indentation.style
+	Private.db.profile.indentation.depth = Private.db.profile.spacesIndentationDepth or Private.db.profile.indentation.depth
+	Private.db.profile.indentationStyle = nil
+	Private.db.profile.spacesIndentationDepth = nil
+
+	Private.db.profile.csv.delimiter = Private.db.profile.csvDelimiter or Private.db.profile.csv.delimiter
+	Private.db.profile.csv.enclosure = Private.db.profile.csvEnclosure or Private.db.profile.csv.enclosure
+	Private.db.profile.csvDelimiter = nil
+	Private.db.profile.csvEnclosure = nil
+
+	Private.db.profile.json.minify = Private.db.profile.jsonMinify or Private.db.profile.json.minify
+	Private.db.profile.jsonMinify = nil
+
+	Private.db.profile.xml.rootElementName = Private.db.profile.xmlRootElementName or Private.db.profile.xml.rootElementName
+	Private.db.profile.xml.recordElementName = Private.db.profile.xmlRecordElementName or Private.db.profile.xml.recordElementName
+	Private.db.profile.xml.minify =  Private.db.profile.xmlMinify or Private.db.profile.xml.minify
+	Private.db.profile.xmlRootElementName = nil
+	Private.db.profile.xmlRecordElementName = nil
+	Private.db.profile.xmlMinify = nil
+
+	Private.db.profile.yaml.minify = Private.db.profile.yamlMinify or Private.db.profile.yaml.minify
+	Private.db.profile.yaml.quotationMark = Private.db.profile.yamlQuotationMark or Private.db.profile.yaml.quotationMark
+	Private.db.profile.yamlMinify = nil
+	Private.db.profile.yamlQuotationMark = nil
+
+	Private.db.profile.html.style = Private.db.profile.html.minify and "minified" or Private.db.profile.html.style
+	Private.db.profile.html.minify = nil
+
+	Private.db.profile.json.style = Private.db.profile.json.minify and "minified" or Private.db.profile.json.style
+	Private.db.profile.json.minify = nil
+
+	Private.db.profile.xml.style = Private.db.profile.xml.minify and "minified" or Private.db.profile.xml.style
+	Private.db.profile.xml.minify = nil
+
+	Private.db.profile.yaml.style = Private.db.profile.yaml.minify and "minified" or Private.db.profile.yaml.style
+	Private.db.profile.yaml.minify = nil
+end
+
