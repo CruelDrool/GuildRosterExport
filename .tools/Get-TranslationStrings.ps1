@@ -75,7 +75,8 @@ if ( $Remove ) {
 		Write-Host "Locale block not found. Nothing was removed."
 	}
 } else {
-	$Files = Get-ChildItem $BaseDirectory -File -Recurse -Filter '*.lua' | Where-Object {$_.FullName -notmatch '(?:\.tools|\.github|\.release|\.vscode|Localization|Libs).*$'}
+	
+	$Files = Get-ChildItem $BaseDirectory -File -Recurse -Filter '*.lua' | Where-Object {$_.FullName -notmatch [Regex]::Escape($BaseDirectory)+'\\(?:\.|Libs|Localization).*'}
 	$RegexOptions = 1 -bor 2 -bor 16
 	$SearchKeyword = "L"
 	$MissingEntries = @()
