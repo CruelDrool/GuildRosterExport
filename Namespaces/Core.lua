@@ -46,6 +46,11 @@ function Core:OnInitialize()
 
 
 	Settings:ConvertOldConfig()
+
+	if Private.db.global.locale ~= Translate:GetCurrentLocale() then
+		Translate:SetLocale(Private.db.global.locale)
+	end
+
 	ExportFrame:LoadPosition()
 
 	self:SetupOptions()

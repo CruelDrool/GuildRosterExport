@@ -28,6 +28,9 @@ local options = {
 }
 
 local defaults = {
+	global = {
+		locale = Translate:GetGameLocale()
+	},
 	profile = {
 		minimapIcon = {
 			showInCompartment = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE,
@@ -317,6 +320,50 @@ local function GetGlobalOptions(order)
 	return global
 end
 
+local function GetLocalizationsOptions(order)
+	local defaultLocale = Translate:GetDefaultLocale()
+	local localeStats = Translate:GetStats()
+	local localeSelect = {}
+	for _, locale in ipairs(Translate:GetRegisteredLocales()) do
+		local current = locale == Translate:GetGameLocale() and L["Current game localization."] or ""
+		if locale == defaultLocale then
+			localeSelect[locale] = L["%s. Default addon localization. %s"]:format(L[locale], current):trim()
+		else
+			localeSelect[locale] = L["%s. %.2f%% translated. %s"]:format(L[locale], localeStats[locale].translated / localeStats[defaultLocale].total * 100, current):trim()
+		end
+	end
+
+	local localizations ={
+		order = order,
+		type = "group",
+		name = "Localizations",
+		args = {
+			select = {
+				order = 4,
+				type = "select",
+				style = "radio",
+				width = "full",
+				name = "",
+				values = localeSelect,
+				get = function() return Translate:GetCurrentLocale() end,
+				set = function(info, value)
+					if value ~= Private.db.global.locale then
+						Private.db.global.locale = value
+						Translate:SetLocale(value)
+						AceConfigDialog:Close(Utils.constants.ADDON_NAME)
+						Settings:GetOptions()
+						Settings:InsertGuildRanksIntoOptions()
+						C_Timer.After(0.25, function()
+							AceConfigDialog:Open(Utils.constants.ADDON_NAME)
+						end)
+					end
+				end,
+			},
+		}
+	}
+	return localizations
+end
+
 function Settings:GetOptions()
 	local supportedFileFormats = self:GetSupportedFormats()
 
@@ -365,6 +412,7 @@ function Settings:GetOptions()
 				global = GetGlobalOptions(3),
 			},
 		},
+		localizations = GetLocalizationsOptions(5),
 	}
 
 	for k, v in ipairs(fileFormatOptions) do
