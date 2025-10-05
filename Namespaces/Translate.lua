@@ -160,10 +160,20 @@ end
 function Translate:SetLocale(locale)
 	if not registeredLocales[locale] then return false end
 
-	local localeTbl = registeredLocales[locale]
+	-- Reset first.
+	local defaultLocaleTbl = registeredLocales[defaultLocale]
 
-	for key, value in pairs(localeTbl) do
+	for key, value in pairs(defaultLocaleTbl) do
 		rawset(entries, key, value )
+	end
+
+	if locale ~= defaultLocale then
+		-- Replace.
+		local localeTbl = registeredLocales[locale]
+
+		for key, value in pairs(localeTbl) do
+			rawset(entries, key, value )
+		end
 	end
 
 	currentLocale = locale
