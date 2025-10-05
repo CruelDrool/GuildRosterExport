@@ -131,6 +131,8 @@ L["What type of quotation mark to use when strings need to be put in quotes."] =
 L["Double"] = true
 L["Single"] = true
 
+
+-- OPTIONS: Localizations
 L["deDE"] = "German (DE)"
 L["enUS"] = "English (US)"
 L["esES"] = "Spanish (ES)"
@@ -142,3 +144,7 @@ L["ptBR"] = "Portuguese (BR)"
 L["ruRU"] = "Russian (RU)"
 L["zhCN"] = "Chinese (CN)"
 L["zhTW"] = "Chinese (TW)"
+
+L["%s. %.2f%% translated. %s"] = true
+L["%s. Default addon localization. %s"] = true
+L["Current game localization."] = true
