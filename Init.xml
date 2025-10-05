@@ -11,5 +11,6 @@
 	<Script file="Namespaces\FileFormats\Json.lua"/>
 	<Script file="Namespaces\FileFormats\Xml.lua"/>
 	<Script file="Namespaces\FileFormats\Yaml.lua"/>
+	<Script file="Namespaces\ExportFrame.lua"/>
 	<Script file="Namespaces\Core.lua"/>
 </Ui>

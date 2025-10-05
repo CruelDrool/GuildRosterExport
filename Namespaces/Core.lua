@@ -16,6 +16,9 @@ local Exports = Private.Exports
 ---@class Settings
 local Settings = Private.Settings
 
+---@class ExportFrame
+local ExportFrame = Private.ExportFrame
+
 local addonName = ...
 local chatCommand = addonName:lower()
 local GUILD_ROSTER_NUM_ROWS = 17
@@ -37,101 +40,6 @@ local AceConfigRegistry = Utils.libs.AceConfigRegistry
 local AceDB = Utils.libs.AceDB
 local AceDBOptions = Utils.libs.AceDBOptions
 
-local function CreateExportFrame()
-	-- Main Frame
-
-	---@class BackdropFrame
-	local f = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)
-	f:Hide()
-	f:ClearAllPoints()
-	f:SetPoint(unpack(Private.db.profile.exportFrame.position))
-	f:SetSize(unpack(Private.db.profile.exportFrame.size))
-	f:SetBackdrop({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-		tile = true,
-		tileEdge = true,
-		tileSize = 16,
-		edgeSize = 16,
-		insets = { left = 5, right = 5, top = 5, bottom = 5 },
-	})
-	f:SetBackdropColor(0,0,0,0.75)
-	f:SetMovable(true)
-	f:SetScript("OnMouseDown", function(self, button)
-		if button == "LeftButton" then
-			self:StartMoving()
-		end
-	end)
-	f:SetScript("OnMouseUp", function(self, button)
-		self:StopMovingOrSizing()
-		Private.db.profile.exportFrame.position = {self:GetPoint()}
-	end)
-
-	-- Buttons
-	local closeButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
-	closeButton:SetPoint("BOTTOM", f, "BOTTOM", -75, 7.5)
-	closeButton:SetScript("OnClick", function(self, button) f.text:SetText(""); f:Hide(); PlaySound(Utils.sounds.closeExportFrame) end)
-	closeButton:SetText(L["Close"])
-
-	local closeAndReturnButton = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
-	closeAndReturnButton:SetPoint("BOTTOM", f, "BOTTOM", 75, 7.5)
-	closeAndReturnButton:SetScript("OnClick", function(self, button) f.text:SetText(""); Core:ToggleOptions() end)
-	closeAndReturnButton:SetText(L["Close & Return"])
-
-	-- Scroll frame
-	local sf = CreateFrame("ScrollFrame", nil, f, "UIPanelScrollFrameTemplate")
-	sf:SetPoint("TOP", 0, -19.5)
-	sf:SetPoint("LEFT", 18.5, 0)
-	sf:SetPoint("RIGHT", -42, 0)
-	sf:SetPoint("BOTTOM", closeButton, "TOP", 0, 2.5)
-
-	-- Edit box
-	local eb = CreateFrame("EditBox", nil, sf)
-	eb:SetSize(sf:GetSize())
-	eb:SetMultiLine(true)
-	eb:SetAutoFocus(true)
-	eb:SetFontObject("ChatFontNormal")
-	eb:SetScript("OnEscapePressed", function() f.text:SetText(""); f:Hide() end)
-	sf:SetScrollChild(eb)
-	f.text = eb
-
-	-- Resizing
-	f:SetResizable(true)
-
-	-- :SetMinResize removed in patch 10.0.0.
-	if f.SetResizeBounds then
-		f:SetResizeBounds(340, 110)
-	else
-		-- Backwards compatibility with any client not using the new method yet.
-		---@diagnostic disable-next-line: undefined-field
-		f:SetMinResize(340, 110)
-	end
-
-	local rb = CreateFrame("Button", nil, f)
-	rb:SetPoint("BOTTOMRIGHT", -4, 4)
-	rb:SetSize(16, 16)
-
-	rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-	rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-	rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
-
-	rb:SetScript("OnMouseDown", function(self, button)
-		if button == "LeftButton" then
-			f:StartSizing("BOTTOMRIGHT")
-			self:GetHighlightTexture():Hide() -- more noticeable
-		end
-	end)
-
-	rb:SetScript("OnMouseUp", function(self, button)
-		f:StopMovingOrSizing()
-		self:GetHighlightTexture():Show()
-		eb:SetWidth(sf:GetWidth())
-		Private.db.profile.exportFrame.size = {f:GetSize()}
-	end)
-
-	return f
-end
-
 function Core:OnInitialize()
 	local defaults = Settings:GetDefaults()
 
@@ -142,10 +50,9 @@ function Core:OnInitialize()
 
 
 	Settings:ConvertOldConfig()
+	ExportFrame:LoadPosition()
 
 	self:SetupOptions()
-
-	self.exportFrame = CreateExportFrame()
 
 	self:RegisterChatCommand(chatCommand, "ChatCommand")
 
@@ -201,9 +108,7 @@ function Core:UpdateConfigs()
 
 	AceConfigRegistry:NotifyChange(addonName)
 
-	self.exportFrame:ClearAllPoints()
-	self.exportFrame:SetPoint(unpack(Private.db.profile.exportFrame.position))
-	self.exportFrame:SetSize(unpack(Private.db.profile.exportFrame.size))
+	ExportFrame:LoadPosition()
 end
 
 function Core:SetupOptions()
@@ -214,8 +119,8 @@ function Core:SetupOptions()
 end
 
 function Core:ToggleOptions()
-	if self.exportFrame:IsShown() then
-		self.exportFrame:Hide()
+	if ExportFrame:IsShown() then
+		ExportFrame:Hide()
 	end
 	if AceConfigDialog.OpenFrames[addonName] then
 		PlaySound(Utils.sounds.closeOptions)
@@ -399,24 +304,12 @@ function Core:ExportData(fileFormat, saveToDB)
 		end
 	end
 
-	--[[
-	Doing the function call to the export function via a table key, so we can use the value of "fileFormat" to determine which function to use.
-	This lets us easily add more export functions. All that is needed is to add the file format to "supportedFileFormats".
-	]]--
-
 	if #filteredRoster > 0 then
-		-- local output = self[fileFormat](self, filteredRoster)
 		local output = Exports:DoExport(fileFormat, filteredRoster)
 		if saveToDB then
-				Private.db.profile.autoExportSave = output
+			Private.db.profile.autoExportSave = output
 		else
-			self.exportFrame.text:SetMaxLetters(Private.db.profile.exportFrame.maxLetters)
-			self.exportFrame.text:SetText("") -- Clear the edit box else SetMaxLetters is ignored if the edit box has been filled once before
-			-- Set the text in the export window's EditBox and display it.
-			self.exportFrame.text:SetText(output)
-			self.exportFrame.text:HighlightText()
-			self.exportFrame:Show()
+			ExportFrame:SetTextAndShow(output)
 		end
 	end
 end
-
