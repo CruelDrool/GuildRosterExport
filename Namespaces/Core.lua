@@ -62,7 +62,7 @@ function Core:OnInitialize()
 	if LibDataBroker then
 		local LDBObj = LibDataBroker:NewDataObject(addonName, {
 			type = "launcher",
-			icon = "Interface\\AddOns\\"..addonName.."\\icon",
+			icon = ([[Interface\AddOns\%s\icon]]):format(addonName),
 			OnClick = function(_, mouseButton)
 				if mouseButton == "LeftButton" or mouseButton == "RightButton" then
 					self:ToggleOptions()
@@ -71,8 +71,9 @@ function Core:OnInitialize()
 			OnTooltipShow = function(tooltip)
 				if not (tooltip and tooltip.AddLine) then return end
 				tooltip:AddDoubleLine(addonName, C_AddOns.GetAddOnMetadata(addonName, "Version"))
-				tooltip:AddLine(string.format(L["%sClick%s to toggle options."], "|cffffff00", "|r"))
-				tooltip:AddLine(string.format(L["Or use /%s"], chatCommand))
+				tooltip:AddLine(" ")
+				tooltip:AddLine( L["%sClick%s to toggle options."]:format(Utils.colors.tooltip.mouseaction:GenerateHexColorMarkup(), "|r"), Utils.colors.tooltip.default:GetRGB() )
+				tooltip:AddLine( L["Or use the chat command %s"]:format(Utils.colors.tooltip.highlight:WrapTextInColorCode( ("/%s"):format(chatCommand) )), Utils.colors.tooltip.default:GetRGB() )
 			end,
 		})
 
