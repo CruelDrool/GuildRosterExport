@@ -41,7 +41,7 @@ local defaultLocale
 ---@param ... any
 local function errorhandler(...)
 	local message = format(...)
-	Debug:Log(("Translate~5~ERR~%s"):format(message))
+	Debug:Log("Translate~5~ERR~%s",message:gsub("%%", "%%%%"))
 end
 
 -- A read-only table where the translated text strings are stored. Requesting an unknown text string will just the return the requested text string.
