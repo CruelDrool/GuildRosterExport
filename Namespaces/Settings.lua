@@ -248,7 +248,7 @@ local function GetGlobalOptions(order)
 				order = 6,
 				type = "toggle",
 				name = L["Automatic export"],
-				desc = L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."],
+				desc = L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown.\n\nBeing in a guild is required for this to work."],
 				get = function() return Private.db.profile.autoExport end,
 				set = function(info, value) Private.db.profile.autoExport = value; Private.db.profile.autoExportSave = nil end,
 			},
