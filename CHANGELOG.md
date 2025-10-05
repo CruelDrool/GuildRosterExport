@@ -8,9 +8,11 @@
 	- **Beautified** makes the output look really organized and easy to read but uses a lot of text characters, lines, and space. 
 	- **Compacted** removes many unnecessary text characters and puts each entry in the guild roster on one line each.
 	- **Minified** removes unnecessary text characters and puts everything on one single line to save the most amount of space.
+- Own custom way of handling translations. Supports swapping localization.
+- Options to swap localization.
 - A test/preview roster for characters without a guild.
 - Support for debug logging using [DebugLog](https://www.curseforge.com/wow/addons/debuglog) by [expelliarm5s](https://www.curseforge.com/members/expelliarm5s).
-- Own custom way of handling translations. Supports switching locales.
+
 - Support for all locales. Localization enabled on CurseForge.
 - Some guard rails around the auto-export events.
 	- Limit triggering `C_GuildInfo.GuildRoster()` to only at login or when reloading UI.
