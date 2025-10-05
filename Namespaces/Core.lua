@@ -192,44 +192,69 @@ end
 
 local function GetTestRoster(self, currentTime)
 
-	local realmName = "SomeRealm"
+	local realmName = GetNormalizedRealmName()
 	local lastOnlineHours = Private.db.profile.lastOnlineHours
+	local realNameFormat = "%s-%s"
 
-	local zoneIDs = {
-		2112,
-		2214,
-		2215,
-		2248,
-		2255,
-		2339,
-		2346,
-		2369,
-	}
-
-	local GenerateLocation = function()
-		return C_Map.GetMapInfo(zoneIDs[random(#zoneIDs)]).name
-	end
+	local zoneId = C_Map.GetBestMapForUnit("player")
+	---@diagnostic disable-next-line: param-type-mismatch
+	local location = C_Map.GetMapInfo(zoneId).name
 
 	local GeneratelastOnline = function()
 		local lastOnline = CalculateLastOnline(currentTime, 0, math.random(0,2), math.random(0,28), math.random(0,23))
 		return lastOnlineHours and ((currentTime-lastOnline)/3600) or lastOnline
 	end
 
-	local tbl = {
-		{"Coldbarr-" .. realmName,"Initiate",4,80,GetClassInfo(8),GenerateLocation(),"","",false,0,"MAGE",6710,13,false,false,4,"Player-9999-3129C53",GeneratelastOnline(),realmName},
-		{"Borre-" .. realmName,"Member",3,80,GetClassInfo(7),GenerateLocation(),"","",false,0,"SHAMAN",24520,4,false,false,5,"Player-9999-EFB134A",GeneratelastOnline(),realmName},
-		{"Dedli-" .. realmName,"Member",3,80,GetClassInfo(4),GenerateLocation(),"","",false,0,"ROGUE",12800,11,false,false,6,"Player-9999-6AB86C5",GeneratelastOnline(),realmName},
-		{"Kilhe-" .. realmName,"Member",3,80,GetClassInfo(10),GenerateLocation(),"","",false,0,"MONK",22705,5,false,false,6,"Player-9999-A97F5C2",GeneratelastOnline(),realmName},
-		{"Ongel-" .. realmName,"Member",3,80,GetClassInfo(2),GenerateLocation(),"","",false,0,"PALADIN",18430,8,false,false,7,"Player-9999-AE48979",GeneratelastOnline(),realmName},
-		{"Sylis-" .. realmName,"Member",3,80,GetClassInfo(11),GenerateLocation(),"","",false,0,"DRUID",19390,6,false,false,8,"Player-9999-3794CAB",GeneratelastOnline(),realmName},
-		{"Falka-" .. realmName,"Veteran",2,80,GetClassInfo(5),GenerateLocation(),"","",false,0,"PRIEST",17435,9,false,false,8,"Player-9999-BF7C323",GeneratelastOnline(),realmName},
-		{"Nikoru-" .. realmName,"Veteran",2,80,GetClassInfo(6),GenerateLocation(),"","",false,0,"DEATHKNIGHT",19260,7,false,false,8,"Player-9999-7156B04",GeneratelastOnline(),realmName},
-		{"Pawind-" .. realmName,"Veteran",2,80,GetClassInfo(3),GenerateLocation(),"","",false,0,"HUNTER",8100,12,false,false,8,"Player-9999-E10B3D9",GeneratelastOnline(),realmName},
-		{"Dexxer-" .. realmName,"Officer",1,80,GetClassInfo(9),GenerateLocation(),"","",false,0,"WARLOCK",16570,10,false,false,8,"Player-9999-ED50CED",GeneratelastOnline(),realmName},
-		{"Fraddi-" .. realmName,"Officer",1,80,GetClassInfo(12),GenerateLocation(),"","",false,0,"DEMONHUNTER",35745,1,false,false,8,"Player-9999-4B38DB8",GeneratelastOnline(),realmName},
-		{"Wiley-" .. realmName,"Officer",1,80,GetClassInfo(13),GenerateLocation(),"","",false,0,"EVOKER",26270,3,false,false,8,"Player-9999-F7F79D4",GeneratelastOnline(),realmName},
-		{"Leewar-" .. realmName,"Guild Master",0,80,GetClassInfo(1),GenerateLocation(),"","",false,0,"WARRIOR",27150,2,false,false,8,"Player-9999-DA07A3A",GeneratelastOnline(),realmName},
-	}
+	local tbl
+	local maxLevel
+
+	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+		maxLevel = 80
+		tbl = {
+			{realNameFormat:format("Coldbarr", realmName),"Initiate",4,maxLevel,GetClassInfo(8),location,"","",false,0,"MAGE",6710,13,false,false,4,"Player-9999-3129C53",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Borre", realmName),"Member",3,maxLevel,GetClassInfo(7),location,"","",false,0,"SHAMAN",24520,4,false,false,5,"Player-9999-EFB134A",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Dedli", realmName),"Member",3,maxLevel,GetClassInfo(4),location,"","",false,0,"ROGUE",12800,11,false,false,6,"Player-9999-6AB86C5",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Kilhe", realmName),"Member",3,maxLevel,GetClassInfo(10),location,"","",false,0,"MONK",22705,5,false,false,6,"Player-9999-A97F5C2",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Ongel", realmName),"Member",3,maxLevel,GetClassInfo(2),location,"","",false,0,"PALADIN",18430,8,false,false,7,"Player-9999-AE48979",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Sylis", realmName),"Member",3,maxLevel,GetClassInfo(11),location,"","",false,0,"DRUID",19390,6,false,false,8,"Player-9999-3794CAB",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Falka", realmName),"Veteran",2,maxLevel,GetClassInfo(5),location,"","",false,0,"PRIEST",17435,9,false,false,8,"Player-9999-BF7C323",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Nikoru", realmName),"Veteran",2,maxLevel,GetClassInfo(6),location,"","",false,0,"DEATHKNIGHT",19260,7,false,false,8,"Player-9999-7156B04",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Pawind", realmName),"Veteran",2,maxLevel,GetClassInfo(3),location,"","",false,0,"HUNTER",8100,12,false,false,8,"Player-9999-E10B3D9",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Dexxer", realmName),"Officer",1,maxLevel,GetClassInfo(9),location,"","",false,0,"WARLOCK",16570,10,false,false,8,"Player-9999-ED50CED",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Fraddi", realmName),"Officer",1,maxLevel,GetClassInfo(12),location,"","",false,0,"DEMONHUNTER",35745,1,false,false,8,"Player-9999-4B38DB8",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Wiley", realmName),"Officer",1,maxLevel,GetClassInfo(13),location,"","",false,0,"EVOKER",26270,3,false,false,8,"Player-9999-F7F79D4",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Leewar", realmName),"Guild Master",0,maxLevel,GetClassInfo(1),location,"","",false,0,"WARRIOR",27150,2,false,false,8,"Player-9999-DA07A3A",GeneratelastOnline(),realmName},
+		}
+	elseif WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
+		maxLevel = 85
+		tbl = {
+			{realNameFormat:format("Coldbarr", realmName),"Initiate",4,maxLevel,GetClassInfo(8),location,"","",false,0,"MAGE",6710,11,false,false,4,"Player-9999-3129C53",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Borre", realmName),"Member",3,maxLevel,GetClassInfo(7),location,"","",false,0,"SHAMAN",24520,2,false,false,5,"Player-9999-EFB134A",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Dedli", realmName),"Member",3,maxLevel,GetClassInfo(4),location,"","",false,0,"ROGUE",12800,9,false,false,6,"Player-9999-6AB86C5",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Kilhe", realmName),"Member",3,maxLevel,GetClassInfo(10),location,"","",false,0,"MONK",22705,3,false,false,6,"Player-9999-A97F5C2",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Ongel", realmName),"Member",3,maxLevel,GetClassInfo(2),location,"","",false,0,"PALADIN",18430,6,false,false,7,"Player-9999-AE48979",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Sylis", realmName),"Member",3,maxLevel,GetClassInfo(11),location,"","",false,0,"DRUID",19390,4,false,false,8,"Player-9999-3794CAB",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Falka", realmName),"Veteran",2,maxLevel,GetClassInfo(5),location,"","",false,0,"PRIEST",17435,7,false,false,8,"Player-9999-BF7C323",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Nikoru", realmName),"Veteran",2,maxLevel,GetClassInfo(6),location,"","",false,0,"DEATHKNIGHT",19260,5,false,false,8,"Player-9999-7156B04",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Pawind", realmName),"Veteran",2,maxLevel,GetClassInfo(3),location,"","",false,0,"HUNTER",8100,10,false,false,8,"Player-9999-E10B3D9",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Dexxer", realmName),"Officer",1,maxLevel,GetClassInfo(9),location,"","",false,0,"WARLOCK",16570,8,false,false,8,"Player-9999-ED50CED",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Leewar", realmName),"Guild Master",0,maxLevel,GetClassInfo(1),location,"","",false,0,"WARRIOR",27150,1,false,false,8,"Player-9999-DA07A3A",GeneratelastOnline(),realmName},
+		}
+	else
+		maxLevel = 60
+		local faction = UnitFactionGroup("player")
+		tbl = {
+			{realNameFormat:format("Coldbarr", realmName),"Initiate",4,maxLevel,GetClassInfo(8),location,"","",false,0,"MAGE",0,0,false,false,0,"Player-9999-3129C53",GeneratelastOnline(),realmName},
+			{realNameFormat:format(faction == "Horde" and "Borre" or "Ongel", realmName),"Member",3,maxLevel,faction == "Horde" and GetClassInfo(7) or GetClassInfo(2),location,"","",false,0,faction == "Horde" and "SHAMAN" or "PALADIN",0,0,false,false,0,"Player-9999-EFB134A",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Dedli", realmName),"Member",3,maxLevel,GetClassInfo(4),location,"","",false,0,"ROGUE",0,0,false,false,0,"Player-9999-6AB86C5",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Kilhe", realmName),"Member",3,maxLevel,GetClassInfo(10),location,"","",false,0,"MONK",0,0,false,false,0,"Player-9999-A97F5C2",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Sylis", realmName),"Member",3,maxLevel,GetClassInfo(11),location,"","",false,0,"DRUID",0,0,false,false,0,"Player-9999-3794CAB",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Falka", realmName),"Veteran",2,maxLevel,GetClassInfo(5),location,"","",false,0,"PRIEST",0,0,false,false,0,"Player-9999-BF7C323",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Pawind", realmName),"Veteran",2,maxLevel,GetClassInfo(3),location,"","",false,0,"HUNTER",0,0,false,false,0,"Player-9999-E10B3D9",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Dexxer", realmName),"Officer",1,maxLevel,GetClassInfo(9),location,"","",false,0,"WARLOCK",0,0,false,false,0,"Player-9999-ED50CED",GeneratelastOnline(),realmName},
+			{realNameFormat:format("Leewar", realmName),"Guild Master",0,maxLevel,GetClassInfo(1),location,"","",false,0,"WARRIOR",0,0,false,false,0,"Player-9999-DA07A3A",GeneratelastOnline(),realmName},
+		}
+	end
 
 	return tbl
 end
