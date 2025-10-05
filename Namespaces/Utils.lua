@@ -12,8 +12,9 @@ local Utils = {}
 
 Utils.colors = {
 	tooltip = {
-		default = CreateColor(1, 1, 1,0),
+		default = CreateColor(0.2, 1, 0.2, 0),
 		highlight = CreateColor(1, 1, 0, 0),
+		mouseaction = CreateColor(0.93, 0.65, 0.37, 0)
 	}
 }
 
