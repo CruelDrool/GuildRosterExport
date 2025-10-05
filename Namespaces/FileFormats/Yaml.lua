@@ -28,6 +28,12 @@ local L = Translate:GetLocaleEntries()
 ---@param order number
 ---@return table
 function Yaml.GetOptions(order)
+
+	local beautifiedDesc = L["%s makes the output look really organized and easy to read but uses a lot of text characters, lines, and space."]:format(Utils.colors.tooltip.highlight:WrapTextInColorCode(L["Beautified"]))
+	local compactedDesc = L["%s removes many unnecessary text characters and puts each entry in the guild roster on one line each."]:format(Utils.colors.tooltip.highlight:WrapTextInColorCode(L["Minified"]))
+	local minifiedDesc = L["%s removes unnecessary text characters and puts everything on one single line to save the most amount of space."]:format(Utils.colors.tooltip.highlight:WrapTextInColorCode(L["Compacted"]))
+	local styleDesc = ("%s\n\n%s\n\n%s"):format(beautifiedDesc, compactedDesc, minifiedDesc)
+
 	local tbl = {
 		order = order,
 		type = "group",
@@ -64,6 +70,7 @@ function Yaml.GetOptions(order)
 				style = "radio",
 				width = "half",
 				name = L["Style"],
+				desc = styleDesc,
 				values = {
 					["beautified"] = L["Beautified"],
 					["compacted"] = L["Compacted"],
