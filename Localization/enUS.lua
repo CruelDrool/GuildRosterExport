@@ -12,7 +12,7 @@ L["Close & Return"] = true
 
 -- MINIMAP ICON --
 L["%sClick%s to toggle options."] = true -- %s is the text color wrapping.
-L["Or use /%s"] = true -- %s is the chat command.
+L["Or use the chat command %s"] = true -- %s is the chat command.
 
 -- CHAT COMMAND --
 L["Toggle options"] = true
@@ -34,11 +34,12 @@ L["Show an icon to open the config at the Minimap."] = true
 L["Export"] = true
 L["WARNING! Large exports may freeze your game for several seconds!"] = true
 L["Settings"] = true
--- L["Minify"] = true
--- L["To minify means removing unnecessary characters and putting everything on one single line to save space."] = true
 L["Beautified"] = true
+L["%s makes the output look really organized and easy to read but uses a lot of text characters, lines, and space."] = true
 L["Compacted"] = true
+L["%s removes many unnecessary text characters and puts each entry in the guild roster on one line each."] = true
 L["Minified"] = true
+L["%s removes unnecessary text characters and puts everything on one single line to save the most amount of space."] = true
 L["Enabled"] = true
 L["Boolean"] = true
 L["Number"] = true
@@ -82,7 +83,7 @@ L["The index normally starts at 0, but this setting adjusts that to 1."] = true
 L["Use hours since last online in column #18"] = true
 L["Calculates how many hours have passed since last being online."] = true
 L["Automatic export"] = true
-L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown."] = true
+L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown.\n\nBeing in a guild is required for this to work."] = true
 
 -- OPTIONS: Settings -> Global - Export frame --
 L["Export frame"] = true
@@ -130,5 +131,14 @@ L["What type of quotation mark to use when strings need to be put in quotes."] =
 L["Double"] = true
 L["Single"] = true
 
-L["enUS"] = "English (US)"
 L["deDE"] = "German (DE)"
+L["enUS"] = "English (US)"
+L["esES"] = "Spanish (ES)"
+L["esMX"] = "Spanish (MX)"
+L["frFR"] = "French (FR)"
+L["itIT"] = "Italian (IT)"
+L["koKR"] = "Korean (KR)"
+L["ptBR"] = "Portuguese (BR)"
+L["ruRU"] = "Russian (RU)"
+L["zhCN"] = "Chinese (CN)"
+L["zhTW"] = "Chinese (TW)"
