@@ -19,17 +19,13 @@ local Settings = Private.Settings
 ---@class ExportFrame
 local ExportFrame = Private.ExportFrame
 
-local addonName = ...
-local chatCommand = addonName:lower()
+local CHAT_COMMAND = Utils.constants.ADDON_NAME:lower()
 local GUILD_ROSTER_NUM_ROWS = 17
-
----@class BackdropFrame: Frame
----@class BackdropFrame: BackdropTemplate
 
 ---@class Core: AceAddon
 ---@class Core: AceConsole-3.0
 ---@class Core: AceEvent-3.0
-local Core = Utils.libs.AceAddon:NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0")
+local Core = Utils.libs.AceAddon:NewAddon(Utils.constants.ADDON_NAME, "AceConsole-3.0", "AceEvent-3.0")
 Private.Core = Core
 
 local L = Translate:GetLocaleEntries()
@@ -43,7 +39,7 @@ local AceDBOptions = Utils.libs.AceDBOptions
 function Core:OnInitialize()
 	local defaults = Settings:GetDefaults()
 
-	Private.db = AceDB:New(addonName.."DB", defaults)
+	Private.db = AceDB:New(Utils.constants.ADDON_NAME.."DB", defaults)
 	Private.db.RegisterCallback(self, "OnProfileChanged", "UpdateConfigs")
 	Private.db.RegisterCallback(self, "OnProfileCopied", "UpdateConfigs")
 	Private.db.RegisterCallback(self, "OnProfileReset", "UpdateConfigs")
@@ -54,15 +50,15 @@ function Core:OnInitialize()
 
 	self:SetupOptions()
 
-	self:RegisterChatCommand(chatCommand, "ChatCommand")
+	self:RegisterChatCommand(CHAT_COMMAND, "ChatCommand")
 
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 
 	if LibDataBroker then
-		local LDBObj = LibDataBroker:NewDataObject(addonName, {
+		local LDBObj = LibDataBroker:NewDataObject(Utils.constants.ADDON_NAME, {
 			type = "launcher",
-			icon = ([[Interface\AddOns\%s\icon]]):format(addonName),
+			icon = ([[Interface\AddOns\%s\icon]]):format(Utils.constants.ADDON_NAME),
 			OnClick = function(_, mouseButton)
 				if mouseButton == "LeftButton" or mouseButton == "RightButton" then
 					self:ToggleOptions()
@@ -70,15 +66,15 @@ function Core:OnInitialize()
 			end,
 			OnTooltipShow = function(tooltip)
 				if not (tooltip and tooltip.AddLine) then return end
-				tooltip:AddDoubleLine(addonName, C_AddOns.GetAddOnMetadata(addonName, "Version"))
+				tooltip:AddDoubleLine(Utils.constants.ADDON_NAME, C_AddOns.GetAddOnMetadata(Utils.constants.ADDON_NAME, "Version"))
 				tooltip:AddLine(" ")
 				tooltip:AddLine( L["%sClick%s to toggle options."]:format(Utils.colors.tooltip.mouseaction:GenerateHexColorMarkup(), "|r"), Utils.colors.tooltip.default:GetRGB() )
-				tooltip:AddLine( L["Or use the chat command %s"]:format(Utils.colors.tooltip.highlight:WrapTextInColorCode( ("/%s"):format(chatCommand) )), Utils.colors.tooltip.default:GetRGB() )
+				tooltip:AddLine( L["Or use the chat command %s"]:format(Utils.colors.tooltip.highlight:WrapTextInColorCode( ("/%s"):format(CHAT_COMMAND) )), Utils.colors.tooltip.default:GetRGB() )
 			end,
 		})
 
 		if LibDBIcon then
-			LibDBIcon:Register(addonName, LDBObj, Private.db.profile.minimapIcon)
+			LibDBIcon:Register(Utils.constants.ADDON_NAME, LDBObj, Private.db.profile.minimapIcon)
 		end
 	end
 end
@@ -104,10 +100,10 @@ function Core:UpdateConfigs()
 	Private.db.profile.autoExportSave = nil
 
 	if LibDataBroker and LibDBIcon then
-		LibDBIcon:Refresh(addonName, Private.db.profile.minimapIcon)
+		LibDBIcon:Refresh(Utils.constants.ADDON_NAME, Private.db.profile.minimapIcon)
 	end
 
-	AceConfigRegistry:NotifyChange(addonName)
+	AceConfigRegistry:NotifyChange(Utils.constants.ADDON_NAME)
 
 	ExportFrame:LoadPosition()
 end
@@ -115,21 +111,21 @@ end
 function Core:SetupOptions()
 	local options = Settings:GetOptions()
 	options.plugins.profiles = { profiles = AceDBOptions:GetOptionsTable(Private.db) }
-	AceConfigRegistry:RegisterOptionsTable(addonName, options)
-	-- AceConfigDialog:AddToBlizOptions(addonName, addonName)
+	AceConfigRegistry:RegisterOptionsTable(Utils.constants.ADDON_NAME, options)
+	-- AceConfigDialog:AddToBlizOptions(Utils.constants.ADDON_NAME, Utils.constants.ADDON_NAME)
 end
 
 function Core:ToggleOptions()
 	if ExportFrame:IsShown() then
 		ExportFrame:Hide()
 	end
-	if AceConfigDialog.OpenFrames[addonName] then
+	if AceConfigDialog.OpenFrames[Utils.constants.ADDON_NAME] then
 		PlaySound(Utils.sounds.closeOptions)
-		AceConfigDialog:Close(addonName)
+		AceConfigDialog:Close(Utils.constants.ADDON_NAME)
 	else
 		Settings:InsertGuildRanksIntoOptions()
 		PlaySound(Utils.sounds.openOptions)
-		AceConfigDialog:Open(addonName)
+		AceConfigDialog:Open(Utils.constants.ADDON_NAME)
 	end
 end
 
@@ -147,9 +143,9 @@ function Core:ChatCommand(args)
 	local supportedFileFormats = Settings:GetSupportedFormats()
 
 	if arg1 == "help" then
-		self:SystemMessageInPrimary(string.format("/%s - %s.", chatCommand, L["Toggle options"]))
-		self:SystemMessageInPrimary(string.format("/%s help - %s.",  chatCommand, L["Print this help"]))
-		self:SystemMessageInPrimary(string.format("/%s export [%s] - %s.",  chatCommand, L["file format"],  L["Do an export"]))
+		self:SystemMessageInPrimary(string.format("/%s - %s.", CHAT_COMMAND, L["Toggle options"]))
+		self:SystemMessageInPrimary(string.format("/%s help - %s.",  CHAT_COMMAND, L["Print this help"]))
+		self:SystemMessageInPrimary(string.format("/%s export [%s] - %s.",  CHAT_COMMAND, L["file format"],  L["Do an export"]))
 		self:SystemMessageInPrimary(L["Supported file formats:"])
 
 		local tmp = {}
@@ -164,7 +160,7 @@ function Core:ChatCommand(args)
 			self:SystemMessageInPrimary(string.format(" - %s", fileFormat))
 		end
 	elseif arg1 == "export" then
-		AceConfigDialog:Close(addonName);
+		AceConfigDialog:Close(Utils.constants.ADDON_NAME);
 		if supportedFileFormats[arg2] then
 			self:ExportData(arg2)
 		else

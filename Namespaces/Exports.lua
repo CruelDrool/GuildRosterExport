@@ -1,6 +1,5 @@
 ---@class Private
 local Private = select(2, ...)
-local addonName = ...
 
 ---@class Debug
 local Debug = Private.Debug

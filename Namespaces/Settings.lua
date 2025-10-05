@@ -1,6 +1,5 @@
 ---@class Private
 local Private = select(2, ...)
-local addonName = ...
 
 ---@class Debug
 local Debug = Private.Debug
@@ -22,7 +21,7 @@ Private.Settings = Settings
 
 -- Base options table.
 local options = {
-		name = addonName,
+		name = Utils.constants.ADDON_NAME,
 		childGroups = "tree",
 		type = "group",
 		plugins = {},
@@ -329,7 +328,7 @@ function Settings:GetOptions()
 			name = L["Minimap icon"],
 			desc = L["Show an icon to open the config at the Minimap."],
 			get = function() return not Private.db.profile.minimapIcon.hide end,
-			set = function(info, value) Private.db.profile.minimapIcon.hide = not value; LibDBIcon[value and "Show" or "Hide"](LibDBIcon, addonName) end,
+			set = function(info, value) Private.db.profile.minimapIcon.hide = not value; LibDBIcon[value and "Show" or "Hide"](LibDBIcon, Utils.constants.ADDON_NAME) end,
 			disabled = function() return not LibDBIcon end,
 		},
 		fileFormat = {
@@ -348,7 +347,7 @@ function Settings:GetOptions()
 			desc = L["WARNING! Large exports may freeze your game for several seconds!"],
 			name = L["Export"],
 			width = "half",
-			func = function() AceConfigDialog:Close(addonName); Private.Core:ExportData() end,
+			func = function() AceConfigDialog:Close(Utils.constants.ADDON_NAME); Private.Core:ExportData() end,
 		},
 		settings = {
 			order = 4,

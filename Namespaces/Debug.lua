@@ -1,6 +1,8 @@
 ---@class Private
 local Private = select(2, ...)
-local addonName = ...
+
+---@class Utils
+local Utils = Private.Utils
 
 local DLAPI = _G["DLAPI"]
 --@debug@
@@ -19,7 +21,7 @@ function Debug:Log(...)
 	if self:IsEnabled() then
 		local status, res = pcall(format, ...)
 		if status then
-			DLAPI.DebugLog(addonName, res)
+			DLAPI.DebugLog(Utils.constants.ADDON_NAME, res)
 		end
 	end
 end

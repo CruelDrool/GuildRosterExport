@@ -1,14 +1,12 @@
 ---@class Private
 local Private = select(2, ...)
 
----@class Debug
-local Debug = Private.Debug
-
----@class Translate
-local Translate = Private.Translate
-
 ---@class Utils
 local Utils = {}
+
+Utils.constants = {
+	ADDON_NAME  = ...
+}
 
 Utils.colors = {
 	tooltip = {
