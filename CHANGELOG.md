@@ -1,7 +1,7 @@
 # GuildRosterExport
 
-## [x.y.z] - xxxx-xx-xx
-[View full changelog](https://github.com/CruelDrool/GuildRosterExport/blob/master/CHANGELOG-FULL.md) | [View code](https://github.com/CruelDrool/GuildRosterExport/tree/x.y.z) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/1.2.7...x.y.z) | [Previous releases](https://github.com/CruelDrool/GuildRosterExport/releases)
+## [2.0.0] - 2025-10-08
+[View full changelog](https://github.com/CruelDrool/GuildRosterExport/blob/master/CHANGELOG-FULL.md) | [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.0.0) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/1.2.7...2.0.0) | [Previous releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
 ### Added
 - Option "Style" for formats HTML, JSON, XML, and YAML. They can now be outputted in 3 styles. 
