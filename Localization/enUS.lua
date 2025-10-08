@@ -8,7 +8,7 @@ L["tocNotes"] = "Export the guild roster to CSV, HTML, JSON, XML or YAML."
 
 -- EXPORT FRAME --
 L["Close"] = true
-L["Close & Return"] = true
+L["Return"] = true
 
 -- MINIMAP ICON --
 L["%sClick%s to toggle options."] = true -- %s is the text color wrapping.
