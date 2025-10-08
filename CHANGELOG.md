@@ -23,9 +23,9 @@
 - Bumped Retail interface version to 11.2.5.
 - Bumped MoP Classic interface version to 5.5.1.
 - Global option "Auto export" changed display name to "Automatic export". Tooltip explanation updated to add that this option requires being in a guild to work.
-- Started using a manual changelog.
+- "Close & Return" button changed to just "Return".
 - Updated enUS localization.
 
 ### Removed
-- Option "Minify".
-- AceLocale-3.0.
+- Option "Minify" from HTML, JSON, XML, and YAML.
+- AceLocale-3.0 library.
