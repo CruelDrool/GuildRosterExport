@@ -28,7 +28,7 @@ end
 
 function ExportFrame:Show()
 	frame.closeButton:SetText(L["Close"])
-	frame.closeAndReturnButton:SetText(L["Close & Return"])
+	frame.returnButton:SetText(L["Return"])
 	frame.editBox:HighlightText()
 	frame:Show()
 end
@@ -85,10 +85,10 @@ do
 	closeButton:SetScript("OnClick", function(self, button) frame.editBox:SetText(""); frame:Hide(); PlaySound(Utils.sounds.closeExportFrame) end)
 	frame.closeButton = closeButton
 
-	local closeAndReturnButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
-	closeAndReturnButton:SetPoint("BOTTOM", frame, "BOTTOM", 75, 7.5)
-	closeAndReturnButton:SetScript("OnClick", function(self, button) frame.editBox:SetText(""); Private.Core:ToggleOptions() end)
-	frame.closeAndReturnButton = closeAndReturnButton
+	local returnButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
+	returnButton:SetPoint("BOTTOM", frame, "BOTTOM", 75, 7.5)
+	returnButton:SetScript("OnClick", function(self, button) frame.editBox:SetText(""); Private.Core:ToggleOptions() end)
+	frame.returnButton = returnButton
 
 	-- Scroll frame
 	local sf = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
