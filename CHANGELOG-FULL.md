@@ -8,6 +8,15 @@ Format for this changelog is based on [Keep a Changelog](https://keepachangelog.
 
 [View all releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
+## [2.0.1] - 2025-12-20
+[View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.0.1) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.0.0...2.0.1)
+
+### Changed
+- Updated library Ace3 to version r1377.
+- Bumped Retail interface version to 11.2.7.
+- Bumped Classic Era interface version to 1.15.8.
+- Bumped MoP Classic interface version to 5.5.3.
+
 ## [2.0.0] - 2025-10-08
 [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.0.0) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/1.2.7...2.0.0)
 
