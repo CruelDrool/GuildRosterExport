@@ -8,5 +8,6 @@
 ### Added
 
 ### Changed
+- Scroll the export frame to the top before showing it.
 
 ### Removed
