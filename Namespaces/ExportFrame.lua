@@ -30,6 +30,7 @@ function ExportFrame:Show()
 	frame.closeButton:SetText(L["Close"])
 	frame.returnButton:SetText(L["Return"])
 	frame.editBox:HighlightText()
+	frame.scrollFrame:SetVerticalScroll(0)
 	frame:Show()
 end
 
