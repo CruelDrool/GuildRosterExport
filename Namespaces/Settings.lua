@@ -40,6 +40,13 @@ local defaults = {
 		adjustRankIndex = true,
 		lastOnlineHours = false,
 		autoExport = false,
+		sorting = {
+			enabled = true,
+			primaryColumnID = 3,
+			primarySortOrder = 1, -- Ascending
+			secondaryColumnID = 1,
+			secondarySortOrder = 1, -- Ascending
+		},
 		indentation = {
 			style = "spaces",
 			depth = 4,
@@ -201,6 +208,10 @@ end
 ---@param order number
 ---@return table
 local function GetGlobalOptions(order)
+	local sortColumnDropdown = {}
+	for _, columnInfo in ipairs(Private.db.profile.columns) do
+		table.insert(sortColumnDropdown, columnInfo.name)
+	end
 	local global = {
 		order = order,
 		type = "group",
@@ -254,8 +265,60 @@ local function GetGlobalOptions(order)
 				get = function() return Private.db.profile.autoExport end,
 				set = function(info, value) Private.db.profile.autoExport = value; Private.db.profile.autoExportSave = nil end,
 			},
-			exportFrame = {
+			sorting = {
 				order = 7,
+				type = "group",
+				guiInline = true,
+				name = L["Sorting"],
+				args = {
+					enabled = {
+						order = 1,
+						type = "toggle",
+						width = "full",
+						name = L["Enabled"],
+						get = function() return Private.db.profile.sorting.enabled end,
+						set = function(info, value) Private.db.profile.sorting.enabled = value end,
+					},
+					primaryColumnID = {
+						order = 2,
+						type = "select",
+						style = "dropdown",
+						name = L["Primary column"],
+						values = sortColumnDropdown,
+						get = function() return Private.db.profile.sorting.primaryColumnID end,
+						set = function(info, value) Private.db.profile.sorting.primaryColumnID = tonumber(value) end,
+					},
+					primarySortOrder = {
+						order = 3,
+						type = "select",
+						style = "dropdown",
+						name = L["Sort order"],
+						values = { L["Ascending"], L["Descending"]},
+						get = function() return Private.db.profile.sorting.primarySortOrder end,
+						set = function(info, value) Private.db.profile.sorting.primarySortOrder = tonumber(value) end,
+					},
+					secondaryColumnID = {
+						order = 4,
+						type = "select",
+						style = "dropdown",
+						name = L["Secondary column"],
+						values = sortColumnDropdown,
+						get = function() return Private.db.profile.sorting.secondaryColumnID end,
+						set = function(info, value) Private.db.profile.sorting.secondaryColumnID = tonumber(value) end,
+					},
+					secondarySortOrder = {
+						order = 5,
+						type = "select",
+						style = "dropdown",
+						name = L["Sort order"],
+						values = { L["Ascending"], L["Descending"]},
+						get = function() return Private.db.profile.sorting.secondarySortOrder end,
+						set = function(info, value) Private.db.profile.sorting.secondarySortOrder = tonumber(value) end,
+					},
+				}
+			},
+			exportFrame = {
+				order = 8,
 				type = "group",
 				guiInline = true,
 				name = L["Export frame"],
@@ -272,7 +335,7 @@ local function GetGlobalOptions(order)
 				},
 			},
 			indentation = {
-				order = 8,
+				order = 9,
 				type = "group",
 				guiInline = true,
 				name = L["Indentation"],

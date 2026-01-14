@@ -266,7 +266,8 @@ function Core:ExportData(fileFormat, saveToDB)
 	local removeRealmFromName = Private.db.profile.removeRealmFromName
 	local adjustRankIndex = Private.db.profile.adjustRankIndex
 	local lastOnlineHours = Private.db.profile.lastOnlineHours
-	local rawRoster = {}
+	local sort = Private.db.profile.sorting.enabled
+	local fullRoster = {}
 	local filteredRoster = {}
 	local serverTimeInfo = date("*t",GetServerTime())
 	local currentTime = time({day=serverTimeInfo.day, month=serverTimeInfo.month, year=serverTimeInfo.year, hour=serverTimeInfo.hour})
@@ -295,30 +296,49 @@ function Core:ExportData(fileFormat, saveToDB)
 
 				local realmName = row[1]:match("-([^-]+)")
 
+				-- Cross realm names have, for some reason, their realm name repeated. Very weird. This fixes that.
+				row[1] = row[1]:gsub("^([^-]+)-([^-]+)-.+", "%1-%2")
+
 				table.insert(row, realmName)
 
-				table.insert(rawRoster, row)
+				table.insert(fullRoster, row)
 			end
 		end
 	else
-		rawRoster = GetTestRoster(self, currentTime)
+		fullRoster = GetTestRoster(self, currentTime)
 	end
 
-	if #rawRoster > 0 then
-		for _, row in ipairs(rawRoster) do
+	if #fullRoster > 0 then
+		if sort then
+			local primaryColumnID = Private.db.profile.sorting.primaryColumnID
+			local primarySortOrder = Private.db.profile.sorting.primarySortOrder
+			local secondaryColumnID = Private.db.profile.sorting.secondaryColumnID
+			local secondarySortOrder = Private.db.profile.sorting.secondarySortOrder
+
+			table.sort(fullRoster, function(a, b)
+				if a[primaryColumnID] > b[primaryColumnID] then
+					return primarySortOrder == 2
+				elseif a[primaryColumnID] < b[primaryColumnID] then
+					return primarySortOrder == 1
+				else
+					if secondarySortOrder == 1 then
+						return a[secondaryColumnID] < b[secondaryColumnID]
+					else
+						return a[secondaryColumnID] > b[secondaryColumnID]
+					end
+				end
+			end)
+		end
+
+		for _, row in ipairs(fullRoster) do
 			local rankIndex = row[3] + 1
 			if ranks[rankIndex] then
 				for k, v in pairs(row) do
 					if not columns[k].enabled then
 						row[k] = nil
 					else
-						if k == 1 then
-							if removeRealmFromName then
-								row[k] = row[k]:gsub("-.+","")
-							else
-								-- Cross realm names have, for some reason, their realm name repeated. Very weird. This fixes that.
-								row[k] = row[k]:gsub("^([^-]+)-([^-]+)-.+", "%1-%2")
-							end
+						if removeRealmFromName and k == 1 then
+							row[k] = row[k]:gsub("-.+","")
 						end
 
 						if adjustRankIndex and k == 3 then
