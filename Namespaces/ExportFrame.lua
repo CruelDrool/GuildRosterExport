@@ -58,6 +58,17 @@ function ExportFrame:IsVisible()
 end
 
 do
+	local function closeFunction()
+		frame.editBox:SetText("")
+		frame:Hide()
+		PlaySound(Utils.sounds.closeExportFrame)
+	end
+
+	local function returnFunction()
+		frame.editBox:SetText("")
+		Private.Core:ToggleOptions()
+	end
+
 	frame:Hide()
 	frame:SetBackdrop({
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -83,12 +94,12 @@ do
 	-- Buttons
 	local closeButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
 	closeButton:SetPoint("BOTTOM", frame, "BOTTOM", -75, 7.5)
-	closeButton:SetScript("OnClick", function(self, button) frame.editBox:SetText(""); frame:Hide(); PlaySound(Utils.sounds.closeExportFrame) end)
+	closeButton:SetScript("OnClick", function(self, button) closeFunction() end)
 	frame.closeButton = closeButton
 
 	local returnButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
 	returnButton:SetPoint("BOTTOM", frame, "BOTTOM", 75, 7.5)
-	returnButton:SetScript("OnClick", function(self, button) frame.editBox:SetText(""); Private.Core:ToggleOptions() end)
+	returnButton:SetScript("OnClick", function(self, button) returnFunction() end)
 	frame.returnButton = returnButton
 
 	-- Scroll frame
@@ -104,7 +115,30 @@ do
 	eb:SetMultiLine(true)
 	eb:SetAutoFocus(true)
 	eb:SetFontObject("ChatFontNormal")
-	eb:SetScript("OnEscapePressed", function() frame.editBox:SetText(""); frame:Hide() end)
+	eb:SetScript("OnEscapePressed", closeFunction)
+
+	local isCtrlDown = false
+	eb:SetScript("OnKeyDown", function(self, key)
+		if Private.db.profile.exportFrame.ctrlcAction ~= 3 then
+			if key == "LCTRL" or key == "RCTRL" or key == "LMETA" or key == "RMETA" then
+				isCtrlDown = true
+			end
+		end
+	end)
+
+	eb:SetScript("OnKeyUp", function(self, key)
+		if Private.db.profile.exportFrame.ctrlcAction ~= 3 then
+			if key == "LCTRL" or key == "RCTRL" or key == "LMETA" or key == "RMETA" then
+				C_Timer.After(0.2, function() isCtrlDown = false end)
+			end
+
+			local func = Private.db.profile.exportFrame.ctrlcAction == 1 and closeFunction or returnFunction
+			if isCtrlDown and (key == "C" or key == "X") then
+				C_Timer.After(0.1, func)
+			end
+		end
+	end)
+
 	sf:SetScrollChild(eb)
 	frame.editBox = eb
 

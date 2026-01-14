@@ -96,6 +96,7 @@ local defaults = {
 				700, -- Width
 				450, -- Height
 			},
+			ctrlcAction = 3, -- Do nothing
 			maxLetters = 2000000,
 		},
 	}
@@ -331,6 +332,21 @@ local function GetGlobalOptions(order)
 						desc = L["Set the maximum number of letters that the export window can show. Set this to empty or 0 to use Blizzard's default."],
 						get = function() return Private.db.profile.exportFrame.maxLetters > 0 and tostring(Private.db.profile.exportFrame.maxLetters) or "" end,
 						set = function(info, value) value = value == "" and 0 or tonumber(value) or Private.db.profile.exportFrame.maxLetters if value >= 0 then Private.db.profile.exportFrame.maxLetters = value end end,
+					},
+					spacer1 = {
+						order = 2,
+						width = "full",
+						type = "description",
+						name = "",
+					},
+					ctrlcAction = {
+						order = 3,
+						type = "select",
+						style = "radio",
+						name = L["What action to take when using %1$s+C or %1$s+X"]:format(IsMacClient() and L["Cmd"] or L["Ctrl"]),
+						values = {L["Close everything"], L["Return to options"], L["Do nothing"]},
+						get = function() return Private.db.profile.exportFrame.ctrlcAction end,
+						set = function(info, value) Private.db.profile.exportFrame.ctrlcAction = tonumber(value) end,
 					},
 				},
 			},
