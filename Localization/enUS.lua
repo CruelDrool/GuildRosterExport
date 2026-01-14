@@ -6,29 +6,29 @@ local L = Private.Translate:RegisterDefaultLocale("enUS")
 
 L["tocNotes"] = "Export the guild roster to CSV, HTML, JSON, XML or YAML."
 
--- EXPORT FRAME --
+-- EXPORT FRAME
 L["Close"] = true
 L["Return"] = true
 
--- MINIMAP ICON --
+-- MINIMAP ICON
 L["%sClick%s to toggle options."] = true -- %s is the text color wrapping.
 L["Or use the chat command %s"] = true -- %s is the chat command.
 
--- CHAT COMMAND --
+-- CHAT COMMAND
 L["Toggle options"] = true
 L["Print this help"] = true
 L["Do an export"] = true
 L["Supported file formats:"] = true
 L["file format"] = true
 
--- FILE FORMATS --
+-- FILE FORMATS
 L["CSV"] = true
 L["HTML"] = true
 L["XML"] = true
 L["JSON"] = true
 L["YAML"] = true
 
--- OPTIONS --
+-- OPTIONS
 L["Minimap icon"] = true
 L["Show an icon to open the config at the Minimap."] = true
 L["Export"] = true
@@ -45,12 +45,12 @@ L["Boolean"] = true
 L["Number"] = true
 L["String"] = true
 
--- OPTIONS: Settings - Columns --
+-- OPTIONS: Settings - Columns
 L["Columns"] = true
 L[ [[%s Default column name: "%s".]] ] = true -- %1$s is column description, %2$s is column name.
 L["Unknown"] = true
 
--- OPTIONS: Settings - Column descriptions --
+-- OPTIONS: Settings - Column descriptions
 L[ [[Character's name with realm name included (e.g., "Arthas-Silvermoon"). This addon defaults to removing the realm name.]] ] = true -- 1
 L["Name of the character's guild rank."] = true -- 2
 L["Index of rank, starting at 0 for Guild Master. This addon defaults to adjusting that to 1."] = true -- 3
@@ -71,10 +71,10 @@ L["Character's Globally Unique Identifier."] = true -- 17
 L["UNIX timestamp. Note that since Blizzard's API doesn't return minutes, this timestamp may be wrong by an hour."] = true -- 18
 L["Name of realm."] = true -- 19
 
--- OPTIONS: Settings - Ranks --
+-- OPTIONS: Settings - Ranks
 L["Ranks"] = true
 
--- OPTIONS: Settings -> Global --
+-- OPTIONS: Settings -> Global
 L["Global"] = true
 L["Remove realm name in column #1"] = true
 L[ [["Arthas-Silvermoon" will become "Arthas".]] ] = true
@@ -85,12 +85,26 @@ L["Calculates how many hours have passed since last being online."] = true
 L["Automatic export"] = true
 L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown.\n\nBeing in a guild is required for this to work."] = true
 
--- OPTIONS: Settings -> Global - Export frame --
+-- OPTIONS: Settings -> Global - Sorting
+L["Sorting"] = true
+L["Primary column"] = true
+L["Secondary column"] = true
+L["Sort order"] = true
+L["Ascending"] = true
+L["Descending"] = true
+
+-- OPTIONS: Settings -> Global - Export frame
 L["Export frame"] = true
 L["Maximum letters"] = true
 L["Set the maximum number of letters that the export window can show. Set this to empty or 0 to use Blizzard's default."] = true
+L["Cmd"] = true
+L["Ctrl"] = true
+L["What action to take when using %1$s+C or %1$s+X"] = true
+L["Close everything"] = true
+L["Return to options"] = true
+L["Do nothing"] = true
 
--- OPTIONS: Settings -> Global - Indentation --
+-- OPTIONS: Settings -> Global - Indentation
 L["Indentation"] = true
 L["Style"] = true
 L["Select what style to use when exporting HTML, JSON, and XML."] = true
@@ -100,7 +114,7 @@ L["Depth"] = true
 L["Set the depth used when spaces are set as indentation style. A smaller depth shortens the time before the data is displayed."] = true
 L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs works just fine and will be displayed correctly in a text editor."] = true
 
--- OPTIONS: Settings -> CSV --
+-- OPTIONS: Settings -> CSV
 L["Header"] = true
 L["Whether or not to have the column names added to top of the CSV output."] = true
 L["Enclosure"] = true
@@ -108,24 +122,24 @@ L["Text character that is used when enclosing values."] = true
 L["Delimiter"] = true
 L["Text character that is used when separating values."] = true
 
--- OPTIONS: Settings -> HTML --
+-- OPTIONS: Settings -> HTML
 L["Table header"] = true
 L["Whether or not to have the column names added to the table."] = true
 
--- OPTIONS: Settings -> HTML - WordPress --
+-- OPTIONS: Settings -> HTML - WordPress
 L["WordPress"] = true
 L["Output as a WordPress block (Gutenberg editor)."] = true
 L["Only use this if you know what you're doing. It requires you to edit the post's code directly. This will also minify the HTML code."] = true
 L["Striped style"] = true
 L["Fixed-width table cells"] = true
 
--- OPTIONS: Settings -> XML --
+-- OPTIONS: Settings -> XML
 L["Root element name"] = true
 L["Each record's element name"] = true
 
--- OPTIONS: Settings -> JSON --
+-- OPTIONS: Settings -> JSON
 
--- OPTIONS: Settings -> YAML --
+-- OPTIONS: Settings -> YAML
 L["Quotation mark"] = true
 L["What type of quotation mark to use when strings need to be put in quotes."] = true
 L["Double"] = true
