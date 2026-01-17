@@ -5,10 +5,10 @@ A small addon that focuses on exporting the in-game guild roster to various form
 ## Features
 
 - Export all 17 columns of the guild roster, plus 2 additional ones that are specific to this addon.
-- Separate export frame.
 - Extensive settings for how the export will be done.
 - Select which columns to export.
 - Custom column names.
+- Able to sort the roster. Select 2 columns to sort by, and which sort order to use (ascending or descending).
 - Select which guild ranks to export.
 - Choose which type of indentation to use: tabs or spaces.
 - Supports [minification](https://en.wikipedia.org/wiki/Minification_(programming)) for select formats.
