@@ -8,6 +8,26 @@ Format for this changelog is based on [Keep a Changelog](https://keepachangelog.
 
 [View all releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
+## [2.1.0] - 2026-01-17
+[View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.0) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.0.1...2.1.0)
+
+### Fixed
+- The description for option "Style" on options pages for HTML, JSON, XML, and YAML.
+
+### Added
+- Support for sorting the roster. Can select a primary column and a secondary column, with corresponding options to choose sort order. The defaults are: 
+	- rankIndex, ascending.
+	- name, ascending.
+- Support for what action to take when using Ctrl+C and Ctrl+X. The available options are:
+	- "Close everything".
+	- "Return to options" (default).
+	- "Do nothing".
+- Re-added support for Burning Crusade Classic (TOC file has been restored and updated).
+
+### Changed
+- The export frame will now scroll to the top before it gets shown.
+
+
 ## [2.0.1] - 2025-12-20
 [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.0.1) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.0.0...2.0.1)
 
