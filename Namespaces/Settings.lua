@@ -96,7 +96,7 @@ local defaults = {
 				700, -- Width
 				450, -- Height
 			},
-			ctrlcAction = 3, -- Do nothing
+			ctrlcAction = 2, -- Return to options
 			maxLetters = 2000000,
 		},
 	}
