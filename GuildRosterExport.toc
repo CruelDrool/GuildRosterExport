@@ -4,7 +4,7 @@
 ## Notes: Export the guild roster to CSV, HTML, JSON, XML or YAML.
 ## Author: CruelDrool
 ## SavedVariables: GuildRosterExportDB
-## OptionalDeps: _DebugLog
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, _DebugLog
 ## IconTexture: Interface\AddOns\GuildRosterExport\icon
 ## Category: Data Export
 ## X-Date: @file-date-iso@
