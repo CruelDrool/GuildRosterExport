@@ -8,5 +8,6 @@
 ### Added
 
 ### Changed
+- Bumped Retail interface version to 12.0.0 - 12.2.7.
 
 ### Removed
