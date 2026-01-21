@@ -1,4 +1,4 @@
-## Interface: 110207
+## Interface: 120000, 120001, 120002, 120005, 120007, 120100, 120105, 120107, 120200, 120205, 120207
 ## Version: @project-version@
 ## Title: GuildRosterExport
 ## Notes: Export the guild roster to CSV, HTML, JSON, XML or YAML.
