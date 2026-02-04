@@ -8,5 +8,6 @@
 ### Added
 
 ### Changed
+- Updated library Ace3 to version r1390.
 
 ### Removed
