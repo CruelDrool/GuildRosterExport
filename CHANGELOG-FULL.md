@@ -8,6 +8,12 @@ Format for this changelog is based on [Keep a Changelog](https://keepachangelog.
 
 [View all releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
+## [2.1.2] - 2026-02-04
+[View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.2) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.1...2.1.2)
+
+### Changed
+- Updated library Ace3 to version r1390.
+
 ## [2.1.1] - 2026-01-21
 [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.1) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.0...2.1.1)
 
