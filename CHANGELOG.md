@@ -1,7 +1,7 @@
 # GuildRosterExport
 
-## [x.y.z] - xxxx-xx-xx
-[View full changelog](https://github.com/CruelDrool/GuildRosterExport/blob/master/CHANGELOG-FULL.md) | [View code](https://github.com/CruelDrool/GuildRosterExport/tree/x.y.z) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.2...x.y.z) | [Previous releases](https://github.com/CruelDrool/GuildRosterExport/releases)
+## [2.1.3] - 2026-08-12
+[View full changelog](https://github.com/CruelDrool/GuildRosterExport/blob/master/CHANGELOG-FULL.md) | [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.3) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.2...2.1.3) | [Previous releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
 ### Added
 - "IconTexture" and "Category" entry to the TOC files for MoP Classic and Classic Era.

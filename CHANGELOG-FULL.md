@@ -8,6 +8,22 @@ Format for this changelog is based on [Keep a Changelog](https://keepachangelog.
 
 [View all releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
+## [2.1.3] - 2026-08-12
+[View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.3) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.2...2.1.3)
+
+### Added
+- "IconTexture" and "Category" entry to the TOC files for MoP Classic and Classic Era.
+
+### Changed
+- Updated library Ace3 to version r1403.
+- Updated library LibDBIcon-1.0 to version 12.0.3 (r161).
+- Bumped MoP Classic interface version to 5.5.4.
+- Bumped Classic Era interface version to 1.15.9.
+- Bump BCC interface version to 2.5.6.
+
+### Removed
+- Old interface versions from Retail TOC.
+
 ## [2.1.2] - 2026-02-04
 [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.2) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.1...2.1.2)
 
