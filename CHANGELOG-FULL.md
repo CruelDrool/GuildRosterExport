@@ -8,6 +8,12 @@ Format for this changelog is based on [Keep a Changelog](https://keepachangelog.
 
 [View all releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
+## [2.1.5] - 2026-09-01
+[View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.5) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.4...2.1.5)
+
+### Fixed
+- Sorting bug introduced in [90237ba](https://github.com/CruelDrool/GuildRosterExport/commit/90237ba65a2e09b8d1b350e1d483137140e96bc8). Was converting even numbers to string. Version 2.1.4 was hastily released.
+
 ## [2.1.4] - 2026-09-01
 [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.4) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.3...2.1.4)
 
