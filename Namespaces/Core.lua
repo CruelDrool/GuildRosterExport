@@ -316,15 +316,20 @@ function Core:ExportData(fileFormat, saveToDB)
 			local secondarySortOrder = Private.db.profile.sorting.secondarySortOrder
 
 			table.sort(fullRoster, function(a, b)
-				if tostring(a[primaryColumnID]) > tostring(b[primaryColumnID]) then
+				local A = type(a[primaryColumnID]) == "boolean" and tostring(a[primaryColumnID]) or a[primaryColumnID]
+				local B = type(b[primaryColumnID]) == "boolean" and tostring(b[primaryColumnID]) or b[primaryColumnID]
+
+				if A > B then
 					return primarySortOrder == 2
-				elseif tostring(a[primaryColumnID]) < tostring(b[primaryColumnID]) then
+				elseif A < B then
 					return primarySortOrder == 1
 				else
+					A = type(a[secondaryColumnID]) == "boolean" and tostring(a[secondaryColumnID]) or a[secondaryColumnID]
+					B = type(b[secondaryColumnID]) == "boolean" and tostring(b[secondaryColumnID]) or b[secondaryColumnID]
 					if secondarySortOrder == 1 then
-						return tostring(a[secondaryColumnID]) < tostring(b[secondaryColumnID])
+						return A < B
 					else
-						return tostring(a[secondaryColumnID]) > tostring(b[secondaryColumnID])
+						return A > B
 					end
 				end
 			end)
