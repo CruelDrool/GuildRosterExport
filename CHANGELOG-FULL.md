@@ -8,6 +8,12 @@ Format for this changelog is based on [Keep a Changelog](https://keepachangelog.
 
 [View all releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
+## [2.1.4] - 2026-09-01
+[View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.4) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.3...2.1.4)
+
+### Fixed
+- Sorting using columns with boolean values.
+
 ## [2.1.3] - 2026-08-12
 [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.3) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.2...2.1.3)
 
