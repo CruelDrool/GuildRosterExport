@@ -37,6 +37,7 @@ end
 function ExportFrame:SetText(text)
 	frame.editBox:SetMaxLetters(Private.db.profile.exportFrame.maxLetters)
 	frame.editBox:SetText("")
+	text = text:gsub("|", "||")
 	frame.editBox:SetText(text)
 end
 
