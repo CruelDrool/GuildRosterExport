@@ -122,6 +122,13 @@ local function AlignText(text, alignment, maxLength, paddingCharacter)
 	return paddingLeft, paddingRight
 end
 
+local function SanitizeText(text)
+	text = text:gsub("([%[%]{}\\_`%|<>*#])", "\\%1")
+	text = text:gsub("(%d+)%.(%s+)", "%1\\.%2")
+	text = text:gsub("([%+%-]%s+)", "\\%1")
+	return text
+end
+
 function Md.Export(data)
 	local columns = Private.db.profile.columns
 	local alignment = Private.db.profile.md.alignment
@@ -130,44 +137,48 @@ function Md.Export(data)
 
 	local maxLengthData = {}
 
-	for k, v in ipairs(columns) do
-		if v.enabled then
-			maxLengthData[k] = strlenutf8(v.name)
+	if beautify then
+		for k, v in ipairs(columns) do
+			if v.enabled then
+				maxLengthData[k] = strlenutf8(v.name)
+			end
 		end
-	end
 
-	for _, v in ipairs(data) do
-		for k, c in pairs(v) do
-			if strlenutf8(tostring(c)) > maxLengthData[k] then
-				maxLengthData[k] = strlenutf8(tostring(c))
+		for _, v in ipairs(data) do
+			for k, c in pairs(v) do
+				if type(c) == "string" then
+					c = SanitizeText(c)
+				end
+
+				if strlenutf8(tostring(c)) > maxLengthData[k] then
+					maxLengthData[k] = strlenutf8(tostring(c))
+				end
 			end
 		end
 	end
 
+	-- Header
 	do
 		local line1 = ""
 		local line2 = ""
 		for k, v in ipairs(columns) do
 			if v.enabled then
-				local line2Fill
 
 				if beautify then
 					local paddingLeft, paddingRight = AlignText(v.name, alignment, maxLengthData[k], " ")
 					line1 = string.format("%s%s%s%s|", line1, paddingLeft, v.name, paddingRight)
-					line2Fill = MakePadding(maxLengthData[k], "-")
 				else
 					line1 = string.format("%s%s|", line1, v.name)
-					line2Fill = "-"
 				end
 
-				local left = (alignment == "left" or alignment == "center") and ":" or (beautify and "-" or "")
-				local right = (alignment == "right" or alignment == "center") and ":" or (beautify and "-" or "")
-				line2 = string.format("%s%s%s%s|", line2, left, line2Fill, right)
+				local leftAligmentMark = (alignment == "left" or alignment == "center") and ":" or (beautify and "-" or "")
+				local rightAligmentMark = (alignment == "right" or alignment == "center") and ":" or (beautify and "-" or "")
+				line2 = string.format("%s%s%s%s|", line2, leftAligmentMark, beautify and MakePadding(maxLengthData[k], "-") or "-", rightAligmentMark)
 			end
 		end
 
-		output = string.format("%s%s\n", output, string.format("|%s", line1:sub(1,-2)))
-		output = string.format("%s%s\n", output, string.format("|%s", line2:sub(1,-2)))
+		output = string.format("%s%s\n", output, string.format("|%s", beautify and line1 or line1:sub(1,-2)))
+		output = string.format("%s%s\n", output, string.format("|%s", beautify and line2 or line2:sub(1,-2)))
 	end
 
 	for _, v in ipairs(data) do
@@ -175,7 +186,7 @@ function Md.Export(data)
 		for k, c in pairs(v) do
 
 			if type(c) == "string" then
-				c = c:gsub("(%[.*%]%(.*%))", "\\%1")
+				c = SanitizeText(c)
 			end
 
 			if type(c) == "boolean" or type(c) == "number" then
@@ -190,7 +201,7 @@ function Md.Export(data)
 			end
 		end
 
-		output = string.format("%s%s\n", output, string.format("|%s", line:sub(1,-2)))
+		output = string.format("%s%s\n", output, string.format("|%s", beautify and line or line:sub(1,-2)))
 	end
 
 	return output:sub(1,-2)
