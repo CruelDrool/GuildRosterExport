@@ -19,6 +19,20 @@ local Settings = {}
 
 Private.Settings = Settings
 
+local fontsDirectoryPath = ([[%s\Fonts]]):format(Utils.constants.ADDON_ROOT_PATH)
+
+local fonts = {
+	{
+		name = "Roboto Mono Regular",
+		file = ([[%s\RobotoMono-Regular.ttf]]):format(fontsDirectoryPath),
+		langmask = Utils.libs.LibSharedMedia.LOCALE_BIT_western + Utils.libs.LibSharedMedia.LOCALE_BIT_ruRU,
+	},
+}
+
+for _, font in ipairs(fonts) do
+	Utils.libs.LibSharedMedia:Register("font", font.name, font.file, font.langmask)
+end
+
 -- Base options table.
 local options = {
 		name = Utils.constants.ADDON_NAME,
@@ -98,6 +112,12 @@ local defaults = {
 			},
 			ctrlcAction = 2, -- Return to options
 			maxLetters = 2000000,
+			font = {
+				name = (Translate:GetGameLocale() == "koKR" or Translate:GetGameLocale() == "zhCN" or Translate:GetGameLocale() == "zhTW") and Utils.libs.LibSharedMedia:GetDefault("font") or fonts[1].name,
+				size = 11,
+				color = {1,1,1,1},
+				flags = "",
+			},
 		},
 	}
 }
@@ -213,6 +233,7 @@ local function GetGlobalOptions(order)
 	for _, columnInfo in ipairs(Private.db.profile.columns) do
 		table.insert(sortColumnDropdown, columnInfo.name)
 	end
+
 	local global = {
 		order = order,
 		type = "group",
@@ -347,6 +368,84 @@ local function GetGlobalOptions(order)
 						values = {L["Close everything"], L["Return to options"], L["Do nothing"]},
 						get = function() return Private.db.profile.exportFrame.ctrlcAction end,
 						set = function(info, value) Private.db.profile.exportFrame.ctrlcAction = tonumber(value) end,
+					},
+					font = {
+						order = 4,
+						type = "group",
+						guiInline = true,
+						name = L["Font"],
+						args = {
+							name = {
+								order = 1,
+								type = "select",
+								style = "dropdown",
+								width = 1.5,
+								name = L["Name"],
+								values = function()
+									local fonts = {}
+									for _, v in ipairs(Utils.libs.LibSharedMedia:List("font")) do
+										fonts[v] = v
+									end
+
+									return fonts
+								end,
+								sorting = function() return Utils.libs.LibSharedMedia:List("font") end,
+								get = function() return Private.db.profile.exportFrame.font.name end,
+								set = function(info, value) Private.db.profile.exportFrame.font.name = value end,
+							},
+							spacer1 = {order = 2, width = "full", type = "description", name = ""},
+							size = {
+								order = 3,
+								type = "range",
+								min = 1,
+								max = 32,
+								step = 1,
+								width = "normal",
+								name = L["Size"],
+								get = function() return Private.db.profile.exportFrame.font.size end,
+								set = function(info, value) Private.db.profile.exportFrame.font.size = value end,
+							},
+							spacer2 = {order = 4, width = "full", type = "description", name = ""},
+							flags = {
+								order = 5,
+								type = "select",
+								style = "dropdown",
+								name = L["Flags"],
+								values = {
+									[""] = L["None"],
+									["OUTLINE"] = L["Outline"],
+									["THICKOUTLINE"] = L["Thick Outline"],
+									["MONOCHROME"] = L["Monochrome"],
+									["MONOCHROME, OUTLINE"] = ("%s (%s)"):format(L["Monochrome"], L["Outline"]),
+									["MONOCHROME, THICKOUTLINE"] =("%s (%s)"):format(L["Monochrome"], L["Thick Outline"]),
+									["SLUG"] = ("[%s] %s"):format(L["Slug"], L["None"]),
+									["SLUG, OUTLINE"] = ("[%s] %s"):format(L["Slug"], L["Outline"]),
+									["SLUG, THICKOUTLINE"] = ("[%s] %s"):format(L["Slug"], L["Thick Outline"]),
+								},
+								sorting = {
+									"",
+									"OUTLINE",
+									"THICKOUTLINE",
+									"MONOCHROME",
+									"MONOCHROME, OUTLINE",
+									"MONOCHROME, THICKOUTLINE",
+									"SLUG",
+									"SLUG, OUTLINE",
+									"SLUG, THICKOUTLINE",
+								},
+								get = function() return Private.db.profile.exportFrame.font.flags end,
+								set = function(info, value) Private.db.profile.exportFrame.font.flags = value end,
+							},
+							spacer3 = {order = 6, width = "full", type = "description", name = ""},
+							color = {
+								order = 7,
+								type = "color",
+								hasAlpha = true,
+								name = L["Color"],
+								get = function() return unpack(Private.db.profile.exportFrame.font.color) end,
+								set = function(info, r, g, b, a) Private.db.profile.exportFrame.font.color={r, g, b, a} end,
+							},
+						}
 					},
 				},
 			},
@@ -525,6 +624,17 @@ function Settings:InsertGuildRanksIntoOptions()
 			set = function(info, value) Private.db.profile.ranks[k] = value end,
 		}
 	end
+end
+
+function Settings:InsertFonts()
+	if not options.args then return end
+
+	local fonts = {}
+	for _, v in ipairs(Utils.libs.LibSharedMedia:List("font")) do
+		fonts[v] = v
+	end
+
+	options.args.settings.args.global.args.exportFrame.args.font.values = fonts
 end
 
 function Settings:ConvertOldConfig()

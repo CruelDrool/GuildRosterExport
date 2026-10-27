@@ -1,3 +1,5 @@
+local addonFolder = ...
+
 ---@class Private
 local Private = select(2, ...)
 
@@ -5,7 +7,8 @@ local Private = select(2, ...)
 local Utils = {}
 
 Utils.constants = {
-	ADDON_NAME  = ...
+	ADDON_NAME  = addonFolder,
+	ADDON_ROOT_PATH = ([[Interface\AddOns\%s]]):format(addonFolder),
 }
 
 Utils.colors = {
@@ -30,6 +33,7 @@ Utils.libs = {
 	AceConfigRegistry = LibStub("AceConfigRegistry-3.0"),
 	AceDB = LibStub("AceDB-3.0"),
 	AceDBOptions = LibStub("AceDBOptions-3.0"),
+	LibSharedMedia = LibStub("LibSharedMedia-3.0"),
 }
 
 function Utils.GetTabSub(n)

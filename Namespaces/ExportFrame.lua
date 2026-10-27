@@ -30,6 +30,8 @@ function ExportFrame:Show()
 	frame.closeButton:SetText(L["Close"])
 	frame.returnButton:SetText(L["Return"])
 	frame.editBox:HighlightText()
+	frame.editBox:SetFont(Utils.libs.LibSharedMedia:Fetch("font", Private.db.profile.exportFrame.font.name), Private.db.profile.exportFrame.font.size, Private.db.profile.exportFrame.font.flags)
+	frame.editBox:SetTextColor(unpack(Private.db.profile.exportFrame.font.color))
 	frame.scrollFrame:SetVerticalScroll(0)
 	frame:Show()
 end
@@ -115,7 +117,6 @@ do
 	local eb = CreateFrame("EditBox", nil, sf)
 	eb:SetMultiLine(true)
 	eb:SetAutoFocus(true)
-	eb:SetFontObject("ChatFontNormal")
 	eb:SetScript("OnEscapePressed", closeFunction)
 
 	local isCtrlDown = false
