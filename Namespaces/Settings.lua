@@ -229,10 +229,6 @@ end
 ---@param order number
 ---@return table
 local function GetGlobalOptions(order)
-	local sortColumnDropdown = {}
-	for _, columnInfo in ipairs(Private.db.profile.columns) do
-		table.insert(sortColumnDropdown, columnInfo.name)
-	end
 
 	local global = {
 		order = order,
@@ -306,7 +302,14 @@ local function GetGlobalOptions(order)
 						type = "select",
 						style = "dropdown",
 						name = L["Primary column"],
-						values = sortColumnDropdown,
+						values = function()
+							local tbl = {}
+							for _, columnInfo in ipairs(Private.db.profile.columns) do
+								table.insert(tbl, columnInfo.name)
+							end
+
+							return tbl
+						end,
 						get = function() return Private.db.profile.sorting.primaryColumnID end,
 						set = function(info, value) Private.db.profile.sorting.primaryColumnID = tonumber(value) end,
 					},
@@ -324,7 +327,14 @@ local function GetGlobalOptions(order)
 						type = "select",
 						style = "dropdown",
 						name = L["Secondary column"],
-						values = sortColumnDropdown,
+						values = function()
+							local tbl = {}
+							for _, columnInfo in ipairs(Private.db.profile.columns) do
+								table.insert(tbl, columnInfo.name)
+							end
+
+							return tbl
+						end,
 						get = function() return Private.db.profile.sorting.secondaryColumnID end,
 						set = function(info, value) Private.db.profile.sorting.secondaryColumnID = tonumber(value) end,
 					},
