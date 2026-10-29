@@ -525,7 +525,7 @@ local function GetLocalizationsOptions(order)
 	local localizations ={
 		order = order,
 		type = "group",
-		name = "Localizations",
+		name = L["Localizations"],
 		args = {
 			select = {
 				order = 4,
@@ -541,7 +541,6 @@ local function GetLocalizationsOptions(order)
 						Translate:SetLocale(value)
 						AceConfigDialog:Close(Utils.constants.ADDON_NAME)
 						Settings:GetOptions()
-						Settings:InsertGuildRanksIntoOptions()
 						C_Timer.After(0.25, function()
 							AceConfigDialog:Open(Utils.constants.ADDON_NAME)
 						end)
@@ -593,10 +592,20 @@ function Settings:GetOptions()
 				columns = GetColumnOptions(1),
 				ranks = {
 					order = 2,
-					type = "group",
+					type = "multiselect",
 					name = L["Ranks"],
-					guiInline = true,
-					args = {}, -- self:InsertGuildRanksIntoOptions
+					values = function()
+						local tbl = {}
+						for k in ipairs(defaults.profile.ranks) do
+							local rankName = GuildControlGetRankName(k)
+
+							table.insert(tbl, ("%s - %s"):format(k, rankName ~= "" and rankName or L["Unknown"]))
+						end
+
+						return tbl
+					end,
+					set = function(info, key, value) Private.db.profile.ranks[key] = value end,
+					get = function(info, key) return Private.db.profile.ranks[key]  end,
 				},
 				global = GetGlobalOptions(3),
 			},
@@ -611,30 +620,6 @@ function Settings:GetOptions()
 	end
 
 	return options
-end
-
-function Settings:InsertGuildRanksIntoOptions()
-
-	if not options.args then return end
-
-	for k, v in ipairs(defaults.profile.ranks) do
-		-- local rankName = GuildControlGetRankName(k)
-		local rankName = GuildControlGetRankName(k)
-
-		if rankName == "" then
-			rankName = L["Unknown"]
-		end
-
-		rankName = string.format("%1$s - %2$s", k, rankName)
-
-		options.args.settings.args.ranks.args["rank"..tostring(k)] = {
-			order = k,
-			type = "toggle",
-			name = rankName,
-			get = function() return Private.db.profile.ranks[k] end,
-			set = function(info, value) Private.db.profile.ranks[k] = value end,
-		}
-	end
 end
 
 function Settings:ConvertOldConfig()

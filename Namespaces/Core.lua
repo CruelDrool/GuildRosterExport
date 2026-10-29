@@ -128,7 +128,6 @@ function Core:ToggleOptions()
 		PlaySound(Utils.sounds.closeOptions)
 		AceConfigDialog:Close(Utils.constants.ADDON_NAME)
 	else
-		Settings:InsertGuildRanksIntoOptions()
 		PlaySound(Utils.sounds.openOptions)
 		AceConfigDialog:Open(Utils.constants.ADDON_NAME)
 	end
