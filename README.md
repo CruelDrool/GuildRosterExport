@@ -16,9 +16,10 @@ A small addon that focuses on exporting the in-game guild roster to various form
 - Each format have their own settings.
 
 ### Supported formats
-- CSV (default)
+- CSV
 - HTML*
 - JSON*
+- MD (Markdown)
 - XML*
 - YAML*
 
