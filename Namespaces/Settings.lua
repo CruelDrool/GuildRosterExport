@@ -322,8 +322,9 @@ local function GetGlobalOptions(order)
 						get = function() return Private.db.profile.sorting.primarySortOrder end,
 						set = function(info, value) Private.db.profile.sorting.primarySortOrder = tonumber(value) end,
 					},
+					spacer1 = {order = 4, width = "full", type = "description", name = ""},
 					secondaryColumnID = {
-						order = 4,
+						order = 5,
 						type = "select",
 						style = "dropdown",
 						name = L["Secondary column"],
@@ -339,7 +340,7 @@ local function GetGlobalOptions(order)
 						set = function(info, value) Private.db.profile.sorting.secondaryColumnID = tonumber(value) end,
 					},
 					secondarySortOrder = {
-						order = 5,
+						order = 6,
 						type = "select",
 						style = "dropdown",
 						name = L["Sort order"],
