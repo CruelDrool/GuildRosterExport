@@ -637,17 +637,6 @@ function Settings:InsertGuildRanksIntoOptions()
 	end
 end
 
-function Settings:InsertFonts()
-	if not options.args then return end
-
-	local fonts = {}
-	for _, v in ipairs(Utils.libs.LibSharedMedia:List("font")) do
-		fonts[v] = v
-	end
-
-	options.args.settings.args.global.args.exportFrame.args.font.values = fonts
-end
-
 function Settings:ConvertOldConfig()
 	Private.db.profile.exportFrame.maxLetters = Private.db.profile.maxLetters or Private.db.profile.exportFrame.maxLetters
 	Private.db.profile.maxLetters = nil
