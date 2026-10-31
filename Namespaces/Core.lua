@@ -89,6 +89,35 @@ function Core:PLAYER_ENTERING_WORLD(event, isInitialLogin, isReloadingUi)
 		-- Request updated guild roster data from the server. This will trigger "GUILD_ROSTER_UPDATE".
 		C_GuildInfo.GuildRoster()
 	end
+
+	if isInitialLogin then
+		-- Load fonts so the font dropdown doesn't contain any blank entries.
+		local frame = CreateFrame("Frame")
+		local fontString = UIParent:CreateFontString(nil, "BACKGROUND")
+		fontString:SetPoint("TOPLEFT", -500)
+		frame:SetScript("OnUpdate", function(s)
+			if not s.last or s.last < GetTime() - 0.125 then
+				s.last = GetTime()
+
+				local tbl = Utils.libs.LibSharedMedia:HashTable("font")
+
+				s.key = next(tbl, s.key)
+
+				if not s.key then -- End of table.
+					s:SetScript("OnUpdate", nil)
+
+					C_Timer.After(1, function()
+						fontString:Hide()
+					end)
+
+					return
+				end
+
+				fontString:SetFont(tbl[s.key], 1, "")
+				fontString:SetText(s.key) -- Need to set a text different from the previous one so that the font loads.
+			end
+		end)
+	end
 end
 
 function Core:GUILD_ROSTER_UPDATE(event)

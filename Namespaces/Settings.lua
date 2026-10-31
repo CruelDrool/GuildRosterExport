@@ -389,18 +389,11 @@ local function GetGlobalOptions(order)
 							name = {
 								order = 1,
 								type = "select",
-								style = "dropdown",
+								-- style = "dropdown",
+								dialogControl = "LSM30_Font",
 								width = 1.5,
 								name = L["Name"],
-								values = function()
-									local fonts = {}
-									for _, v in ipairs(Utils.libs.LibSharedMedia:List("font")) do
-										fonts[v] = v
-									end
-
-									return fonts
-								end,
-								sorting = function() return Utils.libs.LibSharedMedia:List("font") end,
+								values = Utils.libs.LibSharedMedia:HashTable("font"),
 								get = function() return Private.db.profile.exportFrame.font.name end,
 								set = function(info, value) Private.db.profile.exportFrame.font.name = value end,
 							},

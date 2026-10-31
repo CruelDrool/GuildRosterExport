@@ -12,5 +12,6 @@
 	<Script file="LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
 	<Include file="LibDBIcon-1.0\lib.xml" />
 	<Include file="LibSharedMedia-3.0\lib.xml" />
+	<Include file="AceGUI-3.0-SharedMediaWidgets\widget.xml"/>
 	<!--@end-no-lib-strip@-->
 </Ui>
