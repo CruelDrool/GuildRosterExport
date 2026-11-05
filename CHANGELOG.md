@@ -1,7 +1,7 @@
 # GuildRosterExport
 
-## [x.y.z] - xxxx-xx-xx
-[View full changelog](https://github.com/CruelDrool/GuildRosterExport/blob/master/CHANGELOG-FULL.md) | [View code](https://github.com/CruelDrool/GuildRosterExport/tree/x.y.z) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.5...x.y.z) | [Previous releases](https://github.com/CruelDrool/GuildRosterExport/releases)
+## [2.2.0] - 2026-11-05
+[View full changelog](https://github.com/CruelDrool/GuildRosterExport/blob/master/CHANGELOG-FULL.md) | [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.2.0) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.5...2.2.0) | [Previous releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
 ### Fixed
 - Sorting settings: dropdown values for "Primary column" and "Secondary column" will now update after column names have been changed.
