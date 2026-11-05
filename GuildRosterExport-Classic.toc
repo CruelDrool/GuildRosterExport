@@ -1,10 +1,10 @@
 ## Interface: 11509
 ## Version: @project-version@
 ## Title: GuildRosterExport
-## Notes: Export the guild roster to CSV, HTML, JSON, XML or YAML.
+## Notes: Export the guild roster to CSV, HTML, JSON, MD, XML or YAML.
 ## Author: CruelDrool
 ## SavedVariables: GuildRosterExportDB
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, LibSharedMedia-3.0, _DebugLog
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibDBIcon-1.0, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, _DebugLog
 ## IconTexture: Interface\AddOns\GuildRosterExport\icon
 ## Category: Data Export
 ## X-Date: @file-date-iso@
