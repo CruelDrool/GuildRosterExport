@@ -183,7 +183,7 @@ end
 
 ---Retrieve registered locales.
 ---@param strict boolean? Only those with at least one translated entry.
----@return table<number, string> list Table/array of registered locales
+---@return table<number, localecode> list Table/array of registered locales
 function Translate:GetRegisteredLocales(strict)
 	local list = {}
 	for localeCode, localeTbl in pairs(registeredLocales) do

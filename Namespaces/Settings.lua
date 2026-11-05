@@ -505,14 +505,25 @@ end
 local function GetLocalizationsOptions(order)
 	local defaultLocale = Translate:GetDefaultLocale()
 	local localeStats = Translate:GetStats()
-	local localeSelect = {}
-	for _, locale in ipairs(Translate:GetRegisteredLocales()) do
+	local registeredLocales = Translate:GetRegisteredLocales()
+	local sortTemp, sorting, localeSelect = {}, {}, {}
+
+	for _, locale in ipairs(registeredLocales) do
+		table.insert(sortTemp, {name = L[locale], code = locale})
 		local current = locale == Translate:GetGameLocale() and L["Current game localization."] or ""
 		if locale == defaultLocale then
 			localeSelect[locale] = L["%s. Default addon localization. %s"]:format(L[locale], current):trim()
 		else
 			localeSelect[locale] = L["%s. %.2f%% translated. %s"]:format(L[locale], localeStats[locale].translated / localeStats[defaultLocale].total * 100, current):trim()
 		end
+	end
+
+	table.sort(sortTemp, function(a, b)
+		return a.name < b.name
+	end)
+
+	for _, v in ipairs(sortTemp) do
+		table.insert(sorting, v.code)
 	end
 
 	local localizations ={
@@ -527,6 +538,7 @@ local function GetLocalizationsOptions(order)
 				width = "full",
 				name = "",
 				values = localeSelect,
+				sorting = sorting,
 				get = function() return Translate:GetCurrentLocale() end,
 				set = function(info, value)
 					if value ~= Private.db.global.locale then
