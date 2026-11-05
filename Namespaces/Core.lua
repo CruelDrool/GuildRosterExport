@@ -322,7 +322,7 @@ function Core:ExportData(fileFormat, saveToDB)
 
 				table.insert(row, lastOnline)
 
-				local realmName = row[1]:match("-([^-]+)")
+				local realmName = row[1]:match("-([^-]+)") or GetNormalizedRealmName()
 
 				-- Cross realm names have, for some reason, their realm name repeated. Very weird. This fixes that.
 				row[1] = row[1]:gsub("^([^-]+)-([^-]+)-.+", "%1-%2")
