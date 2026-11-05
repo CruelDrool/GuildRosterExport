@@ -112,7 +112,7 @@ local function AlignText(text, alignment, maxLength, paddingCharacter)
 	elseif alignment == "center" then
 		paddingLength = paddingLength + 2
 		local paddingLenLeft = math.floor(paddingLength/2)
-		local paddingLenRight = math.floor(paddingLength/2)+paddingLength%2
+		local paddingLenRight = math.ceil(paddingLength/2)
 		paddingLeft = MakePadding(paddingLenLeft, paddingCharacter)
 		paddingRight = MakePadding(paddingLenRight, paddingCharacter)
 	elseif alignment == "right" then
