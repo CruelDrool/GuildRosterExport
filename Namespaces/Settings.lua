@@ -54,6 +54,7 @@ local defaults = {
 		adjustRankIndex = true,
 		lastOnlineHours = false,
 		autoExport = false,
+		loadFonts = true,
 		sorting = {
 			enabled = true,
 			primaryColumnID = 3,
@@ -275,16 +276,26 @@ local function GetGlobalOptions(order)
 				get = function() return Private.db.profile.lastOnlineHours end,
 				set = function(info, value) Private.db.profile.lastOnlineHours = value end,
 			},
-			autoExport = {
+			loadFonts = {
 				order = 6,
 				type = "toggle",
+				width = "full",
+				name = L["Load fonts from LibSharedMedia when logging in or reloading UI"],
+				desc = L["This prevents blank entries in the dropdown for fonts."],
+				get = function() return Private.db.profile.loadFonts end,
+				set = function(info, value) Private.db.profile.loadFonts = value end,
+			},
+			autoExport = {
+				order = 7,
+				type = "toggle",
+				width = "full",
 				name = L["Automatic export"],
 				desc = L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown.\n\nBeing in a guild is required for this to work."],
 				get = function() return Private.db.profile.autoExport end,
 				set = function(info, value) Private.db.profile.autoExport = value; Private.db.profile.autoExportSave = nil end,
 			},
 			sorting = {
-				order = 7,
+				order = 8,
 				type = "group",
 				guiInline = true,
 				name = L["Sorting"],
@@ -351,7 +362,7 @@ local function GetGlobalOptions(order)
 				}
 			},
 			exportFrame = {
-				order = 8,
+				order = 9,
 				type = "group",
 				guiInline = true,
 				name = L["Export frame"],
@@ -454,7 +465,7 @@ local function GetGlobalOptions(order)
 				},
 			},
 			indentation = {
-				order = 9,
+				order = 10,
 				type = "group",
 				guiInline = true,
 				name = L["Indentation"],
