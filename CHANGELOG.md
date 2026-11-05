@@ -20,3 +20,4 @@
 ### Changed
 - Updated library LibDBIcon-1.0 to version 12.1.2 (r167)
 - Updated test rosters.
+- Updated enUS localization.
