@@ -8,6 +8,7 @@ embedded-libraries:
  - ace3
  - libdbicon-1-0
  - libsharedmedia-3-0
+ - ace-gui-3-0-shared-media-widgets
 
 tools-used:
  - libdatabroker-1-1
