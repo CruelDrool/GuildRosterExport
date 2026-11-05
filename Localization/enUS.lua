@@ -4,7 +4,7 @@ local Private = select(2, ...)
 -- English localization file for enUS and enGB.
 local L = Private.Translate:RegisterDefaultLocale("enUS")
 
-L["tocNotes"] = "Export the guild roster to CSV, HTML, JSON, XML or YAML."
+L["tocNotes"] = "Export the guild roster to CSV, HTML, JSON, MD, XML or YAML."
 
 -- EXPORT FRAME
 L["Close"] = true
@@ -27,6 +27,7 @@ L["HTML"] = true
 L["XML"] = true
 L["JSON"] = true
 L["YAML"] = true
+L["MD"] = true
 
 -- OPTIONS
 L["Minimap icon"] = true
@@ -82,6 +83,8 @@ L["Adjust rank index in column #3"] = true
 L["The index normally starts at 0, but this setting adjusts that to 1."] = true
 L["Use hours since last online in column #18"] = true
 L["Calculates how many hours have passed since last being online."] = true
+L["Load fonts from LibSharedMedia when logging in or reloading UI"] = true
+L["This prevents blank entries in the dropdown for fonts."] = true
 L["Automatic export"] = true
 L["Automatically do an export whenever the guild roster updates and save it in this character's database profile, which is stored within this addon's saved variable. The export frame won't be shown.\n\nBeing in a guild is required for this to work."] = true
 
@@ -97,22 +100,38 @@ L["Descending"] = true
 L["Export frame"] = true
 L["Maximum letters"] = true
 L["Set the maximum number of letters that the export window can show. Set this to empty or 0 to use Blizzard's default."] = true
+
+-- OPTIONS: Settings -> Global - Export frame - Ctrl-C
+L["What action to take when using %1$s+C or %1$s+X"] = true
 L["Cmd"] = true
 L["Ctrl"] = true
-L["What action to take when using %1$s+C or %1$s+X"] = true
 L["Close everything"] = true
 L["Return to options"] = true
 L["Do nothing"] = true
 
+-- OPTIONS: Settings -> Global - Export frame - Font
+L["Font"] = true
+L["Name"] = true
+L["Size"] = true
+L["Flags"] = true
+L["Color"] = true
+L["None"] = true
+L["Outline"] = true
+L["Monochrome"] = true
+L["Thick Outline"] = true
+L["Slug"] = true
+
 -- OPTIONS: Settings -> Global - Indentation
 L["Indentation"] = true
+L["Depth"] = true
+L["Set the depth used when spaces are set as indentation style. A smaller depth shortens the time before the data is displayed."] = true
+L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs works just fine and will be displayed correctly in a text editor."] = true
+
+-- OPTIONS: Settings -> Global - Indentation - Style
 L["Style"] = true
 L["Select what style to use when exporting HTML, JSON, and XML."] = true
 L["Spaces"] = true
 L["Tabs"] = true
-L["Depth"] = true
-L["Set the depth used when spaces are set as indentation style. A smaller depth shortens the time before the data is displayed."] = true
-L["Spaces are the default indentation style because tabs may be displayed as a strange symbol in the export window. However, copying the tabs works just fine and will be displayed correctly in a text editor."] = true
 
 -- OPTIONS: Settings -> CSV
 L["Header"] = true
@@ -139,14 +158,24 @@ L["Each record's element name"] = true
 
 -- OPTIONS: Settings -> JSON
 
+-- OPTIONS: Settings -> MD
+L["Column alignment"] = true
+L["Left"] = true
+L["Center"] = true
+L["Right"] = true
+
 -- OPTIONS: Settings -> YAML
 L["Quotation mark"] = true
 L["What type of quotation mark to use when strings need to be put in quotes."] = true
 L["Double"] = true
 L["Single"] = true
 
-
 -- OPTIONS: Localizations
+L["Localizations"] = true
+L["%s. %.2f%% translated. %s"] = true
+L["%s. Default addon localization. %s"] = true
+L["Current game localization."] = true
+
 L["deDE"] = "German (DE)"
 L["enUS"] = "English (US)"
 L["esES"] = "Spanish (ES)"
@@ -158,7 +187,3 @@ L["ptBR"] = "Portuguese (BR)"
 L["ruRU"] = "Russian (RU)"
 L["zhCN"] = "Chinese (CN)"
 L["zhTW"] = "Chinese (TW)"
-
-L["%s. %.2f%% translated. %s"] = true
-L["%s. Default addon localization. %s"] = true
-L["Current game localization."] = true
