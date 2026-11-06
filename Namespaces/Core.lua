@@ -274,15 +274,15 @@ local function GetTestRoster(self, currentTime)
 	elseif WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
 		maxLevel = 60
 		tbl = {
-			{"Coldbarr Lastname","Initiate",4,maxLevel,GetClassInfo(8),location,"","",false,0,"MAGE",0,0,false,false,0,"Player-9999-3129C53",GeneratelastOnline(),realmName},
-			{"Borre Lastname","Member",3,maxLevel,GetClassInfo(7),location,"","",false,0,"SHAMAN",0,0,false,false,0,"Player-9999-EFB134A",GeneratelastOnline(),realmName},
-			{"Dedli Lastname","Member",3,maxLevel,GetClassInfo(4),location,"","",false,0,"ROGUE",0,0,false,false,0,"Player-9999-6AB86C5",GeneratelastOnline(),realmName},
-			{"Ongel Lastname","Member",3,maxLevel,GetClassInfo(2),location,"","",false,0,"PALADIN",0,0,false,false,0,"Player-9999-AE48979",GeneratelastOnline(),realmName},
-			{"Sylis Lastname","Member",3,maxLevel,GetClassInfo(11),location,"","",false,0,"DRUID",0,0,false,false,0,"Player-9999-3794CAB",GeneratelastOnline(),realmName},
-			{"Falka Lastname","Veteran",2,maxLevel,GetClassInfo(5),location,"","",false,0,"PRIEST",0,0,false,false,0,"Player-9999-BF7C323",GeneratelastOnline(),realmName},
-			{"Pawind Lastname","Veteran",2,maxLevel,GetClassInfo(3),location,"","",false,0,"HUNTER",0,0,false,false,0,"Player-9999-E10B3D9",GeneratelastOnline(),realmName},
-			{"Dexxer Lastname","Officer",1,maxLevel,GetClassInfo(9),location,"","",false,0,"WARLOCK",0,0,false,false,0,"Player-9999-ED50CED",GeneratelastOnline(),realmName},
-			{"Leewar Lastname","Guild Master",0,maxLevel,GetClassInfo(1),location,"","",false,0,"WARRIOR",0,0,false,false,0,"Player-9999-DA07A3A",GeneratelastOnline(),realmName},
+			{"Coldbarr Lastname","Initiate",4,maxLevel,GetClassInfo(8),location,"","",false,0,"MAGE",0,0,false,false,0,"Player-9999-3129C53",GeneratelastOnline(),""},
+			{"Borre Lastname","Member",3,maxLevel,GetClassInfo(7),location,"","",false,0,"SHAMAN",0,0,false,false,0,"Player-9999-EFB134A",GeneratelastOnline(),""},
+			{"Dedli Lastname","Member",3,maxLevel,GetClassInfo(4),location,"","",false,0,"ROGUE",0,0,false,false,0,"Player-9999-6AB86C5",GeneratelastOnline(),""},
+			{"Ongel Lastname","Member",3,maxLevel,GetClassInfo(2),location,"","",false,0,"PALADIN",0,0,false,false,0,"Player-9999-AE48979",GeneratelastOnline(),""},
+			{"Sylis Lastname","Member",3,maxLevel,GetClassInfo(11),location,"","",false,0,"DRUID",0,0,false,false,0,"Player-9999-3794CAB",GeneratelastOnline(),""},
+			{"Falka Lastname","Veteran",2,maxLevel,GetClassInfo(5),location,"","",false,0,"PRIEST",0,0,false,false,0,"Player-9999-BF7C323",GeneratelastOnline(),""},
+			{"Pawind Lastname","Veteran",2,maxLevel,GetClassInfo(3),location,"","",false,0,"HUNTER",0,0,false,false,0,"Player-9999-E10B3D9",GeneratelastOnline(),""},
+			{"Dexxer Lastname","Officer",1,maxLevel,GetClassInfo(9),location,"","",false,0,"WARLOCK",0,0,false,false,0,"Player-9999-ED50CED",GeneratelastOnline(),""},
+			{"Leewar Lastname","Guild Master",0,maxLevel,GetClassInfo(1),location,"","",false,0,"WARRIOR",0,0,false,false,0,"Player-9999-DA07A3A",GeneratelastOnline(),""},
 		}
 	else
 		maxLevel = 60
@@ -337,10 +337,15 @@ function Core:ExportData(fileFormat, saveToDB)
 
 				table.insert(row, lastOnline)
 
-				local realmName = row[1]:match("-([^-]+)") or GetNormalizedRealmName()
+				local realmName
 
-				-- Cross realm names have, for some reason, their realm name repeated. Very weird. This fixes that.
-				row[1] = row[1]:gsub("^([^-]+)-([^-]+)-.+", "%1-%2")
+				if WOW_PROJECT_ID == WOW_PROJECT_CAMELOT then
+					realmName = ""
+				else
+					realmName = row[1]:match("-([^-]+)") or GetNormalizedRealmName()
+					-- Cross realm names have, for some reason, their realm name repeated. Very weird. This fixes that.
+					row[1] = row[1]:gsub("^([^-]+)-([^-]+)-.+", "%1-%2")
+				end
 
 				table.insert(row, realmName)
 
@@ -385,7 +390,7 @@ function Core:ExportData(fileFormat, saveToDB)
 					if not columns[k].enabled then
 						row[k] = nil
 					else
-						if removeRealmFromName and k == 1 then
+						if removeRealmFromName and WOW_PROJECT_ID ~= WOW_PROJECT_CAMELOT and k == 1 then
 							row[k] = row[k]:gsub("-.+","")
 						end
 

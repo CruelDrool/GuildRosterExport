@@ -253,6 +253,7 @@ local function GetGlobalOptions(order)
 				order = 3,
 				type = "toggle",
 				width = "full",
+				hidden = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT,
 				name = L["Remove realm name in column #1"],
 				desc = L[ [["Arthas-Silvermoon" will become "Arthas".]] ],
 				get = function() return Private.db.profile.removeRealmFromName end,
