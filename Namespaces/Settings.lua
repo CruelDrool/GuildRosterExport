@@ -47,7 +47,7 @@ local defaults = {
 	},
 	profile = {
 		minimapIcon = {
-			showInCompartment = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE,
+			showInCompartment = AddonCompartmentFrame ~= nil,
 		},
 		fileFormat = "csv";
 		removeRealmFromName = true,
