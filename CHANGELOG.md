@@ -8,5 +8,8 @@
 ### Added
 
 ### Changed
+- \[Forever\] Column "realmName" will now be empty.
+- \[Forever\] Hide option to remove realm name from character name.
+- Register with Addon Compartment in other clients than Retail. Requires that the Addon Compartment is available in the client.
 
 ### Removed
