@@ -1,7 +1,7 @@
 # GuildRosterExport
 
-## [x.y.z] - xxx-xx-xx
-[View full changelog](https://github.com/CruelDrool/GuildRosterExport/blob/master/CHANGELOG-FULL.md) | [View code](https://github.com/CruelDrool/GuildRosterExport/tree/x.y.z) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.2.0...x.y.z) | [Previous releases](https://github.com/CruelDrool/GuildRosterExport/releases)
+## [2.2.1] - 2026-11-07
+[View full changelog](https://github.com/CruelDrool/GuildRosterExport/blob/master/CHANGELOG-FULL.md) | [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.2.1) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.2.0...2.2.1) | [Previous releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
 ### Changed
 - \[Forever\] Column "realmName" will now be empty.

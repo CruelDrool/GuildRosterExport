@@ -8,6 +8,17 @@ Format for this changelog is based on [Keep a Changelog](https://keepachangelog.
 
 [View all releases](https://github.com/CruelDrool/GuildRosterExport/releases)
 
+## [2.2.1] - 2026-11-07
+[View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.2.1) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.2.0...2.2.1)
+
+### Changed
+- \[Forever\] Column "realmName" will now be empty.
+- \[Forever\] Hide option to remove realm name from character name.
+- Register with Addon Compartment in other clients than Retail. Requires that the Addon Compartment is available in the client.
+- Updated library Ace3 to version r1424 alpha. This version contains AceDB-3.0 r40 which has better support for profiles in Forever. 
+
+**NB!** Everyone who used version 2.2.0 in Forever will get a new profile when they log in but the old one is still available to copy from!
+
 ## [2.2.0] - 2026-11-05
 [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.2.0) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.5...2.2.0)
 
@@ -29,7 +40,6 @@ Format for this changelog is based on [Keep a Changelog](https://keepachangelog.
 - Updated library LibDBIcon-1.0 to version 12.1.2 (r167)
 - Updated test rosters.
 - Updated enUS localization.
-
 
 ## [2.1.5] - 2026-09-01
 [View code](https://github.com/CruelDrool/GuildRosterExport/tree/2.1.5) | [View commits](https://github.com/CruelDrool/GuildRosterExport/compare/2.1.4...2.1.5)
